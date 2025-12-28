@@ -94,6 +94,9 @@ func main() {
 	r.POST("/auth", func(c *gin.Context) {
 		AuthUser(c, db)
 	})
+	r.POST("/artist", func(c *gin.Context) {
+		AddArtist(c, db)
+	})
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
@@ -182,6 +185,27 @@ func AuthenticateUser(db *sql.DB, u *User) error {
 	}
 
 	return errors.New("error")
+}
+
+// Add Artist ...
+
+func AddArtist(c *gin.Context, db *sql.DB) error {
+	var artist Artist
+	if err := c.BindJSON(&artist); err != nil {
+		return err
+	}
+
+	query := fmt.Sprintf("INSERT INTO artists VALUES ('%s', '%s')", uuid.New().String(), artist.Name)
+
+	log.Print(query)
+
+	_, err := db.Exec(query)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // func AddArtist(db *sql.DB) error {
