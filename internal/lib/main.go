@@ -195,7 +195,8 @@ func AddArtist(c *gin.Context, db *sql.DB) error {
 		return err
 	}
 
-	query := fmt.Sprintf("INSERT INTO artists VALUES ('%s', '%s')", uuid.New().String(), artist.Name)
+	query := fmt.Sprintf("INSERT INTO artists VALUES ('%s', '%s')",
+		uuid.New().String(), artist.Name)
 
 	log.Print(query)
 
@@ -208,126 +209,46 @@ func AddArtist(c *gin.Context, db *sql.DB) error {
 	return nil
 }
 
-// func AddArtist(db *sql.DB) error {
-// 	query := fmt.Sprintf("INSERT INTO artists VALUES ('%s', '%s')", uuid.New().String(), "John Doe")
+// Add Track ...
 
-// 	log.Print(query)
+func AddTrack(c *gin.Context, db *sql.DB) error {
+	var track Track
+	if err := c.BindJSON(&track); err != nil {
+		return err
+	}
 
-// 	_, err := db.Exec(query)
+	query := fmt.Sprintf("INSERT INTO tracks VALUES ('%s', '%s', '%s', '%s')",
+		uuid.New().String(), track.Title, track.Duration, track.AudioURL)
 
-// 	if err != nil {
-// 		return err
-// 	}
+	log.Print(query)
 
-// 	return nil
-// }
+	_, err := db.Exec(query)
 
-// func CreateAlbum(db *sql.DB) error {
-// 	query := fmt.Sprintf("INSERT INTO albums VALUES ('%s', '%s', '%s')", uuid.New().String(), "Album Title", time.Now().Format(time.RFC3339))
+	if err != nil {
+		return err
+	}
 
-// 	log.Print(query)
+	return nil
+}
 
-// 	_, err := db.Exec(query)
+// Add Album ...
 
-// 	if err != nil {
-// 		return err
-// 	}
+func AddAlbum(c *gin.Context, db *sql.DB) error {
+	var album Album
+	if err := c.BindJSON(&album); err != nil {
+		return err
+	}
 
-// 	return nil
-// }
+	query := fmt.Sprintf("INSERT INTO albums VALUES ('%s', '%s', '%s', '%s')",
+		uuid.New().String(), album.Title, album.ArtistID, album.ReleaseDate.Format(time.RFC3339))
 
-// func CreatePlaylist(db *sql.DB) error {
-// 	query := fmt.Sprintf("INSERT INTO playlists VALUES ('%s', '%s', '%s')", uuid.New().String(), "Playlist Title", time.Now().Format(time.RFC3339))
+	log.Print(query)
 
-// 	log.Print(query)
+	_, err := db.Exec(query)
 
-// 	_, err := db.Exec(query)
+	if err != nil {
+		return err
+	}
 
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func CreatePlaylistTrack(db *sql.DB) error {
-// 	query := fmt.Sprintf("INSERT INTO playlist_tracks VALUES ('%s', '%s', '%s')", uuid.New().String(), "Playlist ID", "Track ID")
-
-// 	log.Print(query)
-
-// 	_, err := db.Exec(query)
-
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func streamTrack(w http.ResponseWriter, r *http.Request) {
-// 	trackID := gin.URLParam(r, "id")
-// 	userID := r.Context().Value("userID").(string)
-
-// 	track, err := h.trackService.StreamTrack(r.Context(), userID, trackID)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	// В реальном сервисе здесь был бы стриминг файла
-// 	json.NewEncoder(w).Encode(track)
-// }
-
-// func (bd *sql.DB) FindByID(ctx context.Context, id uuid.UUID) (*domain.Track, error) {
-// 	query := `
-//         SELECT id, title, album_id, duration, track_number, audio_url, plays_count
-//         FROM tracks WHERE id = $1
-//     `
-
-// 	var track domain.Track
-// 	err := r.db.QueryRowContext(ctx, query, id).Scan(
-// 		&track.ID, &track.Title, &track.AlbumID, &track.Duration,
-// 		&track.TrackNumber, &track.AudioURL, &track.PlaysCount,
-// 	)
-
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return &track, nil
-// }
-
-// func (s *TrackService) StreamTrack(ctx context.Context, userID, trackID string) (*domain.Track, error) {
-// 	// Проверяем кэш
-// 	cacheKey := fmt.Sprintf("track:%s", trackID)
-// 	cachedTrack, err := s.redis.Get(ctx, cacheKey)
-// 	if err == nil && cachedTrack != "" {
-// 		// Возвращаем из кэша
-// 	}
-
-// 	// Получаем трек из БД
-// 	trackUUID, _ := uuid.Parse(trackID)
-// 	track, err := s.trackRepo.FindByID(ctx, trackUUID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	// Инкрементируем счетчик прослушиваний
-// 	go func() {
-// 		s.trackRepo.IncrementPlays(context.Background(), trackUUID)
-// 	}()
-
-// 	// Сохраняем в историю
-// 	history := &domain.StreamingHistory{
-// 		ID:       uuid.New(),
-// 		UserID:   userUUID,
-// 		TrackID:  trackUUID,
-// 		PlayedAt: time.Now(),
-// 		Duration: 0, // обновляется при завершении прослушивания
-// 	}
-
-// 	// Сохраняем в кэш
-// 	s.redis.Set(ctx, cacheKey, track, 10*time.Minute)
-
-// 	return track, nil
-// }
+	return nil
+}
