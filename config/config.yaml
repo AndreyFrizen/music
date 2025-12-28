@@ -1,0 +1,5 @@
+env: "local"
+storagePath: ""
+redisPath: ""
+server:
+  address: "localhost:8080"
