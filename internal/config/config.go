@@ -19,7 +19,9 @@ type Server struct {
 
 // LoadConfig loads the configuration from YAML file
 func LoadConfig() (*Config, error) {
-	viper.SetConfigFile(`D:\zed\golang\message\config\config.yaml`)
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("/home/andrey/golang-proj/music/musicdrevier/config")
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file: %v", err)
