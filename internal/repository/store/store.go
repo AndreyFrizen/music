@@ -8,6 +8,17 @@ import (
 	"github.com/google/uuid"
 )
 
+type Repository interface {
+	CreateUser(u *model.User) error
+	GetUserByID(id string) (*model.User, error)
+	Authenticate(u *model.User) (*model.User, error)
+	AddArtist(a *model.Artist) error
+	AddTrack(t *model.Track) error
+	AddAlbum(a *model.Album) error
+	CreatePlaylist(p *model.Playlist) error
+	AddTrackToPlaylist(p *model.PlaylistTrack) error
+}
+
 type Store struct {
 	db *sql.DB
 }

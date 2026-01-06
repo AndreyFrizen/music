@@ -7,36 +7,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// UserRepository interface
-type UserRepository interface {
-	CreateUser(u *User) error
-	GetUserByID(id string) (*User, error)
-	Authenticate(u *User) (*User, error)
-}
-
-// ArtistRepository interface
-type ArtistRepository interface {
-	AddArtist(a *Artist) error
-}
-
-type TrackRepository interface {
-	AddTrack(t *Track) error
-}
-
-// AlbumRepository interface
-type AlbumRepository interface {
-	AddAlbum(a *Album) error
-}
-
-// PlaylistRepository interface
-type PlaylistRepository interface {
-	CreatePlaylist(p *Playlist) error
-	AddTrackToPlaylist(t *PlaylistTrack) error
-}
-
 // User represents a user in the system
 type User struct {
-	ID                uuid.UUID `json:"-" db:"id"`
+	ID                uuid.UUID `json:"id" db:"id"`
 	Username          string    `json:"username" db:"username" validate:"required,min=2,max=50"`
 	Password          string    `json:"password,omitempty" validate:"required,min=6,max=100"`
 	EncryptedPassword string    `json:"encrypted_password" db:"password"`

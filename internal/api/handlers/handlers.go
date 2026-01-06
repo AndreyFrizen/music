@@ -1,84 +1,58 @@
 package handlers
 
 import (
-	"database/sql"
-	"fmt"
 	"mess/internal/model"
-	auth "mess/internal/service"
+	services "mess/internal/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
+type Handl struct {
+	service services.MusicServices
+}
+
+type Handler interface {
+	RegisterUser(c *gin.Context) error
+	AddArtist(c *gin.Context) error
+	AddTrack(c *gin.Context) error
+	AddAlbum(c *gin.Context) error
+	AddPlaylist(c *gin.Context) error
+	AddTrackToPlaylist(c *gin.Context) error
+}
+
+func NewHandler(repo services.MusicServices) *Handl {
+	return &Handl{
+		service: repo,
+	}
+}
+
 // Register User in app.
-func RegisterUser(c *gin.Context, store model.UserRepository) {
+func (h *Handl) RegisterUser(c *gin.Context) error {
 	var user model.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	err := auth.UserService(user, store)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
-}
-
-// Auth ...
-func AuthUser(c *gin.Context, db *sql.DB) {
-	var user model.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := AuthenticateUser(db, &user); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Auth user successfully"})
-}
-
-func AuthenticateUser(db *sql.DB, u *model.User) error {
-	query := fmt.Sprintf("SELECT password FROM users WHERE email = '%s'", u.Email)
-
-	rows, err := db.Query(query)
-	if err != nil {
 		return err
 	}
 
-	defer rows.Close()
-
-	if rows.Next() {
-		var Password string
-
-		if err := rows.Scan(&Password); err != nil {
-			return err
-		}
-
-		if err := bcrypt.CompareHashAndPassword([]byte(Password), []byte(u.Password)); err != nil {
-			return err
-		}
-
-		return nil
+	err := h.service.UserService(&user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return err
 	}
 
+	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
 	return nil
 }
 
 // Add Artist ...
-func AddArtist(c *gin.Context, store model.ArtistRepository) error {
+func (h *Handl) AddArtist(c *gin.Context) error {
 	var artist model.Artist
 	if err := c.BindJSON(&artist); err != nil {
 		return err
 	}
 
-	if err := auth.ArtistService(artist, store); err != nil {
+	if err := h.service.ArtistService(&artist); err != nil {
 		return err
 	}
 
@@ -86,13 +60,13 @@ func AddArtist(c *gin.Context, store model.ArtistRepository) error {
 }
 
 // Add Track ...
-func AddTrack(c *gin.Context, store model.TrackRepository) error {
+func (h *Handl) AddTrack(c *gin.Context) error {
 	var track model.Track
 	if err := c.BindJSON(&track); err != nil {
 		return err
 	}
 
-	if err := auth.TrackService(track, store); err != nil {
+	if err := h.service.TrackService(&track); err != nil {
 		return err
 	}
 
@@ -100,13 +74,13 @@ func AddTrack(c *gin.Context, store model.TrackRepository) error {
 }
 
 // Add Album ...
-func AddAlbum(c *gin.Context, store model.AlbumRepository) error {
+func (h *Handl) AddAlbum(c *gin.Context) error {
 	var album model.Album
 	if err := c.BindJSON(&album); err != nil {
 		return err
 	}
 
-	if err := auth.AlbumService(album, store); err != nil {
+	if err := h.service.AlbumService(&album); err != nil {
 		return err
 	}
 
@@ -114,13 +88,13 @@ func AddAlbum(c *gin.Context, store model.AlbumRepository) error {
 }
 
 // Add Playlist ...
-func CreatePlaylist(c *gin.Context, store model.PlaylistRepository) error {
+func (h *Handl) AddPlaylist(c *gin.Context) error {
 	var playlist model.Playlist
 	if err := c.BindJSON(&playlist); err != nil {
 		return err
 	}
 
-	if err := auth.PlaylistService(playlist, store); err != nil {
+	if err := h.service.PlaylistService(&playlist); err != nil {
 		return err
 	}
 
@@ -128,15 +102,25 @@ func CreatePlaylist(c *gin.Context, store model.PlaylistRepository) error {
 }
 
 // Add track to playlist ...
-func AddTrackToPlaylist(c *gin.Context, store model.PlaylistRepository) error {
+func (h *Handl) AddTrackToPlaylist(c *gin.Context) error {
 	var trackToPlaylist model.PlaylistTrack
 	if err := c.BindJSON(&trackToPlaylist); err != nil {
 		return err
 	}
 
-	if err := auth.PlaylistTrackService(trackToPlaylist, store); err != nil {
+	if err := h.service.PlaylistTrackService(&trackToPlaylist); err != nil {
 		return err
 	}
 
 	return nil
 }
+
+// Get track stream ...
+// func (h *Handl) GetTrackStream(c *gin.Context) error {
+
+// 	if err := auth.GetTrackStream(); err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }

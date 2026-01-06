@@ -7,7 +7,10 @@ import (
 	"mess/internal/api/handlers"
 	"mess/internal/config"
 	"mess/internal/repository/store"
+	services "mess/internal/service"
+	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
@@ -20,6 +23,9 @@ const (
 )
 
 func main() {
+	var storeRepository store.Repository
+	var serviceMusic services.MusicServices
+	var handler handlers.Handler
 	// Load configuration from YAML file
 	config, err := config.LoadConfig()
 	if err != nil {
@@ -32,16 +38,60 @@ func main() {
 	// Initialize database connection
 	db, err := sql.Open("sqlite3", config.StoragePath)
 	if err != nil {
-		log.Error("Failed to connect to database: %v", err)
+		log.Error("Failed to connect to database")
+	}
+
+	if err := db.Ping(); err != nil {
+		log.Error("Failed to ping database")
 	}
 	defer db.Close()
 
-	store := store.NewStore(db)
+	storeRepository = store.NewStore(db)
+	serviceMusic = services.NewMusicService(storeRepository)
+	handler = handlers.NewHandler(serviceMusic)
 
 	// Initialize router
 	r := gin.Default()
 	r.POST("/register", func(ctx *gin.Context) {
-		handlers.RegisterUser(ctx, store)
+		err := handler.RegisterUser(ctx)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+	})
+	// r.GET("/track", func(ctx *gin.Context) {
+	// 	handlers.GetTrackStream(ctx)
+	// })
+	r.GET("/play/:filename", func(c *gin.Context) {
+		filename := c.Param("filename")
+		filep := "/home/andrey/projects/music/static/" + filename
+
+		// Проверяем существование файла
+		if _, err := os.Stat(filep); os.IsNotExist(err) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "File not found"})
+			return
+		}
+
+		// Открываем файл
+		file, err := os.Open(filep)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		defer file.Close()
+
+		// Получаем информацию о файле
+		fileInfo, _ := file.Stat()
+
+		// Определяем Content-Type
+		contentType := "audio/mpeg"
+
+		// Устанавливаем заголовки для потоковой передачи
+		c.Header("Content-Type", contentType)
+		c.Header("Content-Length", strconv.FormatInt(fileInfo.Size(), 10))
+		c.Header("Accept-Ranges", "bytes")
+
+		// Потоковая передача всего файла
+		http.ServeContent(c.Writer, c.Request, filename, fileInfo.ModTime(), file)
 	})
 
 	// r.POST("/login", handlers.LoginUser())

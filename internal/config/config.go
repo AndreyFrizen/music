@@ -21,7 +21,7 @@ type Server struct {
 func LoadConfig() (*Config, error) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("/home/andrey/golang-proj/music/musicdrevier/config")
+	viper.AddConfigPath("/home/andrey/projects/music/config")
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file: %v", err)
