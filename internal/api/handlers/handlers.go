@@ -3,6 +3,7 @@ package handlers
 import (
 	"mess/internal/model"
 	services "mess/internal/service"
+	artistsAdd "mess/static/templates"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -35,7 +36,7 @@ func (h *Handl) RegisterUser(c *gin.Context) error {
 		return err
 	}
 
-	err := h.service.UserService(&user)
+	err := h.service.RegisterService(&user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return err
@@ -56,7 +57,7 @@ func (h *Handl) AddArtist(c *gin.Context) error {
 		return err
 	}
 
-	return nil
+	return artistsAdd.PageComponent(&artist).Render(c, c.Writer)
 }
 
 // Add Track ...

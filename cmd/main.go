@@ -52,15 +52,46 @@ func main() {
 
 	// Initialize router
 	r := gin.Default()
+
+	// Handlers post
 	r.POST("/register", func(ctx *gin.Context) {
 		err := handler.RegisterUser(ctx)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 	})
-	// r.GET("/track", func(ctx *gin.Context) {
-	// 	handlers.GetTrackStream(ctx)
-	// })
+	r.POST("/addartist", func(ctx *gin.Context) {
+		err := handler.AddArtist(ctx)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+	})
+	r.POST("/addtrack", func(ctx *gin.Context) {
+		err := handler.AddTrack(ctx)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+	})
+	r.POST("/addalbum", func(ctx *gin.Context) {
+		err := handler.AddAlbum(ctx)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+	})
+	r.POST("/addplaylist", func(ctx *gin.Context) {
+		err := handler.AddPlaylist(ctx)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+	})
+	r.POST("/addtracktoplaylist", func(ctx *gin.Context) {
+		err := handler.AddTrackToPlaylist(ctx)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+	})
+
+	// Handlers get
 	r.GET("/play/:filename", func(c *gin.Context) {
 		filename := c.Param("filename")
 		filep := "/home/andrey/projects/music/static/" + filename
@@ -94,12 +125,7 @@ func main() {
 		http.ServeContent(c.Writer, c.Request, filename, fileInfo.ModTime(), file)
 	})
 
-	// r.POST("/login", handlers.LoginUser())
-	// r.POST("/artists", handlers.CreateArtist())
-	// r.POST("/tracks", handlers.CreateTrack())
-	// r.POST("/albums", handlers.CreateAlbum())
-	// r.POST("/playlists", handlers.CreatePlaylist())
-	// r.POST("/playlists/:playlist_id/tracks", handlers.AddTrackToPlaylist())
+	// Run router
 	r.Run("localhost:8080")
 }
 

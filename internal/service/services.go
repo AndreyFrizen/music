@@ -12,7 +12,7 @@ type MusicService struct {
 }
 
 type MusicServices interface {
-	UserService(*model.User) error
+	RegisterService(*model.User) error
 	ArtistService(*model.Artist) error
 	TrackService(*model.Track) error
 	AlbumService(*model.Album) error
@@ -32,7 +32,7 @@ func init() {
 	validate = validator.New()
 }
 
-func (m *MusicService) UserService(user *model.User) error {
+func (m *MusicService) RegisterService(user *model.User) error {
 	err := validate.Struct(user)
 	err = user.EncryptPassword()
 	err = m.repo.CreateUser(user)
