@@ -3,14 +3,13 @@ package handlers
 import (
 	"mess/internal/model"
 	services "mess/internal/service"
-	artistsAdd "mess/static/templates"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Handl struct {
-	service services.MusicServices
+	service services.MusicInterfaceService
 }
 
 type Handler interface {
@@ -22,7 +21,7 @@ type Handler interface {
 	AddTrackToPlaylist(c *gin.Context) error
 }
 
-func NewHandler(repo services.MusicServices) *Handl {
+func NewHandler(repo services.MusicInterfaceService) *Handl {
 	return &Handl{
 		service: repo,
 	}
@@ -57,7 +56,7 @@ func (h *Handl) AddArtist(c *gin.Context) error {
 		return err
 	}
 
-	return artistsAdd.PageComponent(&artist).Render(c, c.Writer)
+	return nil
 }
 
 // Add Track ...

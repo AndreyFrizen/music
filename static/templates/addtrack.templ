@@ -1,0 +1,8 @@
+package templs
+
+import "mess/internal/model"
+
+templ AddTrackPage(track *model.Track) {
+  <h1>Track Added</h1>
+  <div>{track.Title}</div>
+}

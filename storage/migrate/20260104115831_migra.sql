@@ -21,7 +21,9 @@ CREATE TABLE tracks (
 	id TEXT PRIMARY KEY,
 	title TEXT NOT NULL,
 	duration INTEGER NOT NULL,
-	audio_url TEXT NOT NULL
+	audio_url TEXT NOT NULL,
+	artist_id TEXT NOT NULL,
+	FOREIGN KEY (artist_id) REFERENCES artists(id)
 );
 CREATE TABLE playlists (
 	playlist_id TEXT PRIMARY KEY,

@@ -1,8 +1,8 @@
-package artistsAdd
+package templs
 
 import "mess/internal/model"
 
-templ PageComponent(artist *model.Artist) {
-  <h1>Artist Add</h1>
+templ AddArtistPage(artist *model.Artist) {
+  <h1>Artist Added</h1>
   <div>{artist.Name}</div>
 }

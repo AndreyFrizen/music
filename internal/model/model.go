@@ -36,6 +36,7 @@ type Track struct {
 	Title    string    `json:"title" db:"title"`
 	Duration time.Time `json:"duration" db:"duration"`
 	AudioURL string    `json:"audio_url" db:"audio_url"`
+	ArtistID uuid.UUID `json:"artist_id" db:"artist_id"`
 }
 
 // Playlist represents a playlist in the system

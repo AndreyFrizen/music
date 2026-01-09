@@ -24,7 +24,7 @@ const (
 
 func main() {
 	var storeRepository store.Repository
-	var serviceMusic services.MusicServices
+	var serviceMusic services.InterfaceService
 	var handler handlers.Handler
 	// Load configuration from YAML file
 	config, err := config.LoadConfig()
@@ -47,7 +47,7 @@ func main() {
 	defer db.Close()
 
 	storeRepository = store.NewStore(db)
-	serviceMusic = services.NewMusicService(storeRepository)
+	serviceMusic = services.NewService(storeRepository)
 	handler = handlers.NewHandler(serviceMusic)
 
 	// Initialize router
