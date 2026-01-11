@@ -24,7 +24,7 @@ type Artist struct {
 
 // Album represents an album in the system
 type Album struct {
-	ID          uuid.UUID `json:"id,omitempty" db:"id"`
+	ID          uuid.UUID `json:"id" db:"id"`
 	Title       string    `json:"title" db:"title"`
 	ArtistID    uuid.UUID `json:"artist_id" db:"artist_id"`
 	ReleaseDate time.Time `json:"release_date" db:"release_date"`

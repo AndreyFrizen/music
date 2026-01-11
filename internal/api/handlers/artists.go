@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"mess/internal/model"
+	templs "mess/static/templates"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ import (
 type artistHandler interface {
 	CreateArtist(c *gin.Context) error
 	ArtistByID(c *gin.Context) error
+	Artists(c *gin.Context) error
 }
 
 // ArtistByID retrieves an artist by ID.
@@ -45,4 +47,14 @@ func (h *Handler) CreateArtist(c *gin.Context) error {
 
 	c.JSON(http.StatusCreated, gin.H{"message": "artist created"})
 	return nil
+}
+
+func (h *Handler) Artists(c *gin.Context) error {
+	artists, err := h.service.Artists()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return err
+	}
+
+	return templs.ArtistsPage(artists).Render(c, c.Writer)
 }

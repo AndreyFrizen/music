@@ -12,7 +12,7 @@ import (
 	"github.com/go-playground/assert/v2"
 )
 
-func TestPostUser(t *testing.T) {
+func Test_ArtistHandler(t *testing.T) {
 	router := gin.New()
 	router.POST("/addartist", func(c *gin.Context) {
 		var artist model.Artist

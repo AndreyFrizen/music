@@ -79,10 +79,8 @@ func main() {
 		}
 	})
 	r.POST("/addplaylist", func(ctx *gin.Context) {
-		err := handler.CreatePlaylist(ctx)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		handler.CreatePlaylist(ctx)
+
 	})
 	r.POST("/addtracktoplaylist", func(ctx *gin.Context) {
 		err := handler.AddTrackToPlaylist(ctx)
@@ -123,6 +121,9 @@ func main() {
 
 		// Потоковая передача всего файла
 		http.ServeContent(c.Writer, c.Request, filename, fileInfo.ModTime(), file)
+	})
+	r.GET("/artists", func(c *gin.Context) {
+		handler.Artists(c)
 	})
 
 	// Run router

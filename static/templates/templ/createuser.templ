@@ -1,0 +1,8 @@
+package templs
+
+import "mess/internal/model"
+
+templ CreateUser(user *model.User) {
+  <h1>User Created</h1>
+  <div>{user.Username}</div>
+}

@@ -1,0 +1,9 @@
+package templs
+
+import "mess/internal/model"
+
+templ ArtistsPage(artists []model.Artist) {
+  		for _, item := range artists {
+    		<div>{ item.Name }</div>
+    	}
+}

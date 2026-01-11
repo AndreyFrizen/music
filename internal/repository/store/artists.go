@@ -10,6 +10,7 @@ import (
 type artistRepository interface {
 	CreateArtist(a *model.Artist) error
 	ArtistByID(id string) (*model.Artist, error)
+	Artists() ([]model.Artist, error)
 }
 
 // Post
@@ -45,4 +46,32 @@ func (s *Store) ArtistByID(id string) (*model.Artist, error) {
 	}
 
 	return &artist, nil
+}
+
+func (s *Store) Artists() ([]model.Artist, error) {
+	query := "SELECT name FROM artists"
+
+	rows, err := s.db.Query(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var artists []model.Artist
+
+	for rows.Next() {
+		var artist model.Artist
+
+		err := rows.Scan(&artist.Name)
+
+		if err != nil {
+			return nil, err
+		}
+
+		artists = append(artists, artist)
+	}
+
+	return artists, nil
 }

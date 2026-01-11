@@ -3,8 +3,8 @@
 CREATE TABLE users (
     id TEXT PRIMARY KEY,
     username TEXT NOT NULL,
-    password TEXT NOT NULL UNIQUE,
-    email TEXT NOT NULL
+    password TEXT NOT NULL ,
+    email TEXT NOT NULL UNIQUE
     );
 CREATE TABLE artists (
 	id TEXT PRIMARY KEY,
