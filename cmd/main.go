@@ -25,7 +25,7 @@ const (
 func main() {
 	var storeRepository store.Repository
 	var serviceMusic services.InterfaceService
-	var handler handlers.Handler
+	var handler handlers.HandlerInterface
 	// Load configuration from YAML file
 	config, err := config.LoadConfig()
 	if err != nil {
@@ -61,7 +61,7 @@ func main() {
 		}
 	})
 	r.POST("/addartist", func(ctx *gin.Context) {
-		err := handler.AddArtist(ctx)
+		err := handler.CreateArtist(ctx)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
@@ -79,7 +79,7 @@ func main() {
 		}
 	})
 	r.POST("/addplaylist", func(ctx *gin.Context) {
-		err := handler.AddPlaylist(ctx)
+		err := handler.CreatePlaylist(ctx)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}

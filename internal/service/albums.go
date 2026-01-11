@@ -7,6 +7,7 @@ type albumService interface {
 	AlbumByID(id string) (*model.Album, error)
 }
 
+// AddAlbum adds a new album
 func (m *Service) AddAlbum(album *model.Album) error {
 	return m.repo.AddAlbum(album)
 }
