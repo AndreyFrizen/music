@@ -6,8 +6,8 @@ require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-playground/assert/v2 v2.2.0
 	github.com/go-playground/validator/v10 v10.30.1
+	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
-	github.com/magiconair/properties v1.8.10
 	github.com/mattn/go-sqlite3 v1.14.32
 	github.com/spf13/viper v1.21.0
 	golang.org/x/crypto v0.46.0
