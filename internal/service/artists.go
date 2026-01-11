@@ -9,10 +9,10 @@ type artistService interface {
 
 // ArtistService creates a new artist
 func (m *Service) CreateArtist(artist *model.Artist) error {
-	return m.repo.CreateArtist(artist)
+	return m.Repo.CreateArtist(artist)
 }
 
 // ArtistService retrieves an artist by ID
 func (m *Service) ArtistByID(id string) (*model.Artist, error) {
-	return m.repo.ArtistByID(id)
+	return m.Repo.ArtistByID(id)
 }

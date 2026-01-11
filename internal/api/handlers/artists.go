@@ -7,6 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//go:generate mockgen -source=artists.go -destination=mocks/mock_artist_handler.go
+
 type artistHandler interface {
 	CreateArtist(c *gin.Context) error
 	ArtistByID(c *gin.Context) error

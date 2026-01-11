@@ -7,6 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//go:generate mockgen -source=albums.go -destination=mocks/mock_album_handler.go
+
 type albumHandler interface {
 	AlbumByID(c *gin.Context) error
 	AddAlbum(c *gin.Context) error

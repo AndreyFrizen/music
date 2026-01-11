@@ -15,12 +15,12 @@ type InterfaceService interface {
 }
 
 type Service struct {
-	repo store.Repository
+	Repo store.Repository
 }
 
 func NewService(repo store.Repository) *Service {
 	return &Service{
-		repo: repo,
+		Repo: repo,
 	}
 }
 

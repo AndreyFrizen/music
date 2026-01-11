@@ -13,12 +13,12 @@ type userService interface {
 func (m *Service) Register(user *model.User) error {
 	err := validate.Struct(user)
 	err = user.EncryptPassword()
-	err = m.repo.CreateUser(user)
+	err = m.Repo.CreateUser(user)
 
 	return err
 }
 
 // UserByID retrieves a user by ID
 func (m *Service) UserByID(id string) (*model.User, error) {
-	return m.repo.UserByID(id)
+	return m.Repo.UserByID(id)
 }

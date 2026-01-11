@@ -10,15 +10,15 @@ type playlistService interface {
 
 // PlaylistService creates a new playlist
 func (m *Service) CreatePlaylist(playlist *model.Playlist) error {
-	return m.repo.CreatePlaylist(playlist)
+	return m.Repo.CreatePlaylist(playlist)
 }
 
 // PlaylistService retrieves a playlist by ID
 func (m *Service) PlaylistByID(id string) (*model.Playlist, error) {
-	return m.repo.PlaylistByID(id)
+	return m.Repo.PlaylistByID(id)
 }
 
 // DeletePlaylist deletes a playlist by ID
 func (m *Service) DeletePlaylist(id string) error {
-	return m.repo.DeletePlaylist(id)
+	return m.Repo.DeletePlaylist(id)
 }

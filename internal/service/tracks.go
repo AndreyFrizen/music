@@ -12,25 +12,25 @@ type trackService interface {
 
 // AddTrack adds a track to the database
 func (m *Service) AddTrack(track *model.Track) error {
-	return m.repo.AddTrack(track)
+	return m.Repo.AddTrack(track)
 }
 
 // AddTrackToPlaylist adds a track to a playlist
 func (m *Service) AddTrackToPlaylist(track *model.PlaylistTrack) error {
-	return m.repo.AddTrackToPlaylist(track)
+	return m.Repo.AddTrackToPlaylist(track)
 }
 
 // TrackByID retrieves a track by ID
 func (m *Service) TrackByID(id string) (*model.Track, error) {
-	return m.repo.TrackByID(id)
+	return m.Repo.TrackByID(id)
 }
 
 // TrackFromPlaylist retrieves a track from a playlist
 func (m *Service) TrackFromPlaylist(id string) (*model.Track, error) {
-	return m.repo.TrackFromPlaylist(id)
+	return m.Repo.TrackFromPlaylist(id)
 }
 
 // DeleteTrackFromPlaylist deletes a track from a playlist
 func (m *Service) DeleteTrackFromPlaylist(id string) error {
-	return m.repo.DeleteTrackFromPlaylist(id)
+	return m.Repo.DeleteTrackFromPlaylist(id)
 }

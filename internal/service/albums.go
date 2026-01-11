@@ -9,10 +9,10 @@ type albumService interface {
 
 // AddAlbum adds a new album
 func (m *Service) AddAlbum(album *model.Album) error {
-	return m.repo.AddAlbum(album)
+	return m.Repo.AddAlbum(album)
 }
 
 // AlbumByID retrieves an album by its ID.
 func (m *Service) AlbumByID(id string) (*model.Album, error) {
-	return m.repo.AlbumByID(id)
+	return m.Repo.AlbumByID(id)
 }
