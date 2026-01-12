@@ -10,6 +10,7 @@ import (
 type userHandler interface {
 	RegisterUser(c *gin.Context) error
 	UserByID(c *gin.Context) error
+	AuthMiddleware() gin.HandlerFunc
 }
 
 // Register User in app
@@ -40,5 +41,36 @@ func (h *Handler) UserByID(c *gin.Context) error {
 	}
 
 	c.JSON(http.StatusOK, user)
+	return nil
+}
+
+type inputUser struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=8,max=100"`
+}
+
+func (h *Handler) AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var inp inputUser
+		if err := c.ShouldBindJSON(&inp); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.Abort()
+			return
+		}
+		if err := Authenticate(h, inp.Email, inp.Password); err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "user not found"})
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
+
+func Authenticate(h *Handler, email, password string) error {
+	err := h.service.Auth(email, password)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

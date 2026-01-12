@@ -53,13 +53,16 @@ func main() {
 	// Initialize router
 	r := gin.Default()
 
-	// Handlers post
 	r.POST("/register", func(ctx *gin.Context) {
 		err := handler.RegisterUser(ctx)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 	})
+
+	r.Use(handler.AuthMiddleware())
+
+	// Handlers post
 	r.POST("/addartist", func(ctx *gin.Context) {
 		err := handler.CreateArtist(ctx)
 		if err != nil {

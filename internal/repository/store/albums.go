@@ -10,6 +10,8 @@ import (
 type albumRepository interface {
 	AddAlbum(a *model.Album) error
 	AlbumByID(id string) (*model.Album, error)
+	AlbumsByTitle(title string) ([]model.Album, error)
+	AlbumsByArtistID(artistID string) ([]model.Album, error)
 }
 
 // Post
@@ -45,4 +47,62 @@ func (s *Store) AlbumByID(id string) (*model.Album, error) {
 	}
 
 	return &album, nil
+}
+
+// AlbumsByTitle retrieves all albums by their title from the database.
+func (s *Store) AlbumsByTitle(title string) ([]model.Album, error) {
+	query := fmt.Sprintf("SELECT * FROM albums WHERE title = '%s'", title)
+
+	rows, err := s.db.Query(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var albums []model.Album
+
+	for rows.Next() {
+		var album model.Album
+
+		err := rows.Scan(&album.Title, &album.ArtistID, &album.ReleaseDate, &album.ID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		albums = append(albums, album)
+	}
+
+	return albums, nil
+}
+
+// AlbumsByArtistID retrieves all albums by their artist ID from the database.
+func (s *Store) AlbumsByArtistID(artistID string) ([]model.Album, error) {
+	query := fmt.Sprintf("SELECT * FROM albums WHERE artist_id = '%s'", artistID)
+
+	rows, err := s.db.Query(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var albums []model.Album
+
+	for rows.Next() {
+		var album model.Album
+
+		err := rows.Scan(&album.Title, &album.ArtistID, &album.ReleaseDate, &album.ID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		albums = append(albums, album)
+	}
+
+	return albums, nil
 }

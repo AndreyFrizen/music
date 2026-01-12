@@ -14,6 +14,7 @@ type artistHandler interface {
 	CreateArtist(c *gin.Context) error
 	ArtistByID(c *gin.Context) error
 	Artists(c *gin.Context) error
+	ArtistsByName(c *gin.Context) error
 }
 
 // ArtistByID retrieves an artist by ID.
@@ -57,4 +58,17 @@ func (h *Handler) Artists(c *gin.Context) error {
 	}
 
 	return templs.ArtistsPage(artists).Render(c, c.Writer)
+}
+
+// ArtistsByName retrieves artists by name.
+func (h *Handler) ArtistsByName(c *gin.Context) error {
+	name := c.Param("name")
+
+	_, err := h.service.ArtistsByName(name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return err
+	}
+
+	return nil
 }

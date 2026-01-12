@@ -13,6 +13,8 @@ type trackRepository interface {
 	TrackByID(id string) (*model.Track, error)
 	TrackFromPlaylist(id string) (*model.Track, error)
 	DeleteTrackFromPlaylist(id string) error
+	TracksByTitle(title string) ([]model.Track, error)
+	TracksByArtist(artistID string) ([]model.Track, error)
 }
 
 // Post
@@ -79,6 +81,64 @@ func (s *Store) TrackByID(id string) (*model.Track, error) {
 	}
 
 	return &track, nil
+}
+
+// TracksByTitle retrieves tracks by title from the database
+func (s *Store) TracksByTitle(title string) ([]model.Track, error) {
+	query := fmt.Sprintf("SELECT * FROM tracks WHERE title = '%s'", title)
+
+	rows, err := s.db.Query(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var tracks []model.Track
+
+	for rows.Next() {
+		var track model.Track
+
+		err := rows.Scan(&track.ID, &track.Title, &track.Duration, &track.AudioURL)
+
+		if err != nil {
+			return nil, err
+		}
+
+		tracks = append(tracks, track)
+	}
+
+	return tracks, nil
+}
+
+// TracksByArtist retrieves tracks by artist from the database
+func (s *Store) TracksByArtist(artistID string) ([]model.Track, error) {
+	query := fmt.Sprintf("SELECT * FROM tracks WHERE artist_id = '%s'", artistID)
+
+	rows, err := s.db.Query(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var tracks []model.Track
+
+	for rows.Next() {
+		var track model.Track
+
+		err := rows.Scan(&track.ID, &track.Title, &track.Duration, &track.AudioURL)
+
+		if err != nil {
+			return nil, err
+		}
+
+		tracks = append(tracks, track)
+	}
+
+	return tracks, nil
 }
 
 // Delete

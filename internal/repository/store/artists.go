@@ -11,6 +11,7 @@ type artistRepository interface {
 	CreateArtist(a *model.Artist) error
 	ArtistByID(id string) (*model.Artist, error)
 	Artists() ([]model.Artist, error)
+	ArtistsByName(name string) ([]model.Artist, error)
 }
 
 // Post
@@ -48,6 +49,7 @@ func (s *Store) ArtistByID(id string) (*model.Artist, error) {
 	return &artist, nil
 }
 
+// Artists retrieves all artists from the database
 func (s *Store) Artists() ([]model.Artist, error) {
 	query := "SELECT name FROM artists"
 
@@ -65,6 +67,35 @@ func (s *Store) Artists() ([]model.Artist, error) {
 		var artist model.Artist
 
 		err := rows.Scan(&artist.Name)
+
+		if err != nil {
+			return nil, err
+		}
+
+		artists = append(artists, artist)
+	}
+
+	return artists, nil
+}
+
+// ArtistsByName retrieves all artists by their name from the database
+func (s *Store) ArtistsByName(name string) ([]model.Artist, error) {
+	query := fmt.Sprintf("SELECT * FROM artists WHERE name = '%s'", name)
+
+	rows, err := s.db.Query(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var artists []model.Artist
+
+	for rows.Next() {
+		var artist model.Artist
+
+		err := rows.Scan(&artist.Name, &artist.ID)
 
 		if err != nil {
 			return nil, err

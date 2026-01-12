@@ -7,6 +7,8 @@ type trackService interface {
 	AddTrackToPlaylist(track *model.PlaylistTrack) error
 	TrackByID(id string) (*model.Track, error)
 	TrackFromPlaylist(id string) (*model.Track, error)
+	TracksByArtist(artistID string) ([]model.Track, error)
+	TracksByTitle(title string) ([]model.Track, error)
 	DeleteTrackFromPlaylist(id string) error
 }
 
@@ -33,4 +35,14 @@ func (m *Service) TrackFromPlaylist(id string) (*model.Track, error) {
 // DeleteTrackFromPlaylist deletes a track from a playlist
 func (m *Service) DeleteTrackFromPlaylist(id string) error {
 	return m.Repo.DeleteTrackFromPlaylist(id)
+}
+
+// TracksByArtist retrieves tracks by artist ID.
+func (m *Service) TracksByArtist(artistID string) ([]model.Track, error) {
+	return m.Repo.TracksByArtist(artistID)
+}
+
+// TracksByTitle retrieves tracks by title.
+func (m *Service) TracksByTitle(title string) ([]model.Track, error) {
+	return m.Repo.TracksByTitle(title)
 }

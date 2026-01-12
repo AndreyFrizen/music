@@ -13,6 +13,8 @@ type trackHandler interface {
 	TrackByID(c *gin.Context) error
 	TrackFromPlaylist(c *gin.Context) error
 	DeleteTrackFromPlaylist(c *gin.Context) error
+	TracksByTitle(c *gin.Context) error
+	TracksByArtist(c *gin.Context) error
 }
 
 // Add Track to Playlist
@@ -83,5 +85,33 @@ func (h *Handler) TrackFromPlaylist(c *gin.Context) error {
 	}
 
 	c.JSON(http.StatusOK, track)
+	return nil
+}
+
+// TracksByTitle retrieves tracks by title
+func (h *Handler) TracksByTitle(c *gin.Context) error {
+	title := c.Param("title")
+
+	tracks, err := h.service.TracksByTitle(title)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return err
+	}
+
+	c.JSON(http.StatusOK, tracks)
+	return nil
+}
+
+// TracksByArtist retrieves tracks by artist
+func (h *Handler) TracksByArtist(c *gin.Context) error {
+	artist := c.Param("artist")
+
+	tracks, err := h.service.TracksByArtist(artist)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return err
+	}
+
+	c.JSON(http.StatusOK, tracks)
 	return nil
 }

@@ -11,6 +11,7 @@ type userRepository interface {
 	CreateUser(u *model.User) error
 	UserByID(id string) (*model.User, error)
 	Authenticate(u *model.User) (*model.User, error)
+	UserByEmail(email string) (*model.User, error)
 }
 
 // Post
@@ -51,6 +52,23 @@ func (s *Store) Authenticate(u *model.User) (*model.User, error) {
 // Get user by id
 func (s *Store) UserByID(id string) (*model.User, error) {
 	query := fmt.Sprintf("SELECT * FROM users WHERE id = '%s'", id)
+
+	row := s.db.QueryRow(query)
+
+	var user model.User
+
+	err := row.Scan(&user.ID, &user.Username, &user.EncryptedPassword, &user.Email)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+// Get user by email
+func (s *Store) UserByEmail(email string) (*model.User, error) {
+	query := fmt.Sprintf("SELECT * FROM users WHERE email = '%s'", email)
 
 	row := s.db.QueryRow(query)
 

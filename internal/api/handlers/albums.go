@@ -12,6 +12,8 @@ import (
 type albumHandler interface {
 	AlbumByID(c *gin.Context) error
 	AddAlbum(c *gin.Context) error
+	AlbumsByTitle(c *gin.Context) error
+	AlbumsByArtist(c *gin.Context) error
 }
 
 // AddAlbum adds a new album to the platform
@@ -42,5 +44,33 @@ func (h *Handler) AlbumByID(c *gin.Context) error {
 	}
 
 	c.JSON(http.StatusOK, album)
+	return nil
+}
+
+// AlbumsByTitle retrieves albums by title
+func (h *Handler) AlbumsByTitle(c *gin.Context) error {
+	title := c.Param("title")
+
+	albums, err := h.service.AlbumsByTitle(title)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return err
+	}
+
+	c.JSON(http.StatusOK, albums)
+	return nil
+}
+
+// AlbumsByArtist retrieves albums by artist
+func (h *Handler) AlbumsByArtist(c *gin.Context) error {
+	artist := c.Param("artist")
+
+	albums, err := h.service.AlbumsByArtist(artist)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return err
+	}
+
+	c.JSON(http.StatusOK, albums)
 	return nil
 }
