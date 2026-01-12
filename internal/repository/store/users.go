@@ -10,7 +10,6 @@ import (
 type userRepository interface {
 	CreateUser(u *model.User) error
 	UserByID(id string) (*model.User, error)
-	Authenticate(u *model.User) (*model.User, error)
 	UserByEmail(email string) (*model.User, error)
 }
 
@@ -29,24 +28,6 @@ func (s *Store) CreateUser(u *model.User) error {
 	}
 
 	return nil
-}
-
-// Get
-
-// Authenticate user in database
-func (s *Store) Authenticate(u *model.User) (*model.User, error) {
-	var user model.User
-	query := fmt.Sprintf("SELECT * FROM users WHERE email = '%s'", u.Email)
-
-	row := s.db.QueryRow(query)
-
-	err := row.Scan(&user.ID, &user.Username, &user.EncryptedPassword, &user.Email)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
 }
 
 // Get user by id

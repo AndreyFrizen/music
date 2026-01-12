@@ -9,7 +9,7 @@ import (
 type userService interface {
 	Register(user *model.User) error
 	UserByID(id string) (*model.User, error)
-	Auth(email string, password string) error
+	Auth(user *model.User) error
 }
 
 // Register registers a new user
@@ -27,10 +27,10 @@ func (m *Service) UserByID(id string) (*model.User, error) {
 }
 
 // GetUserByEmail retrieves a user by email
-func (m *Service) Auth(email string, password string) error {
-	user, err := m.Repo.UserByEmail(email)
+func (m *Service) Auth(u *model.User) error {
+	user, err := m.Repo.UserByEmail(u.Email)
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.EncryptedPassword), []byte(user.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.EncryptedPassword), []byte(u.Password))
 	if err != nil {
 		return err
 	}

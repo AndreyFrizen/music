@@ -53,43 +53,38 @@ func main() {
 	// Initialize router
 	r := gin.Default()
 
-	r.POST("/register", func(ctx *gin.Context) {
-		err := handler.RegisterUser(ctx)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
-	})
-
-	r.Use(handler.AuthMiddleware())
-
 	// Handlers post
+
+	r.POST("/register", func(ctx *gin.Context) {
+		handler.RegisterUser(ctx)
+	})
+
+	r.Use(handlers.AuthMiddleware())
+
 	r.POST("/addartist", func(ctx *gin.Context) {
-		err := handler.CreateArtist(ctx)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		handler.CreateArtist(ctx)
+
 	})
+
+	r.POST("/login", func(ctx *gin.Context) {
+		handler.LoginUser(ctx)
+	})
+
 	r.POST("/addtrack", func(ctx *gin.Context) {
-		err := handler.AddTrack(ctx)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		handler.AddTrack(ctx)
 	})
+
 	r.POST("/addalbum", func(ctx *gin.Context) {
-		err := handler.AddAlbum(ctx)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		handler.AddAlbum(ctx)
 	})
+
 	r.POST("/addplaylist", func(ctx *gin.Context) {
 		handler.CreatePlaylist(ctx)
 
 	})
+
 	r.POST("/addtracktoplaylist", func(ctx *gin.Context) {
-		err := handler.AddTrackToPlaylist(ctx)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		handler.AddTrackToPlaylist(ctx)
 	})
 
 	// Handlers get

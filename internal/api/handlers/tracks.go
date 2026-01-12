@@ -8,110 +8,104 @@ import (
 )
 
 type trackHandler interface {
-	AddTrack(c *gin.Context) error
-	AddTrackToPlaylist(c *gin.Context) error
-	TrackByID(c *gin.Context) error
-	TrackFromPlaylist(c *gin.Context) error
-	DeleteTrackFromPlaylist(c *gin.Context) error
-	TracksByTitle(c *gin.Context) error
-	TracksByArtist(c *gin.Context) error
+	AddTrack(c *gin.Context)
+	AddTrackToPlaylist(c *gin.Context)
+	TrackByID(c *gin.Context)
+	TrackFromPlaylist(c *gin.Context)
+	DeleteTrackFromPlaylist(c *gin.Context)
+	TracksByTitle(c *gin.Context)
+	TracksByArtist(c *gin.Context)
 }
 
 // Add Track to Playlist
-func (h *Handler) AddTrackToPlaylist(c *gin.Context) error {
+func (h *Handler) AddTrackToPlaylist(c *gin.Context) {
 	var track model.PlaylistTrack
 	if err := c.BindJSON(&track); err != nil {
-		return err
+		return
 	}
 
 	if err := h.service.AddTrackToPlaylist(&track); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return err
+		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Track added to playlist successfully"})
-	return nil
 }
 
 // Add Track to platform
-func (h *Handler) AddTrack(c *gin.Context) error {
+func (h *Handler) AddTrack(c *gin.Context) {
 	var track model.Track
 	if err := c.BindJSON(&track); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return err
+		return
 	}
 
 	if err := h.service.AddTrack(&track); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return err
+		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Track added successfully"})
-	return nil
 }
 
 // Delete Track from playlist
-func (h *Handler) DeleteTrackFromPlaylist(c *gin.Context) error {
+func (h *Handler) DeleteTrackFromPlaylist(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.service.DeleteTrackFromPlaylist(id); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return err
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Track deleted successfully"})
-	return nil
 }
 
 // Get Track by ID
-func (h *Handler) TrackByID(c *gin.Context) error {
+func (h *Handler) TrackByID(c *gin.Context) {
 	id := c.Param("id")
 	track, err := h.service.TrackByID(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return err
+		return
 	}
 
 	c.JSON(http.StatusOK, track)
-	return nil
+
 }
 
 // Get Track from playlist
-func (h *Handler) TrackFromPlaylist(c *gin.Context) error {
+func (h *Handler) TrackFromPlaylist(c *gin.Context) {
 	id := c.Param("id")
 	track, err := h.service.TrackFromPlaylist(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return err
+		return
 	}
 
 	c.JSON(http.StatusOK, track)
-	return nil
 }
 
 // TracksByTitle retrieves tracks by title
-func (h *Handler) TracksByTitle(c *gin.Context) error {
+func (h *Handler) TracksByTitle(c *gin.Context) {
 	title := c.Param("title")
 
 	tracks, err := h.service.TracksByTitle(title)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return err
+		return
 	}
 
 	c.JSON(http.StatusOK, tracks)
-	return nil
 }
 
 // TracksByArtist retrieves tracks by artist
-func (h *Handler) TracksByArtist(c *gin.Context) error {
+func (h *Handler) TracksByArtist(c *gin.Context) {
 	artist := c.Param("artist")
 
 	tracks, err := h.service.TracksByArtist(artist)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return err
+		return
 	}
 
 	c.JSON(http.StatusOK, tracks)
-	return nil
 }

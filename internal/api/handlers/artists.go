@@ -11,64 +11,65 @@ import (
 //go:generate mockgen -source=artists.go -destination=mocks/mock_artist_handler.go
 
 type artistHandler interface {
-	CreateArtist(c *gin.Context) error
-	ArtistByID(c *gin.Context) error
-	Artists(c *gin.Context) error
-	ArtistsByName(c *gin.Context) error
+	CreateArtist(c *gin.Context)
+	ArtistByID(c *gin.Context)
+	Artists(c *gin.Context)
+	ArtistsByName(c *gin.Context)
 }
 
 // ArtistByID retrieves an artist by ID.
-func (h *Handler) ArtistByID(c *gin.Context) error {
+func (h *Handler) ArtistByID(c *gin.Context) {
 	id := c.Param("id")
 
 	artist, err := h.service.ArtistByID(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return err
+		return
 	}
 
 	c.JSON(http.StatusOK, artist)
-	return nil
 }
 
 // CreateArtist creates a new artist.
-func (h *Handler) CreateArtist(c *gin.Context) error {
+func (h *Handler) CreateArtist(c *gin.Context) {
 	var artist model.Artist
 
 	if err := c.ShouldBindJSON(&artist); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return err
+		return
 	}
 
 	err := h.service.CreateArtist(&artist)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return err
+		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "artist created"})
-	return nil
 }
 
-func (h *Handler) Artists(c *gin.Context) error {
+func (h *Handler) Artists(c *gin.Context) {
 	artists, err := h.service.Artists()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return err
+		return
 	}
 
-	return templs.ArtistsPage(artists).Render(c, c.Writer)
+	if err := templs.ArtistsPage(artists).Render(c, c.Writer); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 }
 
 // ArtistsByName retrieves artists by name.
-func (h *Handler) ArtistsByName(c *gin.Context) error {
+func (h *Handler) ArtistsByName(c *gin.Context) {
 	name := c.Param("name")
 
-	_, err := h.service.ArtistsByName(name)
+	artists, err := h.service.ArtistsByName(name)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return err
+		return
 	}
 
-	return nil
+	c.JSON(http.StatusOK, gin.H{"message": "artists retrieved", "artists": artists})
 }
