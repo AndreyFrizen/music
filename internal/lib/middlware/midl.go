@@ -2,6 +2,7 @@ package middl
 
 import (
 	"errors"
+	"mess/internal/model"
 	services "mess/internal/service"
 	"net/http"
 	"strings"
@@ -10,19 +11,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var secretKey = []byte("123")
-
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
+			c.Abort()
 			return
 		}
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		id, err := parseToken(tokenString)
+		id, err := parse(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			c.Abort()
 			return
 		}
 		c.Set("userID", id)
@@ -30,13 +31,8 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-func parseToken(tokenString string) (string, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &services.TokenClaims{}, func(token *jwt.Token) (any, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("invalid method")
-		}
-		return secretKey, nil
-	})
+func parse(tokenString string) (string, error) {
+	token, err := parseToken(tokenString)
 	if err != nil {
 		return "", err
 	}
@@ -47,4 +43,10 @@ func parseToken(tokenString string) (string, error) {
 	}
 
 	return claims.UserID, nil
+}
+
+func parseToken(tokenString string) (*jwt.Token, error) {
+	return jwt.ParseWithClaims(tokenString, &services.TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return model.SecretKey, nil
+	})
 }

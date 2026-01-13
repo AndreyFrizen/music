@@ -9,7 +9,7 @@ import (
 type Config struct {
 	Env         string `yaml:"env"`
 	StoragePath string `yaml:"storagePath"`
-	Redis       string `yaml:"redisPath"`
+	Redis       string `yaml:"redis"`
 	Server      Server `yaml:"server"`
 }
 
@@ -21,7 +21,7 @@ type Server struct {
 func LoadConfig() (*Config, error) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath(`D:\zed\golang\music\config`)
+	viper.AddConfigPath("/home/andrey/projects/music/config")
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file: %v", err)

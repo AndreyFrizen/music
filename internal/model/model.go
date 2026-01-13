@@ -7,12 +7,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var SecretKey = []byte("123")
+
 // User represents a user in the system
 type User struct {
 	ID                uuid.UUID `json:"id" db:"id" redis:"id"`
 	Username          string    `json:"username" db:"username" validate:"required,min=2,max=50" redis:"username"`
-	Password          string    `json:"password,omitempty" validate:"required,min=6,max=100"`
-	EncryptedPassword string    `json:"encrypted_password" db:"password"`
+	Password          string    `json:"password" validate:"required,min=6,max=100"`
+	EncryptedPassword string    `db:"password"`
 	Email             string    `json:"email" db:"email" validate:"required,email" redis:"email"`
 }
 
@@ -25,7 +27,7 @@ type Artist struct {
 // Album represents an album in the system
 type Album struct {
 	ID          uuid.UUID `json:"id" db:"id" redis:"id"`
-	Title       string    `json:"title" db:"title" redis:"title"`
+	Title       string    `djson:"title" db:"title" redis:"title"`
 	ArtistID    uuid.UUID `json:"artist_id" db:"artist_id" redis:"artist_id"`
 	ReleaseDate time.Time `json:"release_date" db:"release_date" redis:"release_date"`
 }

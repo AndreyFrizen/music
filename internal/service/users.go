@@ -10,8 +10,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var secretKey = []byte("my_secret_key")
-
 type userService interface {
 	Register(user *model.User, ctx context.Context) error
 	UserByID(id string, ctx context.Context) (*model.User, error)
@@ -33,10 +31,12 @@ func (m *Service) UserByID(id string, ctx context.Context) (*model.User, error) 
 }
 
 // GetUserByEmail retrieves a user by email
-func (m *Service) Auth(user *model.User, ctx context.Context) (string, error) {
-	user, err := m.Repo.UserByEmail(user.Email, ctx)
-
-	err = bcrypt.CompareHashAndPassword([]byte(user.EncryptedPassword), []byte(user.Password))
+func (m *Service) Auth(u *model.User, ctx context.Context) (string, error) {
+	user, err := m.Repo.UserByEmail(u.Email, ctx)
+	if err != nil {
+		return "", err
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(user.EncryptedPassword), []byte(u.Password))
 	if err != nil {
 		return "", err
 	}
@@ -62,6 +62,5 @@ func generateToken(userID uuid.UUID) (string, error) {
 		},
 		UserID: userID.String(),
 	})
-
-	return token.SignedString(secretKey)
+	return token.SignedString(model.SecretKey)
 }

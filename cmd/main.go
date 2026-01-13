@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"log/slog"
@@ -17,6 +18,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// Constants
 const (
 	envLocal = "local"
 	envProd  = "prod"
@@ -24,13 +26,18 @@ const (
 )
 
 func main() {
+	ctx := context.Background()
+
+	// Init variables
 	var storeRepository store.Repository
 	var serviceMusic services.InterfaceService
 	var handler handlers.HandlerInterface
+
 	// Load configuration from YAML file
 	config, err := config.LoadConfig()
+	log.Print(config.Redis)
 	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+		log.Fatal("Failed to load config: %v", err)
 	}
 
 	// Setup logger
@@ -45,17 +52,22 @@ func main() {
 	// Initialize Redis client
 	cash := store.NewClient(config)
 
+	_, err = cash.Ping(ctx).Result()
+	if err != nil {
+		log.Error("Failed to connect to Redis:", err)
+	}
+
 	if err := db.Ping(); err != nil {
-		log.Error("Failed to ping database")
+		log.Error("Failed to ping database:", db)
 	}
 
 	defer db.Close()
-	log.Info("init reposiory")
 	storeRepository = store.NewStore(db, cash)
-	log.Info("init services")
+	log.Info("init reposiory")
 	serviceMusic = services.NewService(storeRepository)
-	log.Info("init handlers")
+	log.Info("init services")
 	handler = handlers.NewHandler(serviceMusic)
+	log.Info("init handlers")
 
 	// Initialize router
 	r := gin.Default()
@@ -64,34 +76,15 @@ func main() {
 
 	r.POST("/register", handler.RegisterUser)
 
-	r.POST("/login", func(ctx *gin.Context) {
-		handler.LoginUser(ctx)
-	})
+	r.POST("/login", handler.LoginUser)
 
 	r.Use(middl.AuthMiddleware())
-
-	r.POST("/login", handler.LoginUser)
 
 	r.POST("/addartist", handler.CreateArtist)
 
 	r.POST("/addalbum", handler.AddAlbum)
 
-	r.POST("/addtrack", func(ctx *gin.Context) {
-		handler.AddTrack(ctx)
-	})
-
-	r.POST("/addalbum", func(ctx *gin.Context) {
-		handler.AddAlbum(ctx)
-	})
-
-	r.POST("/addplaylist", func(ctx *gin.Context) {
-		handler.CreatePlaylist(ctx)
-
-	})
-
-	r.POST("/addtracktoplaylist", func(ctx *gin.Context) {
-		handler.AddTrackToPlaylist(ctx)
-	})
+	r.POST("/addtrack", handler.AddTrack)
 
 	r.POST("/addplaylist", handler.CreatePlaylist)
 
