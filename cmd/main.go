@@ -59,15 +59,15 @@ func main() {
 		handler.RegisterUser(ctx)
 	})
 
+	r.POST("/login", func(ctx *gin.Context) {
+		handler.LoginUser(ctx)
+	})
+
 	r.Use(handlers.AuthMiddleware())
 
 	r.POST("/addartist", func(ctx *gin.Context) {
 		handler.CreateArtist(ctx)
 
-	})
-
-	r.POST("/login", func(ctx *gin.Context) {
-		handler.LoginUser(ctx)
 	})
 
 	r.POST("/addtrack", func(ctx *gin.Context) {

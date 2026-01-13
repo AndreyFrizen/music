@@ -1,5 +1,5 @@
 env: "local"
-storagePath: "/home/andrey/projects/music/storage/storage.db"
+storagePath: 'D:\zed\golang\music\storage\storage.db'
 redisPath: ""
 server:
   address: "localhost:8080"

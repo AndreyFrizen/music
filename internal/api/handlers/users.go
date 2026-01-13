@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-var secretKey = []byte("my_secret_key")
+var secretKey = []byte("123")
 
 type userHandler interface {
 	RegisterUser(c *gin.Context)
