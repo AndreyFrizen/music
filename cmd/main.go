@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"mess/internal/api/handlers"
 	"mess/internal/config"
+	middl "mess/internal/lib/middlware"
 	"mess/internal/repository/store"
 	services "mess/internal/service"
 	"net/http"
@@ -57,21 +58,18 @@ func main() {
 
 	r.POST("/register", handler.RegisterUser)
 
-<<<<<<< HEAD
 	r.POST("/login", func(ctx *gin.Context) {
 		handler.LoginUser(ctx)
 	})
 
-	r.Use(handlers.AuthMiddleware())
-=======
+	r.Use(middl.AuthMiddleware())
+
 	r.POST("/login", handler.LoginUser)
->>>>>>> 3a53dc5da93412df80e5cac0e7d179a181c87200
 
 	r.POST("/addartist", handler.CreateArtist)
 
 	r.POST("/addalbum", handler.AddAlbum)
 
-<<<<<<< HEAD
 	r.POST("/addtrack", func(ctx *gin.Context) {
 		handler.AddTrack(ctx)
 	})
@@ -88,11 +86,10 @@ func main() {
 	r.POST("/addtracktoplaylist", func(ctx *gin.Context) {
 		handler.AddTrackToPlaylist(ctx)
 	})
-=======
+
 	r.POST("/addplaylist", handler.CreatePlaylist)
 
 	r.POST("/addtracktoplaylist", handler.AddTrackToPlaylist)
->>>>>>> 3a53dc5da93412df80e5cac0e7d179a181c87200
 
 	// Handlers get
 	r.GET("/play/:filename", func(c *gin.Context) {
@@ -128,7 +125,6 @@ func main() {
 		http.ServeContent(c.Writer, c.Request, filename, fileInfo.ModTime(), file)
 	})
 
-	r.Use(handlers.AuthMiddleware())
 	r.GET("/artists", handler.Artists)
 
 	// Run router
