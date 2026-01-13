@@ -21,7 +21,7 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	err := h.service.Register(&user)
+	err := h.service.Register(&user, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -33,7 +33,7 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 // UserByID retrieves a user by ID
 func (h *Handler) UserByID(c *gin.Context) {
 	id := c.Param("id")
-	user, err := h.service.UserByID(id)
+	user, err := h.service.UserByID(id, c)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -50,7 +50,7 @@ func (h *Handler) LoginUser(c *gin.Context) {
 		return
 	}
 
-	token, err := h.service.Auth(&user)
+	token, err := h.service.Auth(&user, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "not token"})
 		return

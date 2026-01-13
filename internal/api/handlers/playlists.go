@@ -21,7 +21,7 @@ func (h *Handler) CreatePlaylist(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.CreatePlaylist(&playlist); err != nil {
+	if err := h.service.CreatePlaylist(&playlist, c); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -31,7 +31,7 @@ func (h *Handler) CreatePlaylist(c *gin.Context) {
 // Delete playlist
 func (h *Handler) DeletePlaylist(c *gin.Context) {
 	id := c.Param("id")
-	if err := h.service.DeletePlaylist(id); err != nil {
+	if err := h.service.DeletePlaylist(id, c); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -41,7 +41,7 @@ func (h *Handler) DeletePlaylist(c *gin.Context) {
 // Get playlist
 func (h *Handler) PlaylistByID(c *gin.Context) {
 	id := c.Param("id")
-	playlist, err := h.service.PlaylistByID(id)
+	playlist, err := h.service.PlaylistByID(id, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

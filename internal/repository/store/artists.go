@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"fmt"
 	"mess/internal/model"
 
@@ -8,20 +9,20 @@ import (
 )
 
 type artistRepository interface {
-	CreateArtist(a *model.Artist) error
-	ArtistByID(id string) (*model.Artist, error)
-	Artists() ([]model.Artist, error)
-	ArtistsByName(name string) ([]model.Artist, error)
+	CreateArtist(a *model.Artist, ctx context.Context) error
+	ArtistByID(id string, ctx context.Context) (*model.Artist, error)
+	Artists(ctx context.Context) ([]model.Artist, error)
+	ArtistsByName(name string, ctx context.Context) ([]model.Artist, error)
 }
 
 // Post
 
 // CreateArtist creates a new artist in the database
-func (s *Store) CreateArtist(a *model.Artist) error {
+func (s *Store) CreateArtist(a *model.Artist, ctx context.Context) error {
 	query := fmt.Sprintf("INSERT INTO artists VALUES ('%s', '%s')",
 		uuid.New().String(), a.Name)
 
-	_, err := s.db.Exec(query)
+	_, err := s.db.ExecContext(ctx, query)
 
 	if err != nil {
 		return err
@@ -33,7 +34,7 @@ func (s *Store) CreateArtist(a *model.Artist) error {
 // GET
 
 // ArtistByID retrieves an artist by their ID from the database
-func (s *Store) ArtistByID(id string) (*model.Artist, error) {
+func (s *Store) ArtistByID(id string, ctx context.Context) (*model.Artist, error) {
 	query := fmt.Sprintf("SELECT * FROM artists WHERE id = '%s'", id)
 
 	row := s.db.QueryRow(query)
@@ -50,10 +51,10 @@ func (s *Store) ArtistByID(id string) (*model.Artist, error) {
 }
 
 // Artists retrieves all artists from the database
-func (s *Store) Artists() ([]model.Artist, error) {
+func (s *Store) Artists(ctx context.Context) ([]model.Artist, error) {
 	query := "SELECT name FROM artists"
 
-	rows, err := s.db.Query(query)
+	rows, err := s.db.QueryContext(ctx, query)
 
 	if err != nil {
 		return nil, err
@@ -79,7 +80,7 @@ func (s *Store) Artists() ([]model.Artist, error) {
 }
 
 // ArtistsByName retrieves all artists by their name from the database
-func (s *Store) ArtistsByName(name string) ([]model.Artist, error) {
+func (s *Store) ArtistsByName(name string, ctx context.Context) ([]model.Artist, error) {
 	query := fmt.Sprintf("SELECT * FROM artists WHERE name = '%s'", name)
 
 	rows, err := s.db.Query(query)

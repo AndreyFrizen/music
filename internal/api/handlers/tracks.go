@@ -24,7 +24,7 @@ func (h *Handler) AddTrackToPlaylist(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.AddTrackToPlaylist(&track); err != nil {
+	if err := h.service.AddTrackToPlaylist(&track, c); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -40,7 +40,7 @@ func (h *Handler) AddTrack(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.AddTrack(&track); err != nil {
+	if err := h.service.AddTrack(&track, c); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -51,7 +51,7 @@ func (h *Handler) AddTrack(c *gin.Context) {
 // Delete Track from playlist
 func (h *Handler) DeleteTrackFromPlaylist(c *gin.Context) {
 	id := c.Param("id")
-	if err := h.service.DeleteTrackFromPlaylist(id); err != nil {
+	if err := h.service.DeleteTrackFromPlaylist(id, c); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -62,7 +62,7 @@ func (h *Handler) DeleteTrackFromPlaylist(c *gin.Context) {
 // Get Track by ID
 func (h *Handler) TrackByID(c *gin.Context) {
 	id := c.Param("id")
-	track, err := h.service.TrackByID(id)
+	track, err := h.service.TrackByID(id, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -75,7 +75,7 @@ func (h *Handler) TrackByID(c *gin.Context) {
 // Get Track from playlist
 func (h *Handler) TrackFromPlaylist(c *gin.Context) {
 	id := c.Param("id")
-	track, err := h.service.TrackFromPlaylist(id)
+	track, err := h.service.TrackFromPlaylist(id, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -88,7 +88,7 @@ func (h *Handler) TrackFromPlaylist(c *gin.Context) {
 func (h *Handler) TracksByTitle(c *gin.Context) {
 	title := c.Param("title")
 
-	tracks, err := h.service.TracksByTitle(title)
+	tracks, err := h.service.TracksByTitle(title, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -101,7 +101,7 @@ func (h *Handler) TracksByTitle(c *gin.Context) {
 func (h *Handler) TracksByArtist(c *gin.Context) {
 	artist := c.Param("artist")
 
-	tracks, err := h.service.TracksByArtist(artist)
+	tracks, err := h.service.TracksByArtist(artist, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

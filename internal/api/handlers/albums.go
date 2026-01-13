@@ -24,7 +24,7 @@ func (h *Handler) AddAlbum(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.AddAlbum(&album); err != nil {
+	if err := h.service.AddAlbum(&album, c); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -37,7 +37,7 @@ func (h *Handler) AddAlbum(c *gin.Context) {
 func (h *Handler) AlbumByID(c *gin.Context) {
 	id := c.Param("id")
 
-	album, err := h.service.AlbumByID(id)
+	album, err := h.service.AlbumByID(id, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -50,7 +50,7 @@ func (h *Handler) AlbumByID(c *gin.Context) {
 func (h *Handler) AlbumsByTitle(c *gin.Context) {
 	title := c.Param("title")
 
-	albums, err := h.service.AlbumsByTitle(title)
+	albums, err := h.service.AlbumsByTitle(title, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -63,7 +63,7 @@ func (h *Handler) AlbumsByTitle(c *gin.Context) {
 func (h *Handler) AlbumsByArtist(c *gin.Context) {
 	artist := c.Param("artist")
 
-	albums, err := h.service.AlbumsByArtist(artist)
+	albums, err := h.service.AlbumsByArtist(artist, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

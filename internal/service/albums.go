@@ -1,30 +1,36 @@
 package services
 
-import "mess/internal/model"
+import (
+	"context"
+	"mess/internal/model"
+)
 
 type albumService interface {
-	AddAlbum(album *model.Album) error
-	AlbumByID(id string) (*model.Album, error)
-	AlbumsByArtist(artistID string) ([]model.Album, error)
-	AlbumsByTitle(title string) ([]model.Album, error)
+	AddAlbum(album *model.Album, ctx context.Context) error
+	AlbumByID(id string, ctx context.Context) (*model.Album, error)
+	AlbumsByArtist(artistID string, ctx context.Context) ([]model.Album, error)
+	AlbumsByTitle(title string, ctx context.Context) ([]model.Album, error)
 }
 
 // AddAlbum adds a new album
-func (m *Service) AddAlbum(album *model.Album) error {
-	return m.Repo.AddAlbum(album)
+func (m *Service) AddAlbum(album *model.Album, ctx context.Context) error {
+	if err := m.Repo.AddAlbum(album, ctx); err != nil {
+		return err
+	}
+	return nil
 }
 
 // AlbumByID retrieves an album by its ID.
-func (m *Service) AlbumByID(id string) (*model.Album, error) {
-	return m.Repo.AlbumByID(id)
+func (m *Service) AlbumByID(id string, ctx context.Context) (*model.Album, error) {
+	return m.Repo.AlbumByID(id, ctx)
 }
 
 // AlbumsByArtist retrieves albums by artist ID.
-func (m *Service) AlbumsByArtist(artistID string) ([]model.Album, error) {
-	return m.Repo.AlbumsByArtistID(artistID)
+func (m *Service) AlbumsByArtist(artistID string, ctx context.Context) ([]model.Album, error) {
+	return m.Repo.AlbumsByArtistID(artistID, ctx)
 }
 
 // AlbumsByArtistName retrieves albums by artist name.
-func (m *Service) AlbumsByTitle(title string) ([]model.Album, error) {
-	return m.Repo.AlbumsByTitle(title)
+func (m *Service) AlbumsByTitle(title string, ctx context.Context) ([]model.Album, error) {
+	return m.Repo.AlbumsByTitle(title, ctx)
 }

@@ -21,7 +21,7 @@ type artistHandler interface {
 func (h *Handler) ArtistByID(c *gin.Context) {
 	id := c.Param("id")
 
-	artist, err := h.service.ArtistByID(id)
+	artist, err := h.service.ArtistByID(id, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -39,7 +39,7 @@ func (h *Handler) CreateArtist(c *gin.Context) {
 		return
 	}
 
-	err := h.service.CreateArtist(&artist)
+	err := h.service.CreateArtist(&artist, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -49,7 +49,7 @@ func (h *Handler) CreateArtist(c *gin.Context) {
 }
 
 func (h *Handler) Artists(c *gin.Context) {
-	artists, err := h.service.Artists()
+	artists, err := h.service.Artists(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -65,7 +65,7 @@ func (h *Handler) Artists(c *gin.Context) {
 func (h *Handler) ArtistsByName(c *gin.Context) {
 	name := c.Param("name")
 
-	artists, err := h.service.ArtistsByName(name)
+	artists, err := h.service.ArtistsByName(name, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

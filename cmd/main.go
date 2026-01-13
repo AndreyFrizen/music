@@ -9,7 +9,6 @@ import (
 	middl "mess/internal/lib/middlware"
 	"mess/internal/repository/store"
 	services "mess/internal/service"
-	storage_redis "mess/storage/redis"
 	"net/http"
 	"os"
 	"strconv"
@@ -28,7 +27,6 @@ func main() {
 	var storeRepository store.Repository
 	var serviceMusic services.InterfaceService
 	var handler handlers.HandlerInterface
-	var cash storage_redis.CashInterface
 	// Load configuration from YAML file
 	config, err := config.LoadConfig()
 	if err != nil {
@@ -44,15 +42,16 @@ func main() {
 		log.Error("Failed to connect to database")
 	}
 
+	// Initialize Redis client
+	cash := store.NewClient(config)
+
 	if err := db.Ping(); err != nil {
 		log.Error("Failed to ping database")
 	}
 
 	defer db.Close()
 	log.Info("init reposiory")
-	storeRepository = store.NewStore(db)
-	cash = storage_redis.NewClient(config)
-	_ = cash
+	storeRepository = store.NewStore(db, cash)
 	log.Info("init services")
 	serviceMusic = services.NewService(storeRepository)
 	log.Info("init handlers")
