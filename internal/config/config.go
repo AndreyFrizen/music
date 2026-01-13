@@ -9,7 +9,7 @@ import (
 type Config struct {
 	Env         string `yaml:"env"`
 	StoragePath string `yaml:"storagePath"`
-	RedisPath   string `yaml:"redisPath"`
+	Redis       string `yaml:"redisPath"`
 	Server      Server `yaml:"server"`
 }
 
