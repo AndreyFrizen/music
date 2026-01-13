@@ -1,14 +1,14 @@
 package handlers
 
 import (
+	"errors"
 	"mess/internal/model"
+	services "mess/internal/service"
 	"net/http"
 	"strings"
-	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
 )
 
 var secretKey = []byte("123")
@@ -56,15 +56,9 @@ func (h *Handler) LoginUser(c *gin.Context) {
 		return
 	}
 
-	err := h.service.Auth(&user)
+	token, err := h.service.Auth(&user)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	token, err := generateToken(user.ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "not token"})
 		return
 	}
 
@@ -76,30 +70,35 @@ func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
 			return
 		}
-
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		token, err := parseToken(tokenString)
-		if err != nil || !token.Valid {
+		id, err := parseToken(tokenString)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
+		c.Set("userID", id)
 		c.Next()
 	}
 }
 
-func parseToken(tokenString string) (*jwt.Token, error) {
-	return jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+func parseToken(tokenString string) (string, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &services.TokenClaims{}, func(token *jwt.Token) (any, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid method")
+		}
 		return secretKey, nil
 	})
-}
-
-func generateToken(userID uuid.UUID) (string, error) {
-	claims := jwt.MapClaims{
-		"user_id": userID,
-		"exp":     time.Now().Add(time.Hour * 24).Unix(), // Срок действия — 24 часа
+	if err != nil {
+		return "", err
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(secretKey)
+	claims, ok := token.Claims.(*services.TokenClaims)
+	if !ok {
+		return "", errors.New("invalid claims")
+	}
+
+	return claims.UserID, nil
 }

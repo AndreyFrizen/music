@@ -55,21 +55,23 @@ func main() {
 
 	// Handlers post
 
-	r.POST("/register", func(ctx *gin.Context) {
-		handler.RegisterUser(ctx)
-	})
+	r.POST("/register", handler.RegisterUser)
 
+<<<<<<< HEAD
 	r.POST("/login", func(ctx *gin.Context) {
 		handler.LoginUser(ctx)
 	})
 
 	r.Use(handlers.AuthMiddleware())
+=======
+	r.POST("/login", handler.LoginUser)
+>>>>>>> 3a53dc5da93412df80e5cac0e7d179a181c87200
 
-	r.POST("/addartist", func(ctx *gin.Context) {
-		handler.CreateArtist(ctx)
+	r.POST("/addartist", handler.CreateArtist)
 
-	})
+	r.POST("/addalbum", handler.AddAlbum)
 
+<<<<<<< HEAD
 	r.POST("/addtrack", func(ctx *gin.Context) {
 		handler.AddTrack(ctx)
 	})
@@ -86,6 +88,11 @@ func main() {
 	r.POST("/addtracktoplaylist", func(ctx *gin.Context) {
 		handler.AddTrackToPlaylist(ctx)
 	})
+=======
+	r.POST("/addplaylist", handler.CreatePlaylist)
+
+	r.POST("/addtracktoplaylist", handler.AddTrackToPlaylist)
+>>>>>>> 3a53dc5da93412df80e5cac0e7d179a181c87200
 
 	// Handlers get
 	r.GET("/play/:filename", func(c *gin.Context) {
@@ -120,9 +127,9 @@ func main() {
 		// Потоковая передача всего файла
 		http.ServeContent(c.Writer, c.Request, filename, fileInfo.ModTime(), file)
 	})
-	r.GET("/artists", func(c *gin.Context) {
-		handler.Artists(c)
-	})
+
+	r.Use(handlers.AuthMiddleware())
+	r.GET("/artists", handler.Artists)
 
 	// Run router
 	r.Run("localhost:8080")
