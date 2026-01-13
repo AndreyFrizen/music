@@ -39,6 +39,7 @@ func (s *Store) AddAlbum(a *model.Album, ctx context.Context) error {
 		"artist_id":    a.ArtistID.String(),
 		"release_date": a.ReleaseDate.String(),
 	}, time.Minute*20)
+	s.cash.Expire(ctx, a.ID.String(), time.Minute*20)
 
 	return nil
 }
