@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/redis/go-redis/v9"
 )
 
 type albumRepository interface {
@@ -30,13 +29,8 @@ func (s *Store) AddAlbum(a *model.Album, ctx context.Context) error {
 		return err
 	}
 
-	s.cash.HSet(ctx, a.ID.String(), map[string]any{
-		"title":        a.Title,
-		"artist_id":    a.ArtistID.String(),
-		"release_date": a.ReleaseDate.String(),
-	})
-
-	s.cash.Expire(ctx, a.ID.String(), time.Minute*10)
+	jsonData, _ := json.MarshalIndent(a, "", "  ")
+	s.cash.Set(ctx, a.ID.String(), string(jsonData), time.Minute*10)
 
 	return nil
 }
@@ -51,7 +45,7 @@ func (s *Store) AlbumByID(id string, ctx context.Context) (*model.Album, error) 
 	albs, err := s.cash.Get(ctx, id).Bytes()
 	if err == nil {
 		err = json.Unmarshal(albs, &album)
-	} else if err == redis.Nil {
+	} else {
 		query := fmt.Sprintf("SELECT * FROM albums WHERE id = '%s'", id)
 
 		row := s.db.QueryRowContext(ctx, query)
@@ -63,7 +57,7 @@ func (s *Store) AlbumByID(id string, ctx context.Context) (*model.Album, error) 
 		}
 
 		jsonData, _ := json.MarshalIndent(album, "", "  ")
-		s.cash.Set(ctx, album.ID.String(), jsonData, time.Minute*10)
+		s.cash.Set(ctx, album.ID.String(), string(jsonData), time.Minute*10)
 	}
 
 	return &album, nil
@@ -76,7 +70,7 @@ func (s *Store) AlbumsByTitle(title string, ctx context.Context) ([]model.Album,
 	albs, err := s.cash.Get(ctx, title).Bytes()
 	if err == nil {
 		err = json.Unmarshal(albs, &albums)
-	} else if err == redis.Nil {
+	} else {
 		query := fmt.Sprintf("SELECT * FROM albums WHERE title = '%s'", title)
 
 		rows, err := s.db.QueryContext(ctx, query)
@@ -100,7 +94,7 @@ func (s *Store) AlbumsByTitle(title string, ctx context.Context) ([]model.Album,
 		}
 
 		jsonData, _ := json.MarshalIndent(albums, "", "  ")
-		s.cash.Set(ctx, title, jsonData, time.Minute*10)
+		s.cash.Set(ctx, title, string(jsonData), time.Minute*10)
 	}
 
 	return albums, nil
@@ -113,7 +107,7 @@ func (s *Store) AlbumsByArtistID(artistID string, ctx context.Context) ([]model.
 	albs, err := s.cash.Get(ctx, artistID).Bytes()
 	if err == nil {
 		err = json.Unmarshal(albs, &albums)
-	} else if err == redis.Nil {
+	} else {
 		query := fmt.Sprintf("SELECT * FROM albums WHERE artist_id = '%s'", artistID)
 
 		rows, err := s.db.QueryContext(ctx, query)
@@ -137,7 +131,7 @@ func (s *Store) AlbumsByArtistID(artistID string, ctx context.Context) ([]model.
 		}
 
 		jsonData, _ := json.MarshalIndent(albums, "", "  ")
-		s.cash.Set(ctx, artistID, jsonData, time.Minute*10)
+		s.cash.Set(ctx, artistID, string(jsonData), time.Minute*10)
 	}
 
 	return albums, nil
