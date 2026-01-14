@@ -2,11 +2,13 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"mess/internal/model"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 )
 
 type albumRepository interface {
@@ -20,16 +22,10 @@ type albumRepository interface {
 
 // Add Album to database.
 func (s *Store) AddAlbum(a *model.Album, ctx context.Context) error {
-
-	if err := s.cash.Get(ctx, a.ID.String()).Err(); err != nil {
-		return err
-	}
-
 	query := fmt.Sprintf("INSERT INTO albums VALUES ('%s', '%s', '%s', '%s')",
 		uuid.New().String(), a.Title, a.ArtistID, a.ReleaseDate)
 
 	_, err := s.db.Exec(query)
-
 	if err != nil {
 		return err
 	}
@@ -38,8 +34,9 @@ func (s *Store) AddAlbum(a *model.Album, ctx context.Context) error {
 		"title":        a.Title,
 		"artist_id":    a.ArtistID.String(),
 		"release_date": a.ReleaseDate.String(),
-	}, time.Minute*20)
-	s.cash.Expire(ctx, a.ID.String(), time.Minute*20)
+	})
+
+	s.cash.Expire(ctx, a.ID.String(), time.Minute*10)
 
 	return nil
 }
@@ -48,16 +45,25 @@ func (s *Store) AddAlbum(a *model.Album, ctx context.Context) error {
 
 // AlbumByID retrieves an album by its ID from the database.
 func (s *Store) AlbumByID(id string, ctx context.Context) (*model.Album, error) {
-	query := fmt.Sprintf("SELECT * FROM albums WHERE id = '%s'", id)
-
-	row := s.db.QueryRowContext(ctx, query)
 
 	var album model.Album
 
-	err := row.Scan(&album.Title, &album.ArtistID, &album.ReleaseDate, &album.ID)
+	albs, err := s.cash.Get(ctx, id).Bytes()
+	if err == nil {
+		err = json.Unmarshal(albs, &album)
+	} else if err == redis.Nil {
+		query := fmt.Sprintf("SELECT * FROM albums WHERE id = '%s'", id)
 
-	if err != nil {
-		return nil, err
+		row := s.db.QueryRowContext(ctx, query)
+
+		err = row.Scan(&album.Title, &album.ArtistID, &album.ReleaseDate, &album.ID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		jsonData, _ := json.MarshalIndent(album, "", "  ")
+		s.cash.Set(ctx, album.ID.String(), jsonData, time.Minute*10)
 	}
 
 	return &album, nil
@@ -65,28 +71,36 @@ func (s *Store) AlbumByID(id string, ctx context.Context) (*model.Album, error) 
 
 // AlbumsByTitle retrieves all albums by their title from the database.
 func (s *Store) AlbumsByTitle(title string, ctx context.Context) ([]model.Album, error) {
-	query := fmt.Sprintf("SELECT * FROM albums WHERE title = '%s'", title)
-
-	rows, err := s.db.QueryContext(ctx, query)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-
 	var albums []model.Album
 
-	for rows.Next() {
-		var album model.Album
+	albs, err := s.cash.Get(ctx, title).Bytes()
+	if err == nil {
+		err = json.Unmarshal(albs, &albums)
+	} else if err == redis.Nil {
+		query := fmt.Sprintf("SELECT * FROM albums WHERE title = '%s'", title)
 
-		err := rows.Scan(&album.Title, &album.ArtistID, &album.ReleaseDate, &album.ID)
+		rows, err := s.db.QueryContext(ctx, query)
 
 		if err != nil {
 			return nil, err
 		}
 
-		albums = append(albums, album)
+		defer rows.Close()
+
+		for rows.Next() {
+			var album model.Album
+
+			err := rows.Scan(&album.Title, &album.ArtistID, &album.ReleaseDate, &album.ID)
+
+			if err != nil {
+				return nil, err
+			}
+
+			albums = append(albums, album)
+		}
+
+		jsonData, _ := json.MarshalIndent(albums, "", "  ")
+		s.cash.Set(ctx, title, jsonData, time.Minute*10)
 	}
 
 	return albums, nil
@@ -94,28 +108,36 @@ func (s *Store) AlbumsByTitle(title string, ctx context.Context) ([]model.Album,
 
 // AlbumsByArtistID retrieves all albums by their artist ID from the database.
 func (s *Store) AlbumsByArtistID(artistID string, ctx context.Context) ([]model.Album, error) {
-	query := fmt.Sprintf("SELECT * FROM albums WHERE artist_id = '%s'", artistID)
-
-	rows, err := s.db.QueryContext(ctx, query)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-
 	var albums []model.Album
 
-	for rows.Next() {
-		var album model.Album
+	albs, err := s.cash.Get(ctx, artistID).Bytes()
+	if err == nil {
+		err = json.Unmarshal(albs, &albums)
+	} else if err == redis.Nil {
+		query := fmt.Sprintf("SELECT * FROM albums WHERE artist_id = '%s'", artistID)
 
-		err := rows.Scan(&album.Title, &album.ArtistID, &album.ReleaseDate, &album.ID)
+		rows, err := s.db.QueryContext(ctx, query)
 
 		if err != nil {
 			return nil, err
 		}
 
-		albums = append(albums, album)
+		defer rows.Close()
+
+		for rows.Next() {
+			var album model.Album
+
+			err := rows.Scan(&album.Title, &album.ArtistID, &album.ReleaseDate, &album.ID)
+
+			if err != nil {
+				return nil, err
+			}
+
+			albums = append(albums, album)
+		}
+
+		jsonData, _ := json.MarshalIndent(albums, "", "  ")
+		s.cash.Set(ctx, artistID, jsonData, time.Minute*10)
 	}
 
 	return albums, nil

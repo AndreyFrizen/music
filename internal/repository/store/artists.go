@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"mess/internal/model"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -27,6 +28,12 @@ func (s *Store) CreateArtist(a *model.Artist, ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
+	s.cash.HSet(ctx, a.ID.String(), map[string]any{
+		"title": a.Name,
+	})
+
+	s.cash.Expire(ctx, a.ID.String(), time.Minute*10).Err()
 
 	return nil
 }
