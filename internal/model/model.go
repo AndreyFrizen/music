@@ -55,6 +55,36 @@ type PlaylistTrack struct {
 	Position   int       `json:"position" db:"position" redis:"position"`
 }
 
+// AlbumTracks represents a collection of tracks in an album
+type AlbumTracks struct {
+	AlbumID uuid.UUID `json:"album_id" db:"album_id" redis:"album_id"`
+	Tracks  []Track   `json:"tracks" db:"tracks" redis:"tracks"`
+}
+
+// ArtistAlbums represents a collection of albums by an artist
+type ArtistAlbums struct {
+	ArtistID uuid.UUID `json:"artist_id" db:"artist_id" redis:"artist_id"`
+	Albums   []Album   `json:"albums" db:"albums" redis:"albums"`
+}
+
+// ArtistTracks represents a collection of tracks by an artist
+type ArtistTracks struct {
+	ArtistID uuid.UUID `json:"artist_id" db:"artist_id" redis:"artist_id"`
+	Tracks   []Track   `json:"tracks" db:"tracks" redis:"tracks"`
+}
+
+// PlaylistTracks represents a collection of tracks in a playlist
+type PlaylistTracks struct {
+	PlaylistID uuid.UUID       `json:"playlist_id" db:"playlist_id" redis:"playlist_id"`
+	Tracks     []PlaylistTrack `json:"tracks" db:"tracks" redis:"tracks"`
+}
+
+// UserAlbums represents a collection of tracks by a user
+type UserAlbums struct {
+	UserID uuid.UUID `json:"user_id" db:"user_id" redis:"user_id"`
+	Albums []Album   `json:"albums" db:"albums" redis:"albums"`
+}
+
 func (u *User) EncryptPassword() error {
 
 	if len(u.Password) > 0 {
