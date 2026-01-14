@@ -79,7 +79,7 @@ type PlaylistTracks struct {
 	Tracks     []PlaylistTrack `json:"tracks" db:"tracks" redis:"tracks"`
 }
 
-// UserAlbums represents a collection of tracks by a user
+// UserAlbums represents a collection of albums by a user
 type UserAlbums struct {
 	UserID uuid.UUID `json:"user_id" db:"user_id" redis:"user_id"`
 	Albums []Album   `json:"albums" db:"albums" redis:"albums"`

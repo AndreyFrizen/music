@@ -5,7 +5,7 @@ CREATE TABLE users (
     username TEXT NOT NULL,
     password TEXT NOT NULL ,
     email TEXT NOT NULL UNIQUE
-    );
+);
 CREATE TABLE artists (
 	id TEXT PRIMARY KEY,
     name TEXT NOT NULL
@@ -39,6 +39,34 @@ CREATE TABLE playlist_tracks (
 	FOREIGN KEY (track_id) REFERENCES tracks(id),
 	PRIMARY KEY (playlist_id, track_id)
 );
+CREATE TABLE user_albums (
+	user_id TEXT NOT NULL,
+	album_id TEXT NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users(id),
+	FOREIGN KEY (album_id) REFERENCES albums(id),
+	PRIMARY KEY (user_id, album_id)
+);
+CREATE TABLE artist_albums (
+	artist_id TEXT NOT NULL,
+	album_id TEXT NOT NULL,
+	FOREIGN KEY (artist_id) REFERENCES artists(id),
+	FOREIGN KEY (album_id) REFERENCES albums(id),
+	PRIMARY KEY (artist_id, album_id)
+);
+CREATE TABLE album_tracks (
+	album_id TEXT NOT NULL,
+	track_id TEXT NOT NULL,
+	FOREIGN KEY (album_id) REFERENCES albums(id),
+	FOREIGN KEY (track_id) REFERENCES tracks(id),
+	PRIMARY KEY (album_id, track_id)
+);
+CREATE TABLE artists_tracks (
+	artist_id TEXT NOT NULL,
+	track_id TEXT NOT NULL,
+	FOREIGN KEY (artist_id) REFERENCES artists(id),
+	FOREIGN KEY (track_id) REFERENCES tracks(id),
+	PRIMARY KEY (artist_id, track_id)
+);
 -- +goose StatementEnd
 
 -- +goose Down
@@ -49,4 +77,8 @@ DROP TABLE IF EXISTS albums;
 DROP TABLE IF EXISTS tracks;
 DROP TABLE IF EXISTS playlists;
 DROP TABLE IF EXISTS playlist_tracks;
+DROP TABLE IF EXISTS user_albums;
+DROP TABLE IF EXISTS artist_albums;
+DROP TABLE IF EXISTS album_tracks;
+DROP TABLE IF EXISTS artists_tracks;
 -- +goose StatementEnd
