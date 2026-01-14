@@ -9,6 +9,7 @@ import (
 	"mess/internal/config"
 	middl "mess/internal/lib/middlware"
 	"mess/internal/repository/store"
+	routes "mess/internal/routes/rout"
 	services "mess/internal/service"
 	"net/http"
 	"os"
@@ -78,56 +79,18 @@ func main() {
 	// Initialize router
 	r := gin.Default()
 
-	user := r.Group("/user")
-	{
-		user.POST("/register", handler.RegisterUser)
-		user.POST("/login", handler.LoginUser)
-	}
+	routes.UserRoutes(r, handler)
 	// Init Middlewares
 	r.Use(middl.AuthMiddleware())
-	user.GET("/:id", handler.UserByID)
+	r.GET("/user/:id", handler.UserByID)
 
-	albums := r.Group("/albums")
-	{
-		albums.POST("/create", handler.AddAlbum)
-		albums.GET("/list", handler.AlbumByID)
-		albums.GET("/list/:id", handler.AlbumsByArtist)
-		albums.GET("/list/:id", handler.AlbumsByTitle)
-	}
+	routes.AlbumsRoutes(r, handler)
 
-	artist := r.Group("/artists")
-	{
-		artist.POST("/create", handler.CreateArtist)
-		artist.GET("/list", handler.ArtistsByName)
-		artist.GET("/get/:id", handler.ArtistByID)
-		artist.GET("/update/:id", handler.ArtistsByName)
+	routes.ArtistRoutes(r, handler)
 
-		a := r.GET("/:id")
-		{
-			a.GET("/list", handler.TracksByArtist)
-		}
-	}
+	routes.TracksRoutes(r, handler)
 
-	track := r.Group("/track")
-	{
-		track.POST("/create", handler.AddTrack)
-		track.GET("/list", handler.TracksByTitle)
-		track.GET("/get/:id", handler.TrackByID)
-	}
-
-	playlists := r.Group("/playlist")
-	{
-		playlists.POST("/create", handler.CreatePlaylist)
-		playlists.GET("/:id", handler.PlaylistByID)
-		playlists.DELETE("/update/:id", handler.DeletePlaylist)
-
-		p := playlists.GET("/:id")
-		{
-			p.POST("/add", handler.AddTrackToPlaylist)
-			p.POST("/delete", handler.DeleteTrackFromPlaylist)
-			p.GET("/:id", handler.TrackFromPlaylist)
-		}
-	}
+	routes.PlaylistsRoutes(r, handler)
 
 	// Handlers get
 	r.GET("/play/:filename", func(c *gin.Context) {
