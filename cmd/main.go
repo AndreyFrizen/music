@@ -35,60 +35,99 @@ func main() {
 
 	// Load configuration from YAML file
 	config, err := config.LoadConfig()
-	log.Print(config.Redis)
+	log.Print("Config loaded")
 	if err != nil {
 		log.Fatal("Failed to load config: %v", err)
 	}
 
 	// Setup logger
 	log := setupLogger(config.Env)
+	log.Info("Logger setup")
 
 	// Initialize database connection
 	db, err := sql.Open("sqlite3", config.StoragePath)
 	if err != nil {
 		log.Error("Failed to connect to database")
 	}
-
-	// Initialize Redis client
-	cash := store.NewClient(config)
-
-	_, err = cash.Ping(ctx).Result()
-	if err != nil {
-		log.Error("Failed to connect to Redis:", err)
-	}
+	defer db.Close()
 
 	if err := db.Ping(); err != nil {
 		log.Error("Failed to ping database:", db)
 	}
+	log.Info("Database init")
 
-	defer db.Close()
+	// Initialize Redis client
+	cash := store.NewClient(config)
+
+	err = cash.Ping(ctx).Err()
+	if err != nil {
+		log.Error("Failed to connect to Redis:", err)
+	}
+	log.Info("Redis init")
+
+	// Init Repository
 	storeRepository = store.NewStore(db, cash)
 	log.Info("init reposiory")
+	// Init Services
 	serviceMusic = services.NewService(storeRepository)
 	log.Info("init services")
+	// Init Handlers
 	handler = handlers.NewHandler(serviceMusic)
 	log.Info("init handlers")
 
 	// Initialize router
 	r := gin.Default()
 
-	// Handlers post
-
-	r.POST("/register", handler.RegisterUser)
-
-	r.POST("/login", handler.LoginUser)
-
+	user := r.Group("/user")
+	{
+		user.POST("/register", handler.RegisterUser)
+		user.POST("/login", handler.LoginUser)
+	}
+	// Init Middlewares
 	r.Use(middl.AuthMiddleware())
+	user.GET("/:id", handler.UserByID)
 
-	r.POST("/addartist", handler.CreateArtist)
+	albums := r.Group("/albums")
+	{
+		albums.POST("/create", handler.AddAlbum)
+		albums.GET("/list", handler.AlbumByID)
+		albums.GET("/list/:id", handler.AlbumsByArtist)
+		albums.GET("/list/:id", handler.AlbumsByTitle)
+	}
 
-	r.POST("/addalbum", handler.AddAlbum)
+	artist := r.Group("/artists")
+	{
+		artist.POST("/create", handler.CreateArtist)
+		artist.GET("/list", handler.ArtistsByName)
+		artist.GET("/get/:id", handler.ArtistByID)
+		artist.GET("/update/:id", handler.ArtistsByName)
 
-	r.POST("/addtrack", handler.AddTrack)
+		a := r.GET("/:id")
+		{
+			a.GET("/list", handler.TracksByArtist)
+		}
+	}
 
-	r.POST("/addplaylist", handler.CreatePlaylist)
+	track := r.Group("/track")
+	{
+		track.POST("/create", handler.AddTrack)
+		track.GET("/list", handler.TracksByTitle)
+		track.GET("/get/:id", handler.TrackByID)
+	}
 
-	r.POST("/addtracktoplaylist", handler.AddTrackToPlaylist)
+	playlists := r.Group("/playlist")
+	{
+		playlists.POST("/create", handler.CreatePlaylist)
+		playlists.GET("/:id", handler.PlaylistByID)
+		playlists.DELETE("/update/:id", handler.DeletePlaylist)
+
+		p := playlists.GET("/:id")
+		{
+			p.POST("/add", handler.AddTrackToPlaylist)
+			p.POST("/delete", handler.DeleteTrackFromPlaylist)
+			p.GET("/:id", handler.TrackFromPlaylist)
+		}
+	}
 
 	// Handlers get
 	r.GET("/play/:filename", func(c *gin.Context) {
@@ -123,8 +162,6 @@ func main() {
 		// Потоковая передача всего файла
 		http.ServeContent(c.Writer, c.Request, filename, fileInfo.ModTime(), file)
 	})
-
-	r.GET("/artists", handler.Artists)
 
 	// Run router
 	r.Run("localhost:8080")
