@@ -38,7 +38,7 @@ func main() {
 	config, err := config.LoadConfig()
 	log.Print("Config loaded")
 	if err != nil {
-		log.Fatal("Failed to load config: %v", err)
+		log.Fatal("Failed to load config:", err)
 	}
 
 	// Setup logger
@@ -53,7 +53,7 @@ func main() {
 	defer db.Close()
 
 	if err := db.Ping(); err != nil {
-		log.Error("Failed to ping database:", db)
+		log.Error("Failed to ping database")
 	}
 	log.Info("Database init")
 
@@ -62,7 +62,7 @@ func main() {
 
 	err = cash.Ping(ctx).Err()
 	if err != nil {
-		log.Error("Failed to connect to Redis:", err)
+		log.Error("Failed to connect to Redis")
 	}
 	log.Info("Redis init")
 
@@ -127,7 +127,7 @@ func main() {
 	})
 
 	// Run router
-	r.Run("localhost:8080")
+	r.Run(config.Server.Address)
 }
 
 func setupLogger(env string) *slog.Logger {
