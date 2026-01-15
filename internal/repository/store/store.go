@@ -14,6 +14,7 @@ type Repository interface {
 	albumRepository
 	playlistRepository
 }
+
 type Store struct {
 	db   *sql.DB
 	cash *redis.Client

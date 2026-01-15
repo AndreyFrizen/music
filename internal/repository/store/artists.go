@@ -13,6 +13,7 @@ type artistRepository interface {
 	ArtistByID(id int, ctx context.Context) (*model.Artist, error)
 	Artists(ctx context.Context) ([]model.Artist, error)
 	ArtistsByName(name string, ctx context.Context) ([]model.Artist, error)
+	FindArtists(input string) (error, []model.Artist)
 }
 
 // Post
@@ -112,4 +113,32 @@ func (s *Store) ArtistsByName(name string, ctx context.Context) ([]model.Artist,
 	}
 
 	return artists, nil
+}
+
+// FindArtists retrieves all artists by their name from the database
+func (s *Store) FindArtists(input string) (error, []model.Artist) {
+
+	var artists []model.Artist
+
+	a := fmt.Sprintf("SELECT * FROM artists WHERE name = '%v'", input)
+
+	rowsArtists, err := s.db.Query(a)
+	if err != nil {
+		return err, nil
+	}
+	defer rowsArtists.Close()
+
+	for rowsArtists.Next() {
+		var artist model.Artist
+
+		err := rowsArtists.Scan(&artist.ID, &artist.Name)
+
+		if err != nil {
+			return err, nil
+		}
+
+		artists = append(artists, artist)
+	}
+
+	return nil, artists
 }

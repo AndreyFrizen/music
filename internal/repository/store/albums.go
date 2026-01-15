@@ -14,6 +14,7 @@ type albumRepository interface {
 	AlbumByID(id int, ctx context.Context) (*model.Album, error)
 	AlbumsByTitle(title string, ctx context.Context) ([]model.Album, error)
 	AlbumsByArtistID(artistID int, ctx context.Context) ([]model.Album, error)
+	FindAlbums(input string) (error, []model.Album)
 }
 
 // Post
@@ -135,4 +136,33 @@ func (s *Store) AlbumsByArtistID(artistID int, ctx context.Context) ([]model.Alb
 	}
 
 	return albums, nil
+}
+
+// FindAlbums retrieves all albums by their title from the database.
+func (s *Store) FindAlbums(input string) (error, []model.Album) {
+	var albums []model.Album
+
+	al := fmt.Sprintf("SELECT * FROM albums WHERE title = '%v'", input)
+
+	rowsAlbums, err := s.db.Query(al)
+
+	if err != nil {
+		return err, nil
+	}
+
+	defer rowsAlbums.Close()
+
+	for rowsAlbums.Next() {
+		var album model.Album
+
+		err := rowsAlbums.Scan(&album.ID, &album.Title, &album.ArtistID, &album.ReleaseDate)
+
+		if err != nil {
+			return err, nil
+		}
+
+		albums = append(albums, album)
+	}
+
+	return nil, albums
 }

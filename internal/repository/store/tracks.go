@@ -14,6 +14,7 @@ type trackRepository interface {
 	DeleteTrackFromPlaylist(id int, ctx context.Context) error
 	TracksByTitle(title string, ctx context.Context) ([]model.Track, error)
 	TracksByArtist(artistID int, ctx context.Context) ([]model.Track, error)
+	FindTracks(input string, ctx context.Context) ([]model.Track, error)
 }
 
 // Post
@@ -153,4 +154,30 @@ func (s *Store) DeleteTrackFromPlaylist(id int, ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// FindTracks
+func (s *Store) FindTracks(input string) (error, []model.Track) {
+	var tracks []model.Track
+
+	t := fmt.Sprintf("SELECT * FROM tracks WHERE title = '%v'", input)
+	rowsTracks, err := s.db.Query(t)
+	if err != nil {
+		return err, nil
+	}
+	defer rowsTracks.Close()
+
+	for rowsTracks.Next() {
+		var track model.Track
+
+		err := rowsTracks.Scan(&track.ID, &track.Title, &track.AudioURL, &track.Duration, &track.ArtistID)
+
+		if err != nil {
+			return err, nil
+		}
+
+		tracks = append(tracks, track)
+	}
+
+	return nil, tracks
 }
