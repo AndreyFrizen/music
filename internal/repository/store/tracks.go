@@ -160,7 +160,7 @@ func (s *Store) DeleteTrackFromPlaylist(id int, ctx context.Context) error {
 func (s *Store) FindTracks(input string) (error, []model.Track) {
 	var tracks []model.Track
 
-	t := fmt.Sprintf("SELECT * FROM tracks WHERE title = '%v'", input)
+	t := fmt.Sprintf("SELECT * FROM tracks WHERE title = '%v*'", input)
 	rowsTracks, err := s.db.Query(t)
 	if err != nil {
 		return err, nil

@@ -120,7 +120,7 @@ func (s *Store) FindArtists(input string) (error, []model.Artist) {
 
 	var artists []model.Artist
 
-	a := fmt.Sprintf("SELECT * FROM artists WHERE name = '%v'", input)
+	a := fmt.Sprintf("SELECT * FROM artists WHERE name = '%v*'", input)
 
 	rowsArtists, err := s.db.Query(a)
 	if err != nil {

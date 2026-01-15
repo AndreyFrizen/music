@@ -142,7 +142,7 @@ func (s *Store) AlbumsByArtistID(artistID int, ctx context.Context) ([]model.Alb
 func (s *Store) FindAlbums(input string) (error, []model.Album) {
 	var albums []model.Album
 
-	al := fmt.Sprintf("SELECT * FROM albums WHERE title = '%v'", input)
+	al := fmt.Sprintf("SELECT * FROM albums WHERE title = '%v*'", input)
 
 	rowsAlbums, err := s.db.Query(al)
 
