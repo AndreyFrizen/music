@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"log"
 	"mess/internal/model"
 	"strconv"
 	"time"
@@ -32,6 +33,7 @@ func (m *Service) UserByID(id int, ctx context.Context) (*model.User, error) {
 
 // GetUserByEmail retrieves a user by email
 func (m *Service) Auth(u *model.User, ctx context.Context) (string, error) {
+	log.Println("Authenticating user...", u)
 	user, err := m.Repo.UserByEmail(u.Email, ctx)
 	if err != nil {
 		return "", err

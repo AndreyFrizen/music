@@ -11,13 +11,9 @@ func PlaylistsRoutes(r *gin.Engine, handler handlers.HandlerInterface) {
 	{
 		playlists.POST("/create", handler.CreatePlaylist)
 		playlists.GET("/:id", handler.PlaylistByID)
-		playlists.DELETE("/update/:id", handler.DeletePlaylist)
-
-		p := playlists.GET("/:id")
-		{
-			p.POST("/add", handler.AddTrackToPlaylist)
-			p.POST("/delete", handler.DeleteTrackFromPlaylist)
-			p.GET("/:id", handler.TrackFromPlaylist)
-		}
+		playlists.DELETE("/:id", handler.DeletePlaylist)
+		playlists.POST("/add/:id", handler.AddTrackToPlaylist)
+		playlists.DELETE("/delete/:id", handler.DeleteTrackFromPlaylist)
+		playlists.GET("/track/:id", handler.TrackFromPlaylist)
 	}
 }

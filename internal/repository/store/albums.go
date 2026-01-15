@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"mess/internal/model"
 	"strconv"
 	"time"
@@ -21,7 +22,7 @@ type albumRepository interface {
 
 // Add Album to database.
 func (s *Store) AddAlbum(a *model.Album, ctx context.Context) error {
-	query := fmt.Sprintf("INSERT INTO albums VALUES ('%s', '%d', '%s')",
+	query := fmt.Sprintf("INSERT INTO albums (title, artist_id, release_date) VALUES ('%s', '%d', '%s')",
 		a.Title, a.ArtistID, a.ReleaseDate)
 
 	_, err := s.db.Exec(query)
@@ -39,18 +40,18 @@ func (s *Store) AddAlbum(a *model.Album, ctx context.Context) error {
 
 // AlbumByID retrieves an album by its ID from the database.
 func (s *Store) AlbumByID(id int, ctx context.Context) (*model.Album, error) {
-
 	var album model.Album
 
 	albs, err := s.cash.Get(ctx, strconv.Itoa(id)).Bytes()
 	if err == nil {
+		log.Printf("Cache hit for album ID %d", id)
 		err = json.Unmarshal(albs, &album)
 	} else {
 		query := fmt.Sprintf("SELECT * FROM albums WHERE id = '%d'", id)
 
 		row := s.db.QueryRowContext(ctx, query)
 
-		err = row.Scan(&album.Title, &album.ArtistID, &album.ReleaseDate, &album.ID)
+		err = row.Scan(&album.ID, &album.Title, &album.ArtistID, &album.ReleaseDate)
 
 		if err != nil {
 			return nil, err

@@ -9,16 +9,12 @@ import (
 func ArtistRoutes(r *gin.Engine, handler handlers.HandlerInterface) {
 	artist := r.Group("/artists")
 	{
-		artist.POST("/ws", handler.ArtistWebSocket)
-		artist.POST("/find", handler.FindArtists)
+		r.GET("/ws", handler.ArtistWebSocket)
+		artist.GET("/find", handler.FindArtists)
 		artist.POST("/create", handler.CreateArtist)
-		artist.GET("/list", handler.ArtistsByName)
-		artist.GET("/get/:id", handler.ArtistByID)
-		artist.GET("/update/:id", handler.ArtistsByName)
-
-		a := artist.GET("/:id")
-		{
-			a.GET("/list", handler.TracksByArtist)
-		}
+		artist.GET("/list", handler.Artists)
+		artist.GET("/:id", handler.ArtistByID)
+		artist.GET("/name/:name", handler.ArtistsByName)
+		artist.GET("/tracks/:id", handler.TracksByArtist)
 	}
 }

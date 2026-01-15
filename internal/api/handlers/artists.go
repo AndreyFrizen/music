@@ -1,12 +1,12 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"mess/internal/model"
 	templs "mess/static/templates"
 	"net/http"
 	"strconv"
-	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -88,27 +88,40 @@ func (h *Handler) ArtistsByName(c *gin.Context) {
 
 // FindArtists retrieves artists by input string.
 func (h *Handler) FindArtists(c *gin.Context) {
-	http.ServeFile(c.Writer, c.Request, "~/projects/music/static/templates/artists.html")
+	c.HTML(http.StatusOK, "artists.html", gin.H{"message": "artists retrieved"})
 }
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
-
-type Client struct {
-	conn *websocket.Conn
-	mu   sync.Mutex
-}
-
-var mu sync.Mutex
-var clients = make(map[*Client]bool)
 
 func (h *Handler) ArtistWebSocket(c *gin.Context) {
+	log.Printf("WebSocket connection opened")
+	// Upgrade the HTTP connection to a WebSocket connection.
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Printf("WebSocket upgrade error: %v", err)
+		fmt.Println(err)
 		return
 	}
 	defer conn.Close()
+
+	// Handle WebSocket messages here
+	for {
+		messageType, data, err := conn.ReadMessage()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Printf("Received message: %s\n", data)
+
+		// Echo the message back to the client
+		if err := conn.WriteMessage(messageType, data); err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
 }

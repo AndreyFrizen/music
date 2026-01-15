@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"mess/internal/api/handlers"
 	"mess/internal/config"
-	middl "mess/internal/lib/middlware"
 	"mess/internal/repository/store"
 	routes "mess/internal/routes/rout"
 	services "mess/internal/service"
@@ -78,10 +77,12 @@ func main() {
 
 	// Initialize router
 	r := gin.Default()
+	r.LoadHTMLGlob("../static/templ/*")
 
-	routes.UserRoutes(r, handler)
+	r.POST("/register", handler.RegisterUser)
+	r.POST("/login", handler.LoginUser)
 	// Init Middlewares
-	r.Use(middl.AuthMiddleware())
+	// r.Use(middl.AuthMiddleware())
 	r.GET("/user/:id", handler.UserByID)
 
 	routes.AlbumsRoutes(r, handler)

@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"fmt"
+	"log"
 	"mess/internal/model"
 )
 
@@ -16,7 +17,7 @@ type userRepository interface {
 
 // Create user in database
 func (s *Store) CreateUser(u *model.User, ctx context.Context) error {
-	query := fmt.Sprintf("INSERT INTO users VALUES ('%s', '%s', '%s')",
+	query := fmt.Sprintf("INSERT INTO users (username, password, email) VALUES ('%s', '%s', '%s')",
 		u.Username, u.EncryptedPassword, u.Email,
 	)
 
@@ -55,7 +56,7 @@ func (s *Store) UserByEmail(email string, ctx context.Context) (*model.User, err
 	var user model.User
 
 	err := row.Scan(&user.ID, &user.Username, &user.EncryptedPassword, &user.Email)
-
+	log.Println("User found:", user)
 	if err != nil {
 		return nil, err
 	}

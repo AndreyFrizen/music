@@ -11,6 +11,6 @@ func TracksRoutes(r *gin.Engine, handler handlers.HandlerInterface) {
 	{
 		track.POST("/create", handler.AddTrack)
 		track.GET("/list", handler.TracksByTitle)
-		track.GET("/get/:id", handler.TrackByID)
+		track.GET("/:id", handler.TrackByID)
 	}
 }
