@@ -4,13 +4,11 @@ import (
 	"context"
 	"fmt"
 	"mess/internal/model"
-
-	"github.com/google/uuid"
 )
 
 type userRepository interface {
 	CreateUser(u *model.User, ctx context.Context) error
-	UserByID(id string, ctx context.Context) (*model.User, error)
+	UserByID(id int, ctx context.Context) (*model.User, error)
 	UserByEmail(email string, ctx context.Context) (*model.User, error)
 }
 
@@ -18,8 +16,8 @@ type userRepository interface {
 
 // Create user in database
 func (s *Store) CreateUser(u *model.User, ctx context.Context) error {
-	query := fmt.Sprintf("INSERT INTO users VALUES ('%s', '%s', '%s', '%s')",
-		uuid.New().String(), u.Username, u.EncryptedPassword, u.Email,
+	query := fmt.Sprintf("INSERT INTO users VALUES ('%s', '%s', '%s')",
+		u.Username, u.EncryptedPassword, u.Email,
 	)
 
 	_, err := s.db.ExecContext(ctx, query)
@@ -32,8 +30,8 @@ func (s *Store) CreateUser(u *model.User, ctx context.Context) error {
 }
 
 // Get user by id
-func (s *Store) UserByID(id string, ctx context.Context) (*model.User, error) {
-	query := fmt.Sprintf("SELECT * FROM users WHERE id = '%s'", id)
+func (s *Store) UserByID(id int, ctx context.Context) (*model.User, error) {
+	query := fmt.Sprintf("SELECT * FROM users WHERE id = '%d'", id)
 
 	row := s.db.QueryRowContext(ctx, query)
 

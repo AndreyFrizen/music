@@ -4,26 +4,24 @@ import (
 	"context"
 	"fmt"
 	"mess/internal/model"
-
-	"github.com/google/uuid"
 )
 
 type trackRepository interface {
 	AddTrack(t *model.Track, ctx context.Context) error
 	AddTrackToPlaylist(t *model.PlaylistTrack, ctx context.Context) error
-	TrackByID(id string, ctx context.Context) (*model.Track, error)
-	TrackFromPlaylist(id string, ctx context.Context) (*model.Track, error)
-	DeleteTrackFromPlaylist(id string, ctx context.Context) error
+	TrackByID(id int, ctx context.Context) (*model.Track, error)
+	TrackFromPlaylist(id int, ctx context.Context) (*model.Track, error)
+	DeleteTrackFromPlaylist(id int, ctx context.Context) error
 	TracksByTitle(title string, ctx context.Context) ([]model.Track, error)
-	TracksByArtist(artistID string, ctx context.Context) ([]model.Track, error)
+	TracksByArtist(artistID int, ctx context.Context) ([]model.Track, error)
 }
 
 // Post
 
 // Add track to database
 func (s *Store) AddTrack(t *model.Track, ctx context.Context) error {
-	query := fmt.Sprintf("INSERT INTO tracks VALUES ('%s', '%s', '%s', '%s')",
-		uuid.New().String(), t.Title, t.Duration, t.AudioURL)
+	query := fmt.Sprintf("INSERT INTO tracks VALUES ('%s', '%s', '%s')",
+		t.Title, t.Duration, t.AudioURL)
 
 	_, err := s.db.ExecContext(ctx, query)
 
@@ -36,7 +34,7 @@ func (s *Store) AddTrack(t *model.Track, ctx context.Context) error {
 
 // Add track to playlist
 func (s *Store) AddTrackToPlaylist(t *model.PlaylistTrack, ctx context.Context) error {
-	query := fmt.Sprintf("INSERT INTO track_to_playlist VALUES ('%s', '%s', '%d')",
+	query := fmt.Sprintf("INSERT INTO track_to_playlist VALUES ('%v', '%v', '%d')",
 		t.PlaylistID, t.TrackID, t.Position)
 
 	_, err := s.db.ExecContext(ctx, query)
@@ -51,8 +49,8 @@ func (s *Store) AddTrackToPlaylist(t *model.PlaylistTrack, ctx context.Context) 
 // Get
 
 // TrackFromPlaylist retrieves a track from playlist from the database.
-func (s *Store) TrackFromPlaylist(id string, ctx context.Context) (*model.Track, error) {
-	query := fmt.Sprintf("SELECT * FROM playlist_tracks WHERE id = '%s'", id)
+func (s *Store) TrackFromPlaylist(id int, ctx context.Context) (*model.Track, error) {
+	query := fmt.Sprintf("SELECT * FROM playlist_tracks WHERE id = '%v'", id)
 
 	row := s.db.QueryRowContext(ctx, query)
 
@@ -68,8 +66,8 @@ func (s *Store) TrackFromPlaylist(id string, ctx context.Context) (*model.Track,
 }
 
 // TrackByID retrieves a track by its ID from the database
-func (s *Store) TrackByID(id string, ctx context.Context) (*model.Track, error) {
-	query := fmt.Sprintf("SELECT * FROM tracks WHERE id = '%s'", id)
+func (s *Store) TrackByID(id int, ctx context.Context) (*model.Track, error) {
+	query := fmt.Sprintf("SELECT * FROM tracks WHERE id = '%v'", id)
 
 	row := s.db.QueryRowContext(ctx, query)
 
@@ -114,8 +112,8 @@ func (s *Store) TracksByTitle(title string, ctx context.Context) ([]model.Track,
 }
 
 // TracksByArtist retrieves tracks by artist from the database
-func (s *Store) TracksByArtist(artistID string, ctx context.Context) ([]model.Track, error) {
-	query := fmt.Sprintf("SELECT * FROM tracks WHERE artist_id = '%s'", artistID)
+func (s *Store) TracksByArtist(artistID int, ctx context.Context) ([]model.Track, error) {
+	query := fmt.Sprintf("SELECT * FROM tracks WHERE artist_id = '%v'", artistID)
 
 	rows, err := s.db.QueryContext(ctx, query)
 
@@ -145,8 +143,8 @@ func (s *Store) TracksByArtist(artistID string, ctx context.Context) ([]model.Tr
 // Delete
 
 // DeleteTrackFromPlaylist deletes a track from playlist from the database
-func (s *Store) DeleteTrackFromPlaylist(id string, ctx context.Context) error {
-	query := fmt.Sprintf("DELETE FROM playlist_tracks WHERE id = '%s'", id)
+func (s *Store) DeleteTrackFromPlaylist(id int, ctx context.Context) error {
+	query := fmt.Sprintf("DELETE FROM playlist_tracks WHERE id = '%v'", id)
 
 	_, err := s.db.ExecContext(ctx, query)
 

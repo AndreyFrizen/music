@@ -7,8 +7,8 @@ import (
 
 type albumService interface {
 	AddAlbum(album *model.Album, ctx context.Context) error
-	AlbumByID(id string, ctx context.Context) (*model.Album, error)
-	AlbumsByArtist(artistID string, ctx context.Context) ([]model.Album, error)
+	AlbumByID(id int, ctx context.Context) (*model.Album, error)
+	AlbumsByArtist(artistID int, ctx context.Context) ([]model.Album, error)
 	AlbumsByTitle(title string, ctx context.Context) ([]model.Album, error)
 }
 
@@ -21,12 +21,12 @@ func (m *Service) AddAlbum(album *model.Album, ctx context.Context) error {
 }
 
 // AlbumByID retrieves an album by its ID.
-func (m *Service) AlbumByID(id string, ctx context.Context) (*model.Album, error) {
+func (m *Service) AlbumByID(id int, ctx context.Context) (*model.Album, error) {
 	return m.Repo.AlbumByID(id, ctx)
 }
 
 // AlbumsByArtist retrieves albums by artist ID.
-func (m *Service) AlbumsByArtist(artistID string, ctx context.Context) ([]model.Album, error) {
+func (m *Service) AlbumsByArtist(artistID int, ctx context.Context) ([]model.Album, error) {
 	return m.Repo.AlbumsByArtistID(artistID, ctx)
 }
 

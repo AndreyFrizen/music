@@ -4,22 +4,20 @@ import (
 	"context"
 	"fmt"
 	"mess/internal/model"
-
-	"github.com/google/uuid"
 )
 
 type playlistRepository interface {
 	CreatePlaylist(p *model.Playlist, ctx context.Context) error
-	PlaylistByID(id string, ctx context.Context) (*model.Playlist, error)
-	DeletePlaylist(id string, ctx context.Context) error
+	PlaylistByID(id int, ctx context.Context) (*model.Playlist, error)
+	DeletePlaylist(id int, ctx context.Context) error
 }
 
 // Post
 
 // Add Playlist to database
 func (s *Store) CreatePlaylist(p *model.Playlist, ctx context.Context) error {
-	query := fmt.Sprintf("INSERT INTO playlists VALUES ('%s', '%s', '%s')",
-		uuid.New().String(), p.Title, p.UserID)
+	query := fmt.Sprintf("INSERT INTO playlists VALUES ('%s', '%v')",
+		p.Title, p.UserID)
 
 	_, err := s.db.ExecContext(ctx, query)
 
@@ -33,8 +31,8 @@ func (s *Store) CreatePlaylist(p *model.Playlist, ctx context.Context) error {
 // Get
 
 // PlaylistByID retrieves a playlist by its ID from the database.
-func (s *Store) PlaylistByID(id string, ctx context.Context) (*model.Playlist, error) {
-	query := fmt.Sprintf("SELECT * FROM playlists WHERE id = '%s'", id)
+func (s *Store) PlaylistByID(id int, ctx context.Context) (*model.Playlist, error) {
+	query := fmt.Sprintf("SELECT * FROM playlists WHERE id = %d", id)
 
 	row := s.db.QueryRowContext(ctx, query)
 
@@ -52,8 +50,8 @@ func (s *Store) PlaylistByID(id string, ctx context.Context) (*model.Playlist, e
 // Delete
 
 // Delete Playlist from database
-func (s *Store) DeletePlaylist(id string, ctx context.Context) error {
-	query := fmt.Sprintf("DELETE FROM playlists WHERE id = '%s'", id)
+func (s *Store) DeletePlaylist(id int, ctx context.Context) error {
+	query := fmt.Sprintf("DELETE FROM playlists WHERE id = %d", id)
 
 	_, err := s.db.ExecContext(ctx, query)
 

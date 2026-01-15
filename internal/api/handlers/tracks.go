@@ -3,6 +3,7 @@ package handlers
 import (
 	"mess/internal/model"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -51,7 +52,12 @@ func (h *Handler) AddTrack(c *gin.Context) {
 // Delete Track from playlist
 func (h *Handler) DeleteTrackFromPlaylist(c *gin.Context) {
 	id := c.Param("id")
-	if err := h.service.DeleteTrackFromPlaylist(id, c); err != nil {
+	ids, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+	if err := h.service.DeleteTrackFromPlaylist(ids, c); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -62,7 +68,12 @@ func (h *Handler) DeleteTrackFromPlaylist(c *gin.Context) {
 // Get Track by ID
 func (h *Handler) TrackByID(c *gin.Context) {
 	id := c.Param("id")
-	track, err := h.service.TrackByID(id, c)
+	ids, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+	track, err := h.service.TrackByID(ids, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -75,7 +86,12 @@ func (h *Handler) TrackByID(c *gin.Context) {
 // Get Track from playlist
 func (h *Handler) TrackFromPlaylist(c *gin.Context) {
 	id := c.Param("id")
-	track, err := h.service.TrackFromPlaylist(id, c)
+	ids, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+	track, err := h.service.TrackFromPlaylist(ids, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -99,9 +115,13 @@ func (h *Handler) TracksByTitle(c *gin.Context) {
 
 // TracksByArtist retrieves tracks by artist
 func (h *Handler) TracksByArtist(c *gin.Context) {
-	artist := c.Param("artist")
-
-	tracks, err := h.service.TracksByArtist(artist, c)
+	artist := c.Param("id")
+	id, err := strconv.Atoi(artist)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+	tracks, err := h.service.TracksByArtist(id, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -4,14 +4,13 @@ import (
 	"context"
 	"fmt"
 	"mess/internal/model"
+	"strconv"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type artistRepository interface {
 	CreateArtist(a *model.Artist, ctx context.Context) error
-	ArtistByID(id string, ctx context.Context) (*model.Artist, error)
+	ArtistByID(id int, ctx context.Context) (*model.Artist, error)
 	Artists(ctx context.Context) ([]model.Artist, error)
 	ArtistsByName(name string, ctx context.Context) ([]model.Artist, error)
 }
@@ -20,8 +19,8 @@ type artistRepository interface {
 
 // CreateArtist creates a new artist in the database
 func (s *Store) CreateArtist(a *model.Artist, ctx context.Context) error {
-	query := fmt.Sprintf("INSERT INTO artists VALUES ('%s', '%s')",
-		uuid.New().String(), a.Name)
+	query := fmt.Sprintf("INSERT INTO artists VALUES ('%s')",
+		a.Name)
 
 	_, err := s.db.ExecContext(ctx, query)
 
@@ -29,11 +28,11 @@ func (s *Store) CreateArtist(a *model.Artist, ctx context.Context) error {
 		return err
 	}
 
-	s.cash.HSet(ctx, a.ID.String(), map[string]any{
+	s.cash.Set(ctx, strconv.Itoa(a.ID), map[string]any{
 		"title": a.Name,
-	})
+	}, time.Minute*10)
 
-	s.cash.Expire(ctx, a.ID.String(), time.Minute*10).Err()
+	s.cash.Expire(ctx, strconv.Itoa(a.ID), time.Minute*10).Err()
 
 	return nil
 }
@@ -41,8 +40,8 @@ func (s *Store) CreateArtist(a *model.Artist, ctx context.Context) error {
 // GET
 
 // ArtistByID retrieves an artist by their ID from the database
-func (s *Store) ArtistByID(id string, ctx context.Context) (*model.Artist, error) {
-	query := fmt.Sprintf("SELECT * FROM artists WHERE id = '%s'", id)
+func (s *Store) ArtistByID(id int, ctx context.Context) (*model.Artist, error) {
+	query := fmt.Sprintf("SELECT * FROM artists WHERE id = '%v'", id)
 
 	row := s.db.QueryRow(query)
 

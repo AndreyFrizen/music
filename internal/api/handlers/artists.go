@@ -4,6 +4,7 @@ import (
 	"mess/internal/model"
 	templs "mess/static/templates"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,7 +22,13 @@ type artistHandler interface {
 func (h *Handler) ArtistByID(c *gin.Context) {
 	id := c.Param("id")
 
-	artist, err := h.service.ArtistByID(id, c)
+	ids, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	artist, err := h.service.ArtistByID(ids, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -3,16 +3,16 @@ package services
 import (
 	"context"
 	"mess/internal/model"
+	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type userService interface {
 	Register(user *model.User, ctx context.Context) error
-	UserByID(id string, ctx context.Context) (*model.User, error)
+	UserByID(id int, ctx context.Context) (*model.User, error)
 	Auth(user *model.User, ctx context.Context) (string, error)
 }
 
@@ -26,7 +26,7 @@ func (m *Service) Register(user *model.User, ctx context.Context) error {
 }
 
 // UserByID retrieves a user by ID
-func (m *Service) UserByID(id string, ctx context.Context) (*model.User, error) {
+func (m *Service) UserByID(id int, ctx context.Context) (*model.User, error) {
 	return m.Repo.UserByID(id, ctx)
 }
 
@@ -54,13 +54,13 @@ type TokenClaims struct {
 	UserID string `json:"user_id"`
 }
 
-func generateToken(userID uuid.UUID) (string, error) {
+func generateToken(userID int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &TokenClaims{
 		StandardClaims: jwt.StandardClaims{
 			IssuedAt:  time.Now().Unix(),
 			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), // Срок действия — 24 часа
 		},
-		UserID: userID.String(),
+		UserID: strconv.Itoa(userID),
 	})
 	return token.SignedString(model.SecretKey)
 }

@@ -3,6 +3,7 @@ package handlers
 import (
 	"mess/internal/model"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,7 +32,12 @@ func (h *Handler) CreatePlaylist(c *gin.Context) {
 // Delete playlist
 func (h *Handler) DeletePlaylist(c *gin.Context) {
 	id := c.Param("id")
-	if err := h.service.DeletePlaylist(id, c); err != nil {
+	ids, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+	if err := h.service.DeletePlaylist(ids, c); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -41,7 +47,12 @@ func (h *Handler) DeletePlaylist(c *gin.Context) {
 // Get playlist
 func (h *Handler) PlaylistByID(c *gin.Context) {
 	id := c.Param("id")
-	playlist, err := h.service.PlaylistByID(id, c)
+	ids, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+	playlist, err := h.service.PlaylistByID(ids, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

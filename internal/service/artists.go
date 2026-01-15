@@ -7,7 +7,7 @@ import (
 
 type artistService interface {
 	CreateArtist(artist *model.Artist, ctx context.Context) error
-	ArtistByID(id string, ctx context.Context) (*model.Artist, error)
+	ArtistByID(id int, ctx context.Context) (*model.Artist, error)
 	Artists(ctx context.Context) ([]model.Artist, error)
 	ArtistsByName(name string, ctx context.Context) ([]model.Artist, error)
 }
@@ -18,7 +18,7 @@ func (m *Service) CreateArtist(artist *model.Artist, ctx context.Context) error 
 }
 
 // ArtistService retrieves an artist by ID
-func (m *Service) ArtistByID(id string, ctx context.Context) (*model.Artist, error) {
+func (m *Service) ArtistByID(id int, ctx context.Context) (*model.Artist, error) {
 	return m.Repo.ArtistByID(id, ctx)
 }
 

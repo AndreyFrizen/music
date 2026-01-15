@@ -3,6 +3,7 @@ package handlers
 import (
 	"mess/internal/model"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,7 +38,13 @@ func (h *Handler) AddAlbum(c *gin.Context) {
 func (h *Handler) AlbumByID(c *gin.Context) {
 	id := c.Param("id")
 
-	album, err := h.service.AlbumByID(id, c)
+	ids, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	album, err := h.service.AlbumByID(ids, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -61,9 +68,15 @@ func (h *Handler) AlbumsByTitle(c *gin.Context) {
 
 // AlbumsByArtist retrieves albums by artist
 func (h *Handler) AlbumsByArtist(c *gin.Context) {
-	artist := c.Param("artist")
+	artist := c.Param("id")
 
-	albums, err := h.service.AlbumsByArtist(artist, c)
+	id, err := strconv.Atoi(artist)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	albums, err := h.service.AlbumsByArtist(id, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

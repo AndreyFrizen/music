@@ -3,6 +3,7 @@ package handlers
 import (
 	"mess/internal/model"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,7 +34,12 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 // UserByID retrieves a user by ID
 func (h *Handler) UserByID(c *gin.Context) {
 	id := c.Param("id")
-	user, err := h.service.UserByID(id, c)
+	ids, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+	user, err := h.service.UserByID(ids, c)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
