@@ -14,7 +14,7 @@ type trackRepository interface {
 	DeleteTrackFromPlaylist(id int, ctx context.Context) error
 	TracksByTitle(title string, ctx context.Context) ([]model.Track, error)
 	TracksByArtist(artistID int, ctx context.Context) ([]model.Track, error)
-	FindTracks(input string, ctx context.Context) ([]model.Track, error)
+	FindTracks(input string) (error, []model.Track)
 }
 
 // Post

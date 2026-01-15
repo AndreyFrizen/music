@@ -13,6 +13,7 @@ type trackService interface {
 	TracksByArtist(artistID int, ctx context.Context) ([]model.Track, error)
 	TracksByTitle(title string, ctx context.Context) ([]model.Track, error)
 	DeleteTrackFromPlaylist(id int, ctx context.Context) error
+	FindTracks(input string) (error, []model.Track)
 }
 
 // AddTrack adds a track to the database
@@ -48,4 +49,9 @@ func (m *Service) TracksByArtist(artistID int, ctx context.Context) ([]model.Tra
 // TracksByTitle retrieves tracks by title.
 func (m *Service) TracksByTitle(title string, ctx context.Context) ([]model.Track, error) {
 	return m.Repo.TracksByTitle(title, ctx)
+}
+
+// FindTracks retrieves tracks by input string.
+func (m *Service) FindTracks(input string) (error, []model.Track) {
+	return m.Repo.FindTracks(input)
 }

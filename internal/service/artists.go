@@ -10,6 +10,7 @@ type artistService interface {
 	ArtistByID(id int, ctx context.Context) (*model.Artist, error)
 	Artists(ctx context.Context) ([]model.Artist, error)
 	ArtistsByName(name string, ctx context.Context) ([]model.Artist, error)
+	FindArtists(input string) (error, []model.Artist)
 }
 
 // ArtistService creates a new artist
@@ -30,4 +31,9 @@ func (m *Service) Artists(ctx context.Context) ([]model.Artist, error) {
 // ArtistService retrieves artists by name
 func (m *Service) ArtistsByName(name string, ctx context.Context) ([]model.Artist, error) {
 	return m.Repo.ArtistsByName(name, ctx)
+}
+
+// FindArtists retrieves artists by input string.
+func (m *Service) FindArtists(input string) (error, []model.Artist) {
+	return m.Repo.FindArtists(input)
 }

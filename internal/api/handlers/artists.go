@@ -1,12 +1,15 @@
 package handlers
 
 import (
+	"log"
 	"mess/internal/model"
 	templs "mess/static/templates"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 //go:generate mockgen -source=artists.go -destination=mocks/mock_artist_handler.go
@@ -16,6 +19,8 @@ type artistHandler interface {
 	ArtistByID(c *gin.Context)
 	Artists(c *gin.Context)
 	ArtistsByName(c *gin.Context)
+	FindArtists(c *gin.Context)
+	ArtistWebSocket(c *gin.Context)
 }
 
 // ArtistByID retrieves an artist by ID.
@@ -79,4 +84,31 @@ func (h *Handler) ArtistsByName(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "artists retrieved", "artists": artists})
+}
+
+// FindArtists retrieves artists by input string.
+func (h *Handler) FindArtists(c *gin.Context) {
+	http.ServeFile(c.Writer, c.Request, "~/projects/music/static/templates/artists.html")
+}
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+
+type Client struct {
+	conn *websocket.Conn
+	mu   sync.Mutex
+}
+
+var mu sync.Mutex
+var clients = make(map[*Client]bool)
+
+func (h *Handler) ArtistWebSocket(c *gin.Context) {
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		log.Printf("WebSocket upgrade error: %v", err)
+		return
+	}
+	defer conn.Close()
 }

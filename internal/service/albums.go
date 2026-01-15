@@ -10,6 +10,7 @@ type albumService interface {
 	AlbumByID(id int, ctx context.Context) (*model.Album, error)
 	AlbumsByArtist(artistID int, ctx context.Context) ([]model.Album, error)
 	AlbumsByTitle(title string, ctx context.Context) ([]model.Album, error)
+	FindAlbums(input string) (error, []model.Album)
 }
 
 // AddAlbum adds a new album
@@ -33,4 +34,9 @@ func (m *Service) AlbumsByArtist(artistID int, ctx context.Context) ([]model.Alb
 // AlbumsByArtistName retrieves albums by artist name.
 func (m *Service) AlbumsByTitle(title string, ctx context.Context) ([]model.Album, error) {
 	return m.Repo.AlbumsByTitle(title, ctx)
+}
+
+// FindAlbums retrieves albums by input string.
+func (m *Service) FindAlbums(input string) (error, []model.Album) {
+	return m.Repo.FindAlbums(input)
 }
