@@ -2,8 +2,11 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"mess/internal/model"
+	"strconv"
+	"time"
 )
 
 type playlistRepository interface {
@@ -25,6 +28,8 @@ func (s *Store) CreatePlaylist(p *model.Playlist, ctx context.Context) error {
 		return err
 	}
 
+	jsonData, _ := json.MarshalIndent(p, "", "  ")
+	s.cash.Set(ctx, strconv.Itoa(p.ID), string(jsonData), time.Minute*10)
 	return nil
 }
 
@@ -32,16 +37,24 @@ func (s *Store) CreatePlaylist(p *model.Playlist, ctx context.Context) error {
 
 // PlaylistByID retrieves a playlist by its ID from the database.
 func (s *Store) PlaylistByID(id int, ctx context.Context) (*model.Playlist, error) {
-	query := fmt.Sprintf("SELECT * FROM playlists WHERE id = %d", id)
-
-	row := s.db.QueryRowContext(ctx, query)
-
 	var playlist model.Playlist
 
-	err := row.Scan(&playlist.ID, &playlist.Title, &playlist.UserID)
+	play, err := s.cash.Get(ctx, strconv.Itoa(id)).Bytes()
+	if err == nil {
+		err = json.Unmarshal(play, &playlist)
+	} else {
+		query := fmt.Sprintf("SELECT * FROM playlists WHERE id = %d", id)
 
-	if err != nil {
-		return nil, err
+		row := s.db.QueryRowContext(ctx, query)
+
+		err := row.Scan(&playlist.ID, &playlist.Title, &playlist.UserID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		jsonData, _ := json.MarshalIndent(playlist, "", "  ")
+		s.cash.Set(ctx, strconv.Itoa(playlist.ID), string(jsonData), time.Minute*10)
 	}
 
 	return &playlist, nil

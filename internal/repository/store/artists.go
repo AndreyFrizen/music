@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"mess/internal/model"
 	"strconv"
@@ -29,11 +30,8 @@ func (s *Store) CreateArtist(a *model.Artist, ctx context.Context) error {
 		return err
 	}
 
-	s.cash.Set(ctx, strconv.Itoa(a.ID), map[string]any{
-		"title": a.Name,
-	}, time.Minute*10)
-
-	s.cash.Expire(ctx, strconv.Itoa(a.ID), time.Minute*10).Err()
+	jsonData, _ := json.MarshalIndent(a, "", "  ")
+	s.cash.Set(ctx, strconv.Itoa(a.ID), string(jsonData), time.Minute*10)
 
 	return nil
 }
@@ -42,16 +40,24 @@ func (s *Store) CreateArtist(a *model.Artist, ctx context.Context) error {
 
 // ArtistByID retrieves an artist by their ID from the database
 func (s *Store) ArtistByID(id int, ctx context.Context) (*model.Artist, error) {
-	query := fmt.Sprintf("SELECT * FROM artists WHERE id = '%v'", id)
-
-	row := s.db.QueryRow(query)
-
 	var artist model.Artist
 
-	err := row.Scan(&artist.Name, &artist.ID)
+	arts, err := s.cash.Get(ctx, strconv.Itoa(id)).Bytes()
+	if err == nil {
+		err = json.Unmarshal(arts, &artist)
+	} else {
+		query := fmt.Sprintf("SELECT * FROM artists WHERE id = '%v'", id)
 
-	if err != nil {
-		return nil, err
+		row := s.db.QueryRow(query)
+
+		err := row.Scan(&artist.Name, &artist.ID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		jsonData, _ := json.MarshalIndent(artist, "", "  ")
+		s.cash.Set(ctx, strconv.Itoa(artist.ID), string(jsonData), time.Minute*10)
 	}
 
 	return &artist, nil

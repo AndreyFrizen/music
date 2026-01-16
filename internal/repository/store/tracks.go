@@ -2,8 +2,11 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"mess/internal/model"
+	"strconv"
+	"time"
 )
 
 type trackRepository interface {
@@ -44,6 +47,8 @@ func (s *Store) AddTrackToPlaylist(t *model.PlaylistTrack, ctx context.Context) 
 		return err
 	}
 
+	jsonData, _ := json.MarshalIndent(t, "", "  ")
+	s.cash.Set(ctx, strconv.Itoa(t.TrackID), string(jsonData), time.Minute*10)
 	return nil
 }
 
@@ -51,16 +56,24 @@ func (s *Store) AddTrackToPlaylist(t *model.PlaylistTrack, ctx context.Context) 
 
 // TrackFromPlaylist retrieves a track from playlist from the database.
 func (s *Store) TrackFromPlaylist(id int, ctx context.Context) (*model.Track, error) {
-	query := fmt.Sprintf("SELECT * FROM playlist_tracks WHERE id = '%v'", id)
-
-	row := s.db.QueryRowContext(ctx, query)
-
 	var track model.Track
 
-	err := row.Scan(&track.ID, &track.Title, &track.Duration, &track.AudioURL, &track.ArtistID)
+	tr, err := s.cash.Get(ctx, strconv.Itoa(id)).Bytes()
+	if err == nil {
+		err = json.Unmarshal(tr, &track)
+	} else {
+		query := fmt.Sprintf("SELECT * FROM playlist_tracks WHERE id = '%v'", id)
 
-	if err != nil {
-		return nil, err
+		row := s.db.QueryRowContext(ctx, query)
+
+		err := row.Scan(&track.ID, &track.Title, &track.Duration, &track.AudioURL, &track.ArtistID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		jsonData, _ := json.MarshalIndent(track, "", "  ")
+		s.cash.Set(ctx, strconv.Itoa(track.ID), string(jsonData), time.Minute*10)
 	}
 
 	return &track, nil
@@ -68,16 +81,24 @@ func (s *Store) TrackFromPlaylist(id int, ctx context.Context) (*model.Track, er
 
 // TrackByID retrieves a track by its ID from the database
 func (s *Store) TrackByID(id int, ctx context.Context) (*model.Track, error) {
-	query := fmt.Sprintf("SELECT * FROM tracks WHERE id = '%v'", id)
-
-	row := s.db.QueryRowContext(ctx, query)
-
 	var track model.Track
 
-	err := row.Scan(&track.ID, &track.Title, &track.Duration, &track.AudioURL)
+	tr, err := s.cash.Get(ctx, strconv.Itoa(id)).Bytes()
+	if err == nil {
+		err = json.Unmarshal(tr, &track)
+	} else {
+		query := fmt.Sprintf("SELECT * FROM tracks WHERE id = '%v'", id)
 
-	if err != nil {
-		return nil, err
+		row := s.db.QueryRowContext(ctx, query)
+
+		err := row.Scan(&track.ID, &track.Title, &track.Duration, &track.AudioURL, &track.ArtistID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		jsonData, _ := json.MarshalIndent(track, "", "  ")
+		s.cash.Set(ctx, strconv.Itoa(track.ID), string(jsonData), time.Minute*10)
 	}
 
 	return &track, nil

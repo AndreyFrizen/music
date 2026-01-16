@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"mess/internal/model"
 	"strconv"
 	"time"
@@ -44,7 +43,6 @@ func (s *Store) AlbumByID(id int, ctx context.Context) (*model.Album, error) {
 
 	albs, err := s.cash.Get(ctx, strconv.Itoa(id)).Bytes()
 	if err == nil {
-		log.Printf("Cache hit for album ID %d", id)
 		err = json.Unmarshal(albs, &album)
 	} else {
 		query := fmt.Sprintf("SELECT * FROM albums WHERE id = '%d'", id)
