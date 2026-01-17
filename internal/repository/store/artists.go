@@ -21,7 +21,7 @@ type artistRepository interface {
 
 // CreateArtist creates a new artist in the database
 func (s *Store) CreateArtist(a *model.Artist, ctx context.Context) error {
-	query := fmt.Sprintf("INSERT INTO artists VALUES ('%s')",
+	query := fmt.Sprintf("INSERT INTO artists (name) VALUES ('%s')",
 		a.Name)
 
 	_, err := s.db.ExecContext(ctx, query)
@@ -126,7 +126,7 @@ func (s *Store) FindArtists(input string) (error, []model.Artist) {
 
 	var artists []model.Artist
 
-	a := fmt.Sprintf("SELECT * FROM artists WHERE name = '%v*'", input)
+	a := fmt.Sprintf("SELECT * FROM artists WHERE name = '%v'", input)
 
 	rowsArtists, err := s.db.Query(a)
 	if err != nil {

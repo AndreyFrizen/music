@@ -116,12 +116,11 @@ func (h *Handler) ArtistWebSocket(c *gin.Context) {
 			fmt.Println(err)
 			return
 		}
-		fmt.Printf("Received message: %s\n", data)
-
-		// Echo the message back to the client
-		if err := conn.WriteMessage(messageType, data); err != nil {
-			fmt.Println(err)
-			return
+		_, d := h.service.FindArtists(string(data))
+		for _, artist := range d {
+			if err := conn.WriteMessage(messageType, []byte(artist.Name)); err != nil {
+				return
+			}
 		}
 	}
 }
