@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"mess/internal/model"
@@ -113,14 +114,29 @@ func (h *Handler) ArtistWebSocket(c *gin.Context) {
 	for {
 		messageType, data, err := conn.ReadMessage()
 		if err != nil {
-			fmt.Println(err)
 			return
 		}
-		_, d := h.service.FindArtists(string(data))
-		for _, artist := range d {
-			if err := conn.WriteMessage(messageType, []byte(artist.Name)); err != nil {
-				return
-			}
+
+		type output struct {
+			Artists []model.Artist
+			Albums  []model.Album
+			Tracks  []model.Track
+		}
+
+		_, artists := h.service.FindArtists(string(data))
+		_, albums := h.service.FindAlbums(string(data))
+		_, tracks := h.service.FindTracks(string(data))
+
+		dataOut := output{
+			Artists: artists,
+			Albums:  albums,
+			Tracks:  tracks,
+		}
+
+		d, err := json.Marshal(dataOut)
+		err = conn.WriteMessage(messageType, d)
+		if err != nil {
+			return
 		}
 	}
 }
