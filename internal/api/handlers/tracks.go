@@ -3,6 +3,7 @@ package handlers
 import (
 	"mess/internal/model"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -16,6 +17,7 @@ type trackHandler interface {
 	DeleteTrackFromPlaylist(c *gin.Context)
 	TracksByTitle(c *gin.Context)
 	TracksByArtist(c *gin.Context)
+	Stream(c *gin.Context)
 }
 
 // Add Track to Playlist
@@ -128,4 +130,41 @@ func (h *Handler) TracksByArtist(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, tracks)
+}
+
+func (h *Handler) Stream(c *gin.Context) {
+	ids := c.Param("id")
+	id, err := strconv.Atoi(ids)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+	track, err := h.service.TrackByID(id, c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if _, err = os.Stat(track.AudioURL); os.IsNotExist(err) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "File not found"})
+		return
+	}
+
+	file, err := os.Open(track.AudioURL)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer file.Close()
+
+	fileInfo, _ := file.Stat()
+
+	contentType := "audio/mpeg"
+
+	c.Header("Content-Type", contentType)
+	c.Header("Content-Length", strconv.FormatInt(fileInfo.Size(), 10))
+	c.Header("Accept-Ranges", "bytes")
+
+	// Потоковая передача всего файла
+	http.ServeContent(c.Writer, c.Request, fileInfo.Name(), fileInfo.ModTime(), file)
 }

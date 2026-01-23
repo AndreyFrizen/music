@@ -100,6 +100,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+// ArtistWebSocket handles WebSocket connections for artists.
 func (h *Handler) ArtistWebSocket(c *gin.Context) {
 	log.Printf("WebSocket connection opened")
 	// Upgrade the HTTP connection to a WebSocket connection.
