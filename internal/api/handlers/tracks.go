@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"mess/internal/model"
 	"net/http"
 	"os"
@@ -18,6 +19,8 @@ type trackHandler interface {
 	TracksByTitle(c *gin.Context)
 	TracksByArtist(c *gin.Context)
 	Stream(c *gin.Context)
+	UploadFile(c *gin.Context)
+	Upload(c *gin.Context)
 }
 
 // Add Track to Playlist
@@ -132,6 +135,7 @@ func (h *Handler) TracksByArtist(c *gin.Context) {
 	c.JSON(http.StatusOK, tracks)
 }
 
+// Stream track
 func (h *Handler) Stream(c *gin.Context) {
 	ids := c.Param("id")
 	id, err := strconv.Atoi(ids)
@@ -140,6 +144,7 @@ func (h *Handler) Stream(c *gin.Context) {
 		return
 	}
 	track, err := h.service.TrackByID(id, c)
+	log.Print(track.AudioURL)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -167,4 +172,28 @@ func (h *Handler) Stream(c *gin.Context) {
 
 	// Потоковая передача всего файла
 	http.ServeContent(c.Writer, c.Request, fileInfo.Name(), fileInfo.ModTime(), file)
+}
+
+// html
+func (h *Handler) Upload(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{"message": "biba"})
+}
+
+// Upload track
+func (h *Handler) UploadFile(c *gin.Context) {
+
+	c.Request.ParseMultipartForm(10 << 20)
+
+	file, handler, err := c.Request.FormFile("myFile")
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	buffer := make([]byte, handler.Size)
+	file.Read(buffer)
+	err = os.WriteFile("../static/music/"+handler.Filename, buffer, 0644)
+	if err != nil {
+		return
+	}
 }

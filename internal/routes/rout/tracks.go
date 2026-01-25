@@ -13,5 +13,7 @@ func TracksRoutes(r *gin.Engine, handler handlers.HandlerInterface) {
 		track.GET("/list", handler.TracksByTitle)
 		track.GET("/:id", handler.TrackByID)
 		track.GET("/play/:id", handler.Stream)
+		track.POST("/upload", handler.UploadFile)
+		track.GET("/up", handler.Upload)
 	}
 }

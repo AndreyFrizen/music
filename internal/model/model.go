@@ -1,8 +1,6 @@
 package model
 
 import (
-	"time"
-
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -33,11 +31,11 @@ type Album struct {
 
 // Track represents a track in the system
 type Track struct {
-	ID       int       `json:"id" db:"id" redis:"id"`
-	Title    string    `json:"title" db:"title" redis:"title"`
-	Duration time.Time `json:"duration" db:"duration" redis:"duration"`
-	AudioURL string    `json:"audio_url" db:"audio_url" redis:"audio_url"`
-	ArtistID int       `json:"artist_id" db:"artist_id" redis:"artist_id"`
+	ID       int    `json:"id" db:"id" redis:"id"`
+	Title    string `json:"title" db:"title" redis:"title"`
+	Duration int    `json:"duration" db:"duration" redis:"duration"`
+	AudioURL string `json:"audio_url" db:"audio_url" redis:"audio_url"`
+	ArtistID int    `json:"artist_id" db:"artist_id" redis:"artist_id"`
 }
 
 // Playlist represents a playlist in the system
