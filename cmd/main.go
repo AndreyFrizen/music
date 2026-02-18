@@ -77,6 +77,7 @@ func main() {
 	r := gin.Default()
 	r.LoadHTMLGlob("../static/templ/*")
 
+	r.GET("/", handler.Home)
 	r.POST("/register", handler.RegisterUser)
 	r.POST("/login", handler.LoginUser)
 	// Init Middlewares

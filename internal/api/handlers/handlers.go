@@ -14,6 +14,7 @@ type HandlerInterface interface {
 	albumHandler
 	playlistHandler
 	trackHandler
+	homeHandler
 }
 
 func NewHandler(repo services.InterfaceService) *Handler {
