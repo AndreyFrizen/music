@@ -23,6 +23,8 @@ func (m *Service) Register(user *model.User, ctx context.Context) error {
 	err = user.EncryptPassword()
 	err = m.Repo.CreateUser(user, ctx)
 
+	m.Auth(user, ctx)
+
 	return err
 }
 
@@ -60,7 +62,7 @@ func generateToken(userID int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &TokenClaims{
 		StandardClaims: jwt.StandardClaims{
 			IssuedAt:  time.Now().Unix(),
-			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), // Срок действия — 24 часа
+			ExpiresAt: time.Now().Add(time.Hour * 12).Unix(),
 		},
 		UserID: strconv.Itoa(userID),
 	})
