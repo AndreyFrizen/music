@@ -1,0 +1,981 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>tkn-reel · sample player</title>
+        <!-- Подключаем округлый шрифт Nunito -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        />
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "Nunito", sans-serif;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+                position: relative;
+                overflow-x: hidden;
+                transition: background 1.5s ease; /* Плавная смена фона */
+            }
+
+            /* ТОЧЕЧНЫЙ УЗОР НА ФОНЕ (поверх градиента) */
+            .pattern-bg {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1;
+                pointer-events: none;
+                overflow: hidden;
+            }
+
+            .dots-small {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background-image: radial-gradient(
+                    circle at 15% 30%,
+                    rgba(255, 255, 255, 0.6) 1px,
+                    transparent 1px
+                );
+                background-size: 40px 40px;
+                opacity: 0.25;
+            }
+
+            .dots-medium {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background-image: radial-gradient(
+                    circle at 70% 45%,
+                    rgba(255, 255, 255, 0.5) 2px,
+                    transparent 2px
+                );
+                background-size: 70px 70px;
+                opacity: 0.2;
+            }
+
+            .dots-large {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background-image: radial-gradient(
+                    circle at 40% 80%,
+                    rgba(255, 255, 255, 0.4) 3px,
+                    transparent 3px
+                );
+                background-size: 120px 120px;
+                opacity: 0.15;
+            }
+
+            .dots-random {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background-image:
+                    radial-gradient(
+                        circle at 20% 15%,
+                        rgba(255, 255, 255, 0.7) 4px,
+                        transparent 4px
+                    ),
+                    radial-gradient(
+                        circle at 85% 70%,
+                        rgba(255, 255, 255, 0.6) 3px,
+                        transparent 3px
+                    ),
+                    radial-gradient(
+                        circle at 45% 35%,
+                        rgba(255, 255, 255, 0.8) 5px,
+                        transparent 5px
+                    ),
+                    radial-gradient(
+                        circle at 10% 90%,
+                        rgba(255, 255, 255, 0.6) 4px,
+                        transparent 4px
+                    ),
+                    radial-gradient(
+                        circle at 95% 25%,
+                        rgba(255, 255, 255, 0.7) 3px,
+                        transparent 3px
+                    ),
+                    radial-gradient(
+                        circle at 60% 55%,
+                        rgba(255, 255, 255, 0.8) 5px,
+                        transparent 5px
+                    );
+                background-size: 200px 200px;
+                opacity: 0.3;
+            }
+
+            /* АНИМАЦИИ */
+            @keyframes float-slow {
+                0% {
+                    transform: translateY(0px) rotate(0deg);
+                }
+                50% {
+                    transform: translateY(-6px) rotate(-0.3deg);
+                }
+                100% {
+                    transform: translateY(0px) rotate(0deg);
+                }
+            }
+
+            /* Контейнер-карточка плеера - центрированный */
+            .player-card {
+                max-width: 650px;
+                width: 100%;
+                background: transparent;
+                border-radius: 60px;
+                padding: 0;
+                position: relative;
+                z-index: 30;
+                box-shadow: none;
+                margin: 0 auto;
+            }
+
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+                padding: 0 1rem;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+                font-weight: 800;
+                color: white;
+                text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+                letter-spacing: -0.02em;
+                animation: float-slow 4s ease-in-out infinite;
+            }
+
+            .profile-icon {
+                width: 56px;
+                height: 56px;
+                background: rgba(255, 255, 255, 0.3);
+                backdrop-filter: blur(8px);
+                border-radius: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.6rem;
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+
+            .profile-icon:hover {
+                transform: scale(1.1) rotate(5deg);
+                background: rgba(255, 255, 255, 0.4);
+            }
+
+            .profile-icon:active {
+                transform: scale(0.95);
+            }
+
+            .now-playing {
+                background: rgba(255, 255, 255, 0.2);
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+                border-radius: 48px;
+                padding: 2rem 1.8rem;
+                margin-bottom: 1.5rem;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+
+            .track-label {
+                font-size: 0.9rem;
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                color: rgba(255, 255, 255, 0.9);
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+            }
+
+            .track-title {
+                font-size: 2.4rem;
+                font-weight: 700;
+                line-height: 1.2;
+                color: white;
+                margin-bottom: 0.4rem;
+                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .artist-name {
+                font-size: 1.1rem;
+                color: rgba(255, 255, 255, 0.9);
+                font-weight: 500;
+                margin-bottom: 1.5rem;
+            }
+
+            .progress-area {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .progress-bar-bg {
+                flex: 1;
+                height: 6px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 20px;
+                overflow: hidden;
+                cursor: pointer;
+                transition: height 0.2s;
+            }
+
+            .progress-bar-bg:hover {
+                height: 10px;
+            }
+
+            .progress-fill {
+                width: 0%;
+                height: 100%;
+                background: white;
+                border-radius: 20px;
+                transition: width 0.1s linear;
+            }
+
+            .time {
+                font-size: 0.9rem;
+                font-weight: 500;
+                color: white;
+                min-width: 50px;
+            }
+
+            .controls {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 1.8rem;
+                margin-top: 1.2rem;
+            }
+
+            .control-btn {
+                background: rgba(255, 255, 255, 0.3);
+                backdrop-filter: blur(8px);
+                border: none;
+                width: 60px;
+                height: 60px;
+                border-radius: 40px;
+                font-size: 1.6rem;
+                color: white;
+                cursor: pointer;
+                transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+
+            .control-btn:hover {
+                transform: scale(1.1);
+                background: rgba(255, 255, 255, 0.4);
+                color: white;
+            }
+
+            .control-btn:active {
+                transform: scale(0.9);
+            }
+
+            .play-btn {
+                width: 80px;
+                height: 80px;
+                background: rgba(255, 255, 255, 0.4);
+                backdrop-filter: blur(8px);
+                color: white;
+                font-size: 2.5rem;
+            }
+
+            .play-btn:hover {
+                background: rgba(255, 255, 255, 0.5);
+            }
+
+            .playlist {
+                margin: 1.5rem 0 0.8rem;
+            }
+
+            .playlist-item {
+                display: flex;
+                align-items: center;
+                padding: 1.1rem 1.2rem;
+                border-radius: 36px;
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(10px);
+                margin-bottom: 0.9rem;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+
+            .playlist-item:hover {
+                background: rgba(255, 255, 255, 0.25);
+                transform: translateX(8px);
+                border-color: rgba(255, 255, 255, 0.4);
+            }
+
+            .playlist-item:active {
+                transform: scale(0.98);
+            }
+
+            .playlist-item.active {
+                background: rgba(255, 255, 255, 0.3);
+                border-color: rgba(255, 255, 255, 0.6);
+            }
+
+            .item-cover {
+                width: 60px;
+                height: 60px;
+                border-radius: 24px;
+                background: rgba(255, 255, 255, 0.3);
+                backdrop-filter: blur(4px);
+                margin-right: 1.2rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.6rem;
+                color: white;
+                transition: transform 0.2s;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+
+            .playlist-item:hover .item-cover {
+                transform: rotate(5deg) scale(1.05);
+            }
+
+            .item-info {
+                flex: 1;
+            }
+
+            .item-title {
+                font-weight: 700;
+                font-size: 1.2rem;
+                color: white;
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                margin-bottom: 0.3rem;
+            }
+
+            .item-sub {
+                font-size: 0.9rem;
+                color: rgba(255, 255, 255, 0.9);
+            }
+
+            .duration {
+                font-size: 1rem;
+                font-weight: 500;
+                color: white;
+                margin-right: 0.8rem;
+            }
+
+            .play-icon {
+                color: white;
+                font-size: 1.1rem;
+                opacity: 0.7;
+                transition: transform 0.2s;
+            }
+
+            .playlist-item:hover .play-icon {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+
+            .footer-stats {
+                display: flex;
+                justify-content: space-between;
+                color: white;
+                font-size: 1rem;
+                padding: 1rem 0.8rem 0.3rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.2);
+                margin-top: 0.8rem;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(4px);
+                border-radius: 24px;
+            }
+
+            /* Индикатор статуса запроса */
+            .request-status {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin-top: 0.8rem;
+                padding: 0.5rem 1rem;
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(4px);
+                border-radius: 40px;
+                font-size: 0.85rem;
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+
+            .status-dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: #4caf50;
+                box-shadow: 0 0 8px #4caf50;
+                animation: pulse 1.5s infinite;
+            }
+
+            @keyframes pulse {
+                0% {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+                50% {
+                    opacity: 0.5;
+                    transform: scale(1.2);
+                }
+                100% {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+
+            @media (max-width: 700px) {
+                .player-card {
+                    max-width: 95%;
+                }
+            }
+
+            .loading {
+                display: inline-block;
+                width: 24px;
+                height: 24px;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                border-top-color: white;
+                animation: spin 1s ease-in-out infinite;
+                margin-left: 10px;
+            }
+
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </head>
+    <body id="bg-body">
+        <!-- ТОЧЕЧНЫЙ УЗОР НА ФОНЕ -->
+        <div class="pattern-bg">
+            <div class="dots-small"></div>
+            <div class="dots-medium"></div>
+            <div class="dots-large"></div>
+            <div class="dots-random"></div>
+        </div>
+
+        <div class="player-card">
+            <div class="header">
+                <h1>tkn-reel</h1>
+                <div
+                    class="profile-icon"
+                    onclick="sendRequest('/profile', 'GET')"
+                >
+                    <i class="fas fa-paw"></i>
+                </div>
+            </div>
+
+            <div class="now-playing">
+                <div class="track-label">now playing</div>
+                <div class="track-title" id="currentTrackTitle">Fox step</div>
+                <div class="artist-name" id="currentTrackArtist">
+                    Polar Fox & The Beats
+                </div>
+
+                <div class="progress-area" onclick="handleProgressClick(event)">
+                    <span class="time" id="currentTime">0:00</span>
+                    <div class="progress-bar-bg" id="progressBar">
+                        <div
+                            class="progress-fill"
+                            id="progressFill"
+                            style="width: 0%"
+                        ></div>
+                    </div>
+                    <span class="time" id="totalTime">2:04</span>
+                </div>
+
+                <div class="controls">
+                    <button class="control-btn" onclick="prevTrack()">
+                        <i class="fas fa-backward-step"></i>
+                    </button>
+                    <button
+                        class="control-btn play-btn"
+                        id="playPauseBtn"
+                        onclick="togglePlay()"
+                    >
+                        <i class="fas fa-play" id="playIcon"></i>
+                    </button>
+                    <button class="control-btn" onclick="nextTrack()">
+                        <i class="fas fa-forward-step"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="playlist" id="playlist">
+                <div
+                    class="playlist-item active"
+                    data-index="0"
+                    onclick="selectTrack(0)"
+                >
+                    <div class="item-cover"><i class="fas fa-fox"></i></div>
+                    <div class="item-info">
+                        <div class="item-title">Fox step</div>
+                        <div class="item-sub">Polar Fox</div>
+                    </div>
+                    <span class="duration">2:04</span>
+                    <i class="fas fa-play play-icon"></i>
+                </div>
+
+                <div
+                    class="playlist-item"
+                    data-index="1"
+                    onclick="selectTrack(1)"
+                >
+                    <div class="item-cover cover2">
+                        <i class="fas fa-tree"></i>
+                    </div>
+                    <div class="item-info">
+                        <div class="item-title">Bamboo dream</div>
+                        <div class="item-sub">Panda Chill</div>
+                    </div>
+                    <span class="duration">1:48</span>
+                    <i class="fas fa-play play-icon"></i>
+                </div>
+
+                <div
+                    class="playlist-item"
+                    data-index="2"
+                    onclick="selectTrack(2)"
+                >
+                    <div class="item-cover cover3">
+                        <i class="fas fa-feather"></i>
+                    </div>
+                    <div class="item-info">
+                        <div class="item-title">Tropical beak</div>
+                        <div class="item-sub">Toucan Groove</div>
+                    </div>
+                    <span class="duration">1:32</span>
+                    <i class="fas fa-play play-icon"></i>
+                </div>
+
+                <div
+                    class="playlist-item"
+                    data-index="3"
+                    onclick="selectTrack(3)"
+                >
+                    <div class="item-cover cover4">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="item-info">
+                        <div class="item-title">Lazy breeze</div>
+                        <div class="item-sub">Sloth vibes</div>
+                    </div>
+                    <span class="duration">2:22</span>
+                    <i class="fas fa-play play-icon"></i>
+                </div>
+            </div>
+
+            <div class="footer-stats">
+                <span><i class="far fa-heart"></i> 12 samples</span>
+                <span><i class="fas fa-random"></i> shuffle</span>
+            </div>
+
+            <!-- Индикатор статуса подключения к localhost -->
+            <div class="request-status" id="statusIndicator">
+                <div class="status-dot"></div>
+                <span id="statusText">localhost:8080 (активен)</span>
+            </div>
+        </div>
+
+        <script>
+            // Track data with IDs
+            const tracks = [
+                {
+                    id: 1,
+                    title: "Fox step",
+                    artist: "Polar Fox",
+                    duration: 124,
+                    cover: "fox",
+                    bgColor: "#FF6B6B",
+                }, // Коралловый
+                {
+                    id: 2,
+                    title: "Bamboo dream",
+                    artist: "Panda Chill",
+                    duration: 108,
+                    cover: "tree",
+                    bgColor: "#4A90E2",
+                }, // Синий
+                {
+                    id: 3,
+                    title: "Tropical beak",
+                    artist: "Toucan Groove",
+                    duration: 92,
+                    cover: "feather",
+                    bgColor: "#9B6B9C",
+                }, // Фиолетовый
+                {
+                    id: 4,
+                    title: "Lazy breeze",
+                    artist: "Sloth vibes",
+                    duration: 142,
+                    cover: "clock",
+                    bgColor: "#6B8E5C",
+                }, // Зеленый
+            ];
+
+            // Player state
+            let currentTrackIndex = 0;
+            let isPlaying = false;
+            let currentTime = 0;
+            let progressInterval = null;
+
+            // DOM elements
+            const playIcon = document.getElementById("playIcon");
+            const playPauseBtn = document.getElementById("playPauseBtn");
+            const currentTrackTitle =
+                document.getElementById("currentTrackTitle");
+            const currentTrackArtist =
+                document.getElementById("currentTrackArtist");
+            const currentTimeEl = document.getElementById("currentTime");
+            const totalTimeEl = document.getElementById("totalTime");
+            const progressFill = document.getElementById("progressFill");
+            const progressBar = document.getElementById("progressBar");
+            const playlistItems = document.querySelectorAll(".playlist-item");
+            const statusText = document.getElementById("statusText");
+            const statusDot = document.querySelector(".status-dot");
+            const body = document.getElementById("bg-body");
+
+            // Initialize
+            function initPlayer() {
+                updateTrackInfo();
+                updatePlaylistActive();
+                totalTimeEl.textContent = formatTime(
+                    tracks[currentTrackIndex].duration,
+                );
+                // Устанавливаем начальный цвет фона
+                changeBackgroundColor(tracks[currentTrackIndex].bgColor);
+                // Проверяем доступность localhost при загрузке
+                checkLocalhost();
+            }
+
+            // Функция смены цвета фона
+            function changeBackgroundColor(color) {
+                body.style.background = `linear-gradient(145deg, ${color} 0%, ${adjustBrightness(color, 20)} 100%)`;
+            }
+
+            // Вспомогательная функция для осветления/затемнения цвета
+            function adjustBrightness(hex, percent) {
+                // Простая реализация для демо
+                return hex; // Для простоты возвращаем тот же цвет
+            }
+
+            // Проверка подключения к localhost
+            function checkLocalhost() {
+                fetch("http://localhost:8080/health", {
+                    method: "GET",
+                    mode: "no-cors",
+                }).catch(() => {
+                    statusText.textContent = "localhost:8080 (ожидание)";
+                    statusDot.style.background = "#ffa500";
+                    statusDot.style.boxShadow = "0 0 8px #ffa500";
+                });
+            }
+
+            // Функция отправки запросов на localhost:8080
+            function sendRequest(endpoint, method = "GET", data = null) {
+                const url = `http://localhost:8080/track${endpoint}`;
+
+                // Меняем индикатор на время запроса
+                statusText.textContent = `localhost:8080 (отправка...)`;
+                statusDot.style.background = "#2196F3";
+                statusDot.style.boxShadow = "0 0 8px #2196F3";
+
+                const options = {
+                    method: method,
+                    mode: "no-cors",
+                    headers: {},
+                };
+
+                if (data) {
+                    options.headers["Content-Type"] = "application/json";
+                    options.body = JSON.stringify(data);
+                }
+
+                fetch(url, options)
+                    .then(() => {
+                        // При no-cors мы не можем прочитать ответ, поэтому просто считаем успехом
+                        statusText.textContent = "localhost:8080 (успех)";
+                        statusDot.style.background = "#4CAF50";
+                        statusDot.style.boxShadow = "0 0 8px #4CAF50";
+                    })
+                    .catch((error) => {
+                        console.log("Request failed:", error);
+                        statusText.textContent = "localhost:8080 (недоступен)";
+                        statusDot.style.background = "#ffa500";
+                        statusDot.style.boxShadow = "0 0 8px #ffa500";
+                    });
+
+                // Возвращаем статус через 2 секунды
+                setTimeout(() => {
+                    statusText.textContent = "localhost:8080 (активен)";
+                    statusDot.style.background = "#4CAF50";
+                    statusDot.style.boxShadow = "0 0 8px #4CAF50";
+                }, 2000);
+            }
+
+            // Time formatting
+            function formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+            }
+
+            // Update track info
+            function updateTrackInfo() {
+                const track = tracks[currentTrackIndex];
+                currentTrackTitle.textContent = track.title;
+                currentTrackArtist.textContent = track.artist;
+                totalTimeEl.textContent = formatTime(track.duration);
+            }
+
+            // Update active playlist item
+            function updatePlaylistActive() {
+                playlistItems.forEach((item, index) => {
+                    if (index === currentTrackIndex) {
+                        item.classList.add("active");
+                    } else {
+                        item.classList.remove("active");
+                    }
+                });
+            }
+
+            // Update progress
+            function updateProgress() {
+                if (!isPlaying) return;
+
+                currentTime += 1;
+                if (currentTime >= tracks[currentTrackIndex].duration) {
+                    nextTrack();
+                    return;
+                }
+
+                const progress =
+                    (currentTime / tracks[currentTrackIndex].duration) * 100;
+                progressFill.style.width = `${progress}%`;
+                currentTimeEl.textContent = formatTime(currentTime);
+            }
+
+            // Start/stop timer
+            function startProgressTimer() {
+                if (progressInterval) clearInterval(progressInterval);
+                progressInterval = setInterval(updateProgress, 1000);
+            }
+
+            function stopProgressTimer() {
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                }
+            }
+
+            // Toggle play/pause
+            function togglePlay() {
+                isPlaying = !isPlaying;
+                const track = tracks[currentTrackIndex];
+
+                if (isPlaying) {
+                    playIcon.className = "fas fa-pause";
+                    playPauseBtn.classList.add("playing");
+                    startProgressTimer();
+
+                    playPauseBtn.style.transform = "scale(0.95)";
+                    setTimeout(() => {
+                        playPauseBtn.style.transform = "";
+                    }, 100);
+
+                    // Отправляем GET запрос на /play/{id}
+                    sendRequest(`/play/${track.id}`, "GET");
+                    showNotification(`▶ Playing: ${track.title}`);
+                } else {
+                    playIcon.className = "fas fa-play";
+                    playPauseBtn.classList.remove("playing");
+                    stopProgressTimer();
+
+                    // Для паузы используем POST
+                    sendRequest("/pause", "POST", { trackId: track.id });
+                }
+            }
+
+            // Select track
+            function selectTrack(index) {
+                if (index === currentTrackIndex) {
+                    togglePlay();
+                    return;
+                }
+
+                const previousTrack = currentTrackIndex;
+                currentTrackIndex = index;
+                currentTime = 0;
+                progressFill.style.width = "0%";
+                currentTimeEl.textContent = "0:00";
+
+                // Меняем цвет фона при переключении трека
+                changeBackgroundColor(tracks[currentTrackIndex].bgColor);
+
+                updateTrackInfo();
+                updatePlaylistActive();
+
+                // При выборе трека отправляем запрос
+                const track = tracks[currentTrackIndex];
+                sendRequest("/select", "POST", {
+                    from: previousTrack,
+                    to: index,
+                    trackId: track.id,
+                    track: track,
+                });
+
+                showLoading();
+
+                setTimeout(() => {
+                    hideLoading();
+                    if (isPlaying) {
+                        startProgressTimer();
+                        showNotification(`🎵 Loaded: ${track.title}`);
+                    } else {
+                        showNotification(`Selected: ${track.title}`);
+                    }
+                }, 500);
+            }
+
+            // Previous track
+            function prevTrack() {
+                let newIndex = currentTrackIndex - 1;
+                if (newIndex < 0) newIndex = tracks.length - 1;
+                selectTrack(newIndex);
+            }
+
+            // Next track
+            function nextTrack() {
+                let newIndex = (currentTrackIndex + 1) % tracks.length;
+                selectTrack(newIndex);
+            }
+
+            // Handle progress bar click
+            function handleProgressClick(event) {
+                const rect = progressBar.getBoundingClientRect();
+                const clickX = event.clientX - rect.left;
+                const width = rect.width;
+                const clickPercentage = (clickX / width) * 100;
+
+                const newTime = Math.floor(
+                    (clickPercentage / 100) *
+                        tracks[currentTrackIndex].duration,
+                );
+
+                sendRequest("/seek", "POST", {
+                    from: currentTime,
+                    to: newTime,
+                    percentage: clickPercentage,
+                    trackId: tracks[currentTrackIndex].id,
+                });
+
+                currentTime = newTime;
+                progressFill.style.width = `${clickPercentage}%`;
+                currentTimeEl.textContent = formatTime(currentTime);
+
+                showNotification(`⏩ Seek to ${formatTime(currentTime)}`);
+            }
+
+            // Show notification
+            function showNotification(message) {
+                const notification = document.createElement("div");
+                notification.textContent = message;
+                notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(8px);
+                color: white;
+                padding: 10px 20px;
+                border-radius: 30px;
+                font-size: 14px;
+                z-index: 1000;
+                animation: slideUp 0.3s ease, fadeOut 0.3s ease 1.7s forwards;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            `;
+
+                const style = document.createElement("style");
+                style.textContent = `
+                @keyframes slideUp {
+                    from { opacity: 0; transform: translate(-50%, 20px); }
+                    to { opacity: 1; transform: translate(-50%, 0); }
+                }
+                @keyframes fadeOut {
+                    to { opacity: 0; transform: translate(-50%, -10px); }
+                }
+            `;
+                document.head.appendChild(style);
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.remove();
+                    style.remove();
+                }, 2000);
+            }
+
+            // Show loading indicator
+            function showLoading() {
+                const loadingDiv = document.createElement("div");
+                loadingDiv.className = "loading";
+                loadingDiv.id = "loadingIndicator";
+                currentTrackTitle.appendChild(loadingDiv);
+            }
+
+            function hideLoading() {
+                const loadingDiv = document.getElementById("loadingIndicator");
+                if (loadingDiv) loadingDiv.remove();
+            }
+
+            // Add event handlers
+            document.addEventListener("DOMContentLoaded", () => {
+                initPlayer();
+
+                const profileIcon = document.querySelector(".profile-icon");
+                profileIcon.addEventListener("click", () => {
+                    profileIcon.style.transform = "scale(0.9) rotate(5deg)";
+                    setTimeout(() => {
+                        profileIcon.style.transform = "";
+                    }, 200);
+                });
+            });
+
+            window.addEventListener("beforeunload", () => {
+                stopProgressTimer();
+            });
+        </script>
+    </body>
+</html>
