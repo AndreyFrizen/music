@@ -138,12 +138,14 @@ func (h *Handler) TracksByArtist(c *gin.Context) {
 // Stream track
 func (h *Handler) Stream(c *gin.Context) {
 	ids := c.Param("id")
+	log.Print(ids)
 	id, err := strconv.Atoi(ids)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
 	track, err := h.service.TrackByID(id, c)
+	log.Print(track)
 	log.Print(track.AudioURL)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
