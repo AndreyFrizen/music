@@ -1,5 +1,7 @@
 env: "local"
 storagePath: "postgres://user:password@localhost:5432/music"
 redis: "localhost:6379"
+elasticsearch: "localhost:9200"
+rabbitmq: "localhost:5672"
 server:
   address: "localhost:8080"
