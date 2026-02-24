@@ -6,12 +6,13 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"go.senan.xyz/taglib"
 )
 
 type trackHandler interface {
-	AddTrack(c *gin.Context)
 	AddTrackToPlaylist(c *gin.Context)
 	TrackByID(c *gin.Context)
 	TrackFromPlaylist(c *gin.Context)
@@ -29,29 +30,13 @@ func (h *Handler) AddTrackToPlaylist(c *gin.Context) {
 	if err := c.BindJSON(&track); err != nil {
 		return
 	}
-
+	log.Printf("Adding track %v", track)
 	if err := h.service.AddTrackToPlaylist(&track, c); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Track added to playlist successfully"})
-}
-
-// Add Track to platform
-func (h *Handler) AddTrack(c *gin.Context) {
-	var track model.Track
-	if err := c.BindJSON(&track); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.service.AddTrack(&track, c); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{"message": "Track added successfully"})
 }
 
 // Delete Track from playlist
@@ -85,7 +70,6 @@ func (h *Handler) TrackByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, track)
-
 }
 
 // Get Track from playlist
@@ -186,16 +170,29 @@ func (h *Handler) UploadFile(c *gin.Context) {
 
 	c.Request.ParseMultipartForm(10 << 20)
 
-	file, handler, err := c.Request.FormFile("myFile")
+	file, header, err := c.Request.FormFile("myFile")
 	if err != nil {
 		return
 	}
 	defer file.Close()
 
-	buffer := make([]byte, handler.Size)
+	buffer := make([]byte, header.Size)
 	file.Read(buffer)
-	err = os.WriteFile("../static/music/"+handler.Filename, buffer, 0644)
+	var b strings.Builder
+	b.WriteString("/home/andrey/projects/music/static/music/")
+	b.WriteString(header.Filename)
+	data := b.String()
+	err = os.WriteFile(data, buffer, 0644)
+	prop, err := taglib.ReadProperties(data)
 	if err != nil {
 		return
 	}
+	timeTrack := int(prop.Length.Seconds())
+	track := model.Track{
+		Title:    header.Filename,
+		Duration: timeTrack,
+		AudioURL: data,
+	}
+	log.Print(track)
+	h.service.AddTrack(&track, c)
 }

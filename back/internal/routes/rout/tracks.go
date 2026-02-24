@@ -9,7 +9,6 @@ import (
 func TracksRoutes(r *gin.Engine, handler handlers.HandlerInterface) {
 	track := r.Group("/track")
 	{
-		track.POST("/create", handler.AddTrack)
 		track.GET("/list", handler.TracksByTitle)
 		track.GET("/:id", handler.TrackByID)
 		track.GET("/play/:id", handler.Stream)

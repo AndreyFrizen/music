@@ -24,8 +24,8 @@ type trackRepository interface {
 
 // Add track to database
 func (s *Store) AddTrack(t *model.Track, ctx context.Context) error {
-	query := fmt.Sprintf("INSERT INTO tracks VALUES ('%s', '%s', '%s')",
-		t.Title, t.Duration, t.AudioURL)
+	query := fmt.Sprintf("INSERT INTO tracks(title, duration, audio_url, artist_id) VALUES ('%s', '%d', '%s', '%d')",
+		t.Title, t.Duration, t.AudioURL, t.ArtistID)
 
 	_, err := s.db.ExecContext(ctx, query)
 
