@@ -1,0 +1,5 @@
+env: "local"
+storagePath: "/home/andrey/projects/music/storage/storage.db"
+redis: "localhost:6379"
+server:
+  address: "localhost:8080"

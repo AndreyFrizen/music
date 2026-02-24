@@ -1,0 +1,5 @@
+env: "local"
+storagePath: "postgres://user:password@localhost:5432/music"
+redis: "localhost:6379"
+server:
+  address: "localhost:8080"

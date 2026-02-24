@@ -29,9 +29,27 @@ services:
       - music
 
   nginx:
-    build: .
+    build: nginx:alpine
     ports:
       - "8000:8000"
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - music
+
+  rabbitmq:
+    image: rabbitmq:3.8-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - music
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
     depends_on:
       - db
     networks:
