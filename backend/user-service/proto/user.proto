@@ -17,10 +17,14 @@ message CreateUserRequest {
     string email = 2;
     string username = 3;
     string password = 4;
+    option (google.api.http) = {
+        post: "/users"
+        body: "*"
+    };
 }
 
 message CreateUserResponse {
-    bool success = 1;
+    int64 id = 1;
 }
 
 message GetUserRequest {
