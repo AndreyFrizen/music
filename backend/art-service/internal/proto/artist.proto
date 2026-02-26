@@ -1,28 +1,22 @@
 syntax = "proto3";
 
-package user;
+package artist;
 
-option go_package = "/user";
+option go_package = "/artist";
 
 service UserService {
-  rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse);
-  rpc GetUser (GetUserRequest) returns (GetUserResponse);
-  rpc GetFavoriteArtists (GetFavArtistsRequest) returns (GetFavArtistsResponse);
-  rpc GetFavoriteArtists (GetFavTracksRequest) returns (GetFavTracksResponse);
-  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse);
-  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
-  rpc LoginUser (LoginUserRequest) returns (LoginUserResponse);
-  rpc LogoutUser (LogoutUserRequest) returns (LogoutUserResponse);
+  rpc CreateArtist (CreateArtistRequest) returns (CreateArtistResponse);
+  rpc GetArtist (GetArtistRequest) returns (GetArtistResponse);
+  rpc UpdateArtist (UpdateArtistRequest) returns (UpdateArtistResponse);
+  rpc DeleteArtist (DeleteArtistRequest) returns (DeleteArtistResponse);
 }
 
-message User {
+message Artist {
     int64 id = 1;
-    string email = 2;
-    string username = 3;
-    string password = 4;
+    string name = 2;
 }
 
-message RegisterUserRequest {
+message CreateUserRequest {
     User user = 1;
     option (google.api.http) = {
         post: "/users"
@@ -30,7 +24,7 @@ message RegisterUserRequest {
     };
 }
 
-message RegisterUserResponse {
+message CreateUserResponse {
     int64 id = 1;
 }
 

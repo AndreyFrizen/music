@@ -1,0 +1,189 @@
+syntax = "proto3";
+
+package artist;
+
+option go_package = "/artist";
+
+service UserService {
+    rpc GetTracksCollection(GetTracksRequest) returns (GetTracksResponse);
+    rpc GetAlbumsCollection(GetAlbumsRequest) returns (GetAlbumsResponse);
+    rpc GetArtistsCollection(GetArtistsRequest) returns (GetArtistsResponse);
+
+    rpc DeleteTrackCollection(DeleteTrackRequest) returns (DeleteTrackResponse);
+    rpc DeleteAlbumCollection(DeleteAlbumRequest) returns (DeleteAlbumResponse);
+    rpc DeleteArtistCollection(DeleteArtistRequest) returns (DeleteArtistResponse);
+
+    rpc AddAlbumCollection(AddAlbumRequest) returns (AddAlbumResponse);
+    rpc AddArtistCollection(AddArtistRequest) returns (AddArtistResponse);
+    rpc AddTrackCollection(AddTrackRequest) returns (AddTrackResponse);
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------------------
+
+// struct track
+message FavoriteTrack {
+    int64 trackId = 1;
+    int64 userId = 2;
+}
+
+// struct artist
+message FavoriteArtist {
+    int64 artistId = 1;
+    int64 userId = 2;
+}
+
+// struct album
+message FavoriteAlbum {
+    int64 albumId = 1;
+    int64 userId = 2;
+}
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// get fav tracks
+message GetTracksRequest {
+    int64 userId = 1;
+    option (google.api.http) = {
+        get: "/track_collection"
+        body: "*"
+    };
+}
+
+message GetTracksResponse {
+    repeated FavoriteTrack tracks = 1;
+}
+// get fav tracks
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// get fav artists
+message GetArtistsRequest {
+    int64 userId = 1;
+    option (google.api.http) = {
+        get: "/artist_collection"
+        body: "*"
+    };
+}
+
+message GetArtistsResponse {
+    repeated FavoriteArtist artists = 1;
+}
+// get fav artists
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// get fav albums
+message GetAlbumsRequest {
+    int64 userId = 1;
+    option (google.api.http) = {
+        get: "/album_collection"
+        body: "*"
+    };
+}
+
+message GetAlbumsResponse {
+    repeated FavoriteAlbum albums = 1;
+}
+// get fav albums
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// add track
+message AddTrackRequest {
+    int64 userId = 1;
+    int64 trackId = 2;
+    option (google.api.http) = {
+        post: "/add_track"
+        body: "*"
+    };
+}
+
+message AddTrackResponse {
+    int64 trackId = 1;
+}
+// add track
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// add album
+message AddAlbumRequest {
+    int64 userId = 1;
+    int64 albumId = 2;
+    option (google.api.http) = {
+        post: "/add_album"
+        body: "*"
+    };
+}
+
+message AddAlbumResponse {
+    int64 albumId = 1;
+}
+// add album
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// add artist
+message AddArtistRequest {
+    int64 userId = 1;
+    int64 artistId = 2;
+    option (google.api.http) = {
+        post: "/add_artist"
+        body: "*"
+    };
+}
+
+message AddArtistResponse {
+    int64 artistId = 1;
+}
+// add artist
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// delete track
+message DeleteTrackRequest {
+    int64 userId = 1;
+    int64 trackId = 2;
+    option (google.api.http) = {
+        delete: "/delete_track/{trackId}"
+        body: "*"
+    };
+}
+
+message DeleteTrackResponse {
+    int64 trackId = 1;
+}
+// delete track
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// delete album
+message DeleteAlbumRequest {
+    int64 userId = 1;
+    int64 albumId = 2;
+    option (google.api.http) = {
+        delete: "/delete_album/{albumId}"
+        body: "*"
+    };
+}
+
+message DeleteAlbumResponse {
+    int64 albumId = 1;
+}
+// delete album
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// delete artist
+message DeleteArtistRequest {
+    int64 userId = 1;
+    int64 artistId = 2;
+    option (google.api.http) = {
+        delete: "/delete_artist/{artistId}"
+        body: "*"
+    };
+}
+
+message DeleteArtistResponse {
+    int64 artistId = 1;
+}
+// delete artist

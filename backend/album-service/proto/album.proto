@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package album;
+
+option go_package = "/album";
+
+service AlbumService {
+    rpc CreateAlbum (CreateAlbumRequest) returns CreateAlbumResponse;
+    rpc GetAlbum (CreateAlbumRequest) returns GetAlbumResponse;
+    rpc UpdateAlbum (UpdateAlbumRequest) returns UpdateAlbumResponse;
+    rpc DeleteAlbum (DeleteAlbumRequest) returns DeleteAlbumResponse;
+}
+
+message Album {
+    int64 id = 1;
+    string title = 2;
+    string artistId = 3;
+    string releaseDate = 4;
+    string genre = 5;
+}
+
+message CreateAlbumRequest {
+    Album album = 1;
+    option (google.api.http) = {
+        post: "/albums"
+        body: "*"
+    };
+}
+
+message CreateAlbumResponse {
+    int64 id = 1;
+}
+
+message GetAlbumRequest {
+    int64 id = 1;
+    option (google.api.http) = {
+        get: "/albums/{id}"
+    };
+}
+
+message GetAlbumResponse {
+    Album album = 1;
+}
+
+message UpdateAlbumRequest {
+    Album album = 1;
+    option (google.api.http) = {
+        patch: "/albums/{id}"
+        body: "*"
+    };
+}
+
+message UpdateAlbumResponse {
+    int64 id = 1;
+}
+
+message DeleteAlbumRequest {
+    int64 id = 1;
+    option (google.api.http) = {
+        delete: "/albums/{id}"
+    };
+}
+
+message DeleteAlbumResponse {
+    int64 id = 1;
+}

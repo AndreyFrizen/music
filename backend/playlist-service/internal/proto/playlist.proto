@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package playlist;
+
+option go_package = "/playlist";
+
+service UserService {
+    rpc CreatePlaylist(CreatePlaylistRequest) returns (CreatePlaylistResponse);
+    rpc DeletePlaylist(DeletePlaylistRequest) returns (DeletePlaylistResponse);
+    rpc GetPlaylist(GetPlaylistRequest) returns (GetPlaylistResponse);
+    rpc UpdatePlaylist(UpdatePlaylistRequest) returns (UpdatePlaylistResponse);
+    rpc AddTrackToPlaylist(AddTrackRequest) returns (AddTrackResponse);
+    rpc DeleteTrackFromPlaylist(DeleteTrackRequest) returns (DeleteTrackResponse);
+}
+
+// struct plalistTrack
+message PlaylistTrack {
+    int64 trackId = 1;
+    int64 playlistId = 2;
+    int64 position = 3;
+}
+
+// struct playlist
+message Playlist {
+    int64 id = 1;
+    int64 userId = 2;
+    string title = 3;
+    repeated PlaylistTrack tracks = 4;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------------------
+
+// add track to playlist
+message AddTrackRequest {
+    int64 trackId = 2;
+    int64 playlistId = 3;
+    option (google.api.http) = {
+        post: "/add_trackplaylist"
+        body: "*"
+    };
+}
+
+message AddTrackResponse {
+    int64 id = 1;
+}
+// add track to playlist
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// delete track from playlist
+message DeleteTrackRequest {
+    int64 trackId = 1;
+    int64 playlistId = 2;
+    option (google.api.http) = {
+        delete: "/delete_trackplaylist"
+        body: "*"
+    };
+}
+
+message DeleteTrackResponse {
+    int64 id = 1;
+}
+// delete track from playlist
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// get playlist
+message GetPlaylistRequest {
+    int64 id = 1;
+    option (google.api.http) = {
+        get: "/get_playlist/{id}"
+    };
+}
+
+message GetPlaylistResponse {
+    Playlist playlist = 1;
+}
+// get playlist
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// update playlist
+message UpdatePlaylistRequest {
+    int64 id = 1;
+    string title = 2;
+    option (google.api.http) = {
+        put: "/update_playlist"
+        body: "*"
+    };
+}
+
+message UpdatePlaylistResponse {
+    Playlist playlist = 1;
+}
+// update playlist
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// delete playlist
+message DeletePlaylistRequest {
+    int64 id = 1;
+    option (google.api.http) = {
+        delete: "/delete_playlist"
+        body: "*"
+    };
+}
+
+message DeletePlaylistResponse {
+    int64 id = 1;
+}
+// delete playlist
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// create playlist
+message CreatePlaylistRequest {
+    string title = 1;
+    option (google.api.http) = {
+        post: "/create_playlist"
+        body: "*"
+    };
+}
+
+message CreatePlaylistResponse {
+    Playlist playlist = 1;
+}
+// create playlist

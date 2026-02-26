@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package track;
+
+option go_package = "/track";
+
+service UserService {
+  rpc CreateTrack (CreateTrackRequest) returns (CreateTrackResponse);
+  rpc GetTrack (GetTrackRequest) returns (GetTrackResponse);
+  rpc UpdateTrack (UpdateTrackRequest) returns (UpdateTrackResponse);
+  rpc DeleteTrack (DeleteTrackRequest) returns (DeleteTrackResponse);
+}
+
+message Track {
+    int64 id = 1;
+    string title = 2;
+    int64 duration = 3;
+    string audioURL = 4;
+    int64 artistId = 5;
+    int64 albumId = 6;
+}
+
+message CreateTrackRequest {
+    Track track = 1;
+    option (google.api.http) = {
+        post: "/tracks"
+        body: "*"
+    };
+}
+
+message CreateTrackResponse {
+    int64 id = 1;
+}
+
+message GetTrackRequest {
+    int64 id = 1;
+    option (google.api.http) = {
+        get: "/tracks/{id}"
+    };
+}
+
+message GetTrackResponse {
+    Track track = 1;
+}
+
+message UpdateTrackRequest {
+    Track track = 1;
+    option (google.api.http) = {
+        patch: "/tracks/{id}"
+        body: "*"
+    };
+}
+
+message UpdateTrackResponse {
+    int64 id = 1;
+}
+
+message DeleteTrackRequest {
+    int64 id = 1;
+    option (google.api.http) = {
+        delete: "/tracks/{id}"
+    };
+}
+
+message DeleteTrackResponse {
+    int64 id = 1;
+}
