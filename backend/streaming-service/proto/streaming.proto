@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package streaming;
+
+import "google/api/annotations.proto";
+
+option go_package = "/stream";
+
+service UserService {
+  rpc StreamTrack(GetTrackRequest) returns (GetTrackResponse) {
+    option (google.api.http) = {
+        get: "/stream/{id}"
+        body: "*"
+    };
+  }
+}
+
+message Track {
+  string id = 1;
+  string title = 2;
+  string artistId = 3;
+  string URL = 4;
+  int32 duration = 5;
+}
+
+message GetTrackRequest {
+  string idd = 1;
+}
+
+message GetTrackResponse {
+  repeated Track track = 1;
+}

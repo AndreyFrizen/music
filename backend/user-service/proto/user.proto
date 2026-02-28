@@ -2,17 +2,45 @@ syntax = "proto3";
 
 package user;
 
+import "google/api/annotations.proto";
+
 option go_package = "/user";
 
 service UserService {
-  rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse);
-  rpc GetUser (GetUserRequest) returns (GetUserResponse);
-  rpc GetFavoriteArtists (GetFavArtistsRequest) returns (GetFavArtistsResponse);
-  rpc GetFavoriteArtists (GetFavTracksRequest) returns (GetFavTracksResponse);
-  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse);
-  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
-  rpc LoginUser (LoginUserRequest) returns (LoginUserResponse);
-  rpc LogoutUser (LogoutUserRequest) returns (LogoutUserResponse);
+  rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse){
+      option (google.api.http) = {
+          post: "/users"
+          body: "*"
+      };
+  };
+  rpc GetUser (GetUserRequest) returns (GetUserResponse){
+      option (google.api.http) = {
+          get: "/users/{id}"
+      };
+  };
+  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse){
+      option (google.api.http) = {
+          patch: "/users/{id}"
+          body: "*"
+      };
+  };
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse){
+      option (google.api.http) = {
+          delete: "/users/{id}"
+      };
+  };
+  rpc LoginUser (LoginUserRequest) returns (LoginUserResponse){
+      option (google.api.http) = {
+          post: "/users/login"
+          body: "*"
+      };
+  };
+  rpc LogoutUser (LogoutUserRequest) returns (LogoutUserResponse){
+      option (google.api.http) = {
+          post: "/users/logout"
+          body: "*"
+      };
+  };
 }
 
 message User {
@@ -24,10 +52,6 @@ message User {
 
 message RegisterUserRequest {
     User user = 1;
-    option (google.api.http) = {
-        post: "/users"
-        body: "*"
-    };
 }
 
 message RegisterUserResponse {
@@ -36,9 +60,6 @@ message RegisterUserResponse {
 
 message GetUserRequest {
     int64 id = 1;
-    option (google.api.http) = {
-        get: "/users/{id}"
-    };
 }
 
 message GetUserResponse {
@@ -47,10 +68,6 @@ message GetUserResponse {
 
 message UpdateUserRequest {
     User user = 1;
-    option (google.api.http) = {
-        patch: "/users/{id}"
-        body: "*"
-    };
 }
 
 message UpdateUserResponse {
@@ -59,33 +76,14 @@ message UpdateUserResponse {
 
 message DeleteUserRequest {
     int64 id = 1;
-    option (google.api.http) = {
-        delete: "/users/{id}"
-    };
 }
 
 message DeleteUserResponse {
     int64 id = 1;
 }
 
-message AuthenticateUserRequest {
-    User user = 1;
-    option (google.api.http) = {
-        post: "/users/auth"
-        body: "*"
-    };
-}
-
-message AuthenticateUserResponse {
-    string token = 1;
-}
-
 message LoginUserRequest {
     User user = 1;
-    option (google.api.http) = {
-        post: "/users/login"
-        body: "*"
-    };
 }
 
 message LoginUserResponse {
@@ -94,10 +92,6 @@ message LoginUserResponse {
 
 message LogoutUserRequest {
     int64 id = 1;
-    option (google.api.http) = {
-        post: "/users/logout"
-        body: "*"
-    };
 }
 
 message LogoutUserResponse {

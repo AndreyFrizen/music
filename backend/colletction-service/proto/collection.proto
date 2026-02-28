@@ -1,21 +1,67 @@
 syntax = "proto3";
 
-package artist;
+package collection;
 
-option go_package = "/artist";
+import "google/api/annotations.proto";
+
+option go_package = "/collection";
 
 service UserService {
-    rpc GetTracksCollection(GetTracksRequest) returns (GetTracksResponse);
-    rpc GetAlbumsCollection(GetAlbumsRequest) returns (GetAlbumsResponse);
-    rpc GetArtistsCollection(GetArtistsRequest) returns (GetArtistsResponse);
+    rpc GetTracksCollection(GetTracksRequest) returns (GetTracksResponse){
+        option (google.api.http) = {
+            get: "/track_collection"
+            body: "*"
+        };
+    };
+    rpc GetAlbumsCollection(GetAlbumsRequest) returns (GetAlbumsResponse){
+        option (google.api.http) = {
+            get: "/album_collection"
+            body: "*"
+        };
+    };
+    rpc GetArtistsCollection(GetArtistsRequest) returns (GetArtistsResponse){
+        option (google.api.http) = {
+            get: "/artist_collection"
+            body: "*"
+        };
+    };
+    rpc DeleteTrackCollection(DeleteTrackRequest) returns (DeleteTrackResponse){
+        option (google.api.http) = {
+            delete: "/track_collection/{trackId}"
+            body: "*"
+        };
+    };
+    rpc DeleteAlbumCollection(DeleteAlbumRequest) returns (DeleteAlbumResponse){
+        option (google.api.http) = {
+            delete: "/album_collection/{albumId}"
+            body: "*"
+        };
+    };
+    rpc DeleteArtistCollection(DeleteArtistRequest) returns (DeleteArtistResponse){
+        option (google.api.http) = {
+            delete: "/artist_collection/{artistId}"
+            body: "*"
+        };
+    };
 
-    rpc DeleteTrackCollection(DeleteTrackRequest) returns (DeleteTrackResponse);
-    rpc DeleteAlbumCollection(DeleteAlbumRequest) returns (DeleteAlbumResponse);
-    rpc DeleteArtistCollection(DeleteArtistRequest) returns (DeleteArtistResponse);
-
-    rpc AddAlbumCollection(AddAlbumRequest) returns (AddAlbumResponse);
-    rpc AddArtistCollection(AddArtistRequest) returns (AddArtistResponse);
-    rpc AddTrackCollection(AddTrackRequest) returns (AddTrackResponse);
+    rpc AddAlbumCollection(AddAlbumRequest) returns (AddAlbumResponse){
+        option (google.api.http) = {
+            post: "/album_collection"
+            body: "*"
+        };
+    };
+    rpc AddArtistCollection(AddArtistRequest) returns (AddArtistResponse){
+        option (google.api.http) = {
+            post: "/artist_collection"
+            body: "*"
+        };
+    };
+    rpc AddTrackCollection(AddTrackRequest) returns (AddTrackResponse){
+        option (google.api.http) = {
+            post: "/track_collection"
+            body: "*"
+        };
+    };
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -43,10 +89,6 @@ message FavoriteAlbum {
 // get fav tracks
 message GetTracksRequest {
     int64 userId = 1;
-    option (google.api.http) = {
-        get: "/track_collection"
-        body: "*"
-    };
 }
 
 message GetTracksResponse {
@@ -59,10 +101,6 @@ message GetTracksResponse {
 // get fav artists
 message GetArtistsRequest {
     int64 userId = 1;
-    option (google.api.http) = {
-        get: "/artist_collection"
-        body: "*"
-    };
 }
 
 message GetArtistsResponse {
@@ -75,10 +113,6 @@ message GetArtistsResponse {
 // get fav albums
 message GetAlbumsRequest {
     int64 userId = 1;
-    option (google.api.http) = {
-        get: "/album_collection"
-        body: "*"
-    };
 }
 
 message GetAlbumsResponse {
@@ -92,10 +126,6 @@ message GetAlbumsResponse {
 message AddTrackRequest {
     int64 userId = 1;
     int64 trackId = 2;
-    option (google.api.http) = {
-        post: "/add_track"
-        body: "*"
-    };
 }
 
 message AddTrackResponse {
@@ -109,10 +139,6 @@ message AddTrackResponse {
 message AddAlbumRequest {
     int64 userId = 1;
     int64 albumId = 2;
-    option (google.api.http) = {
-        post: "/add_album"
-        body: "*"
-    };
 }
 
 message AddAlbumResponse {
@@ -126,10 +152,6 @@ message AddAlbumResponse {
 message AddArtistRequest {
     int64 userId = 1;
     int64 artistId = 2;
-    option (google.api.http) = {
-        post: "/add_artist"
-        body: "*"
-    };
 }
 
 message AddArtistResponse {
@@ -143,10 +165,6 @@ message AddArtistResponse {
 message DeleteTrackRequest {
     int64 userId = 1;
     int64 trackId = 2;
-    option (google.api.http) = {
-        delete: "/delete_track/{trackId}"
-        body: "*"
-    };
 }
 
 message DeleteTrackResponse {
@@ -160,10 +178,6 @@ message DeleteTrackResponse {
 message DeleteAlbumRequest {
     int64 userId = 1;
     int64 albumId = 2;
-    option (google.api.http) = {
-        delete: "/delete_album/{albumId}"
-        body: "*"
-    };
 }
 
 message DeleteAlbumResponse {
@@ -177,10 +191,6 @@ message DeleteAlbumResponse {
 message DeleteArtistRequest {
     int64 userId = 1;
     int64 artistId = 2;
-    option (google.api.http) = {
-        delete: "/delete_artist/{artistId}"
-        body: "*"
-    };
 }
 
 message DeleteArtistResponse {

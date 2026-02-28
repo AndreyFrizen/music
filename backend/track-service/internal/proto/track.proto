@@ -2,13 +2,33 @@ syntax = "proto3";
 
 package track;
 
+import "google/api/annotations.proto";
+
 option go_package = "/track";
 
 service UserService {
-  rpc CreateTrack (CreateTrackRequest) returns (CreateTrackResponse);
-  rpc GetTrack (GetTrackRequest) returns (GetTrackResponse);
-  rpc UpdateTrack (UpdateTrackRequest) returns (UpdateTrackResponse);
-  rpc DeleteTrack (DeleteTrackRequest) returns (DeleteTrackResponse);
+  rpc CreateTrack (CreateTrackRequest) returns (CreateTrackResponse){
+      option (google.api.http) = {
+          post: "/tracks"
+          body: "*"
+      };
+  };
+  rpc GetTrack (GetTrackRequest) returns (GetTrackResponse){
+      option (google.api.http) = {
+          get: "/tracks/{id}"
+      };
+  };
+  rpc UpdateTrack (UpdateTrackRequest) returns (UpdateTrackResponse){
+      option (google.api.http) = {
+          patch: "/tracks/{id}"
+          body: "*"
+      };
+  };
+  rpc DeleteTrack (DeleteTrackRequest) returns (DeleteTrackResponse){
+      option (google.api.http) = {
+          delete: "/tracks/{id}"
+      };
+  };
 }
 
 message Track {
@@ -22,10 +42,6 @@ message Track {
 
 message CreateTrackRequest {
     Track track = 1;
-    option (google.api.http) = {
-        post: "/tracks"
-        body: "*"
-    };
 }
 
 message CreateTrackResponse {
@@ -34,9 +50,6 @@ message CreateTrackResponse {
 
 message GetTrackRequest {
     int64 id = 1;
-    option (google.api.http) = {
-        get: "/tracks/{id}"
-    };
 }
 
 message GetTrackResponse {
@@ -45,10 +58,6 @@ message GetTrackResponse {
 
 message UpdateTrackRequest {
     Track track = 1;
-    option (google.api.http) = {
-        patch: "/tracks/{id}"
-        body: "*"
-    };
 }
 
 message UpdateTrackResponse {
@@ -57,9 +66,6 @@ message UpdateTrackResponse {
 
 message DeleteTrackRequest {
     int64 id = 1;
-    option (google.api.http) = {
-        delete: "/tracks/{id}"
-    };
 }
 
 message DeleteTrackResponse {
