@@ -1,10 +1,11 @@
-package store
+package repository
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
-	"mess/internal/model"
+	"user-service/internal/model"
 )
 
 type userRepository interface {
@@ -13,10 +14,14 @@ type userRepository interface {
 	UserByEmail(email string, ctx context.Context) (*model.User, error)
 }
 
+type PostgresRepo struct {
+	db *sql.DB
+}
+
 // Post
 
 // Create user in database
-func (s *Store) CreateUser(u *model.User, ctx context.Context) error {
+func (s *PostgresRepo) CreateUser(u *model.User, ctx context.Context) error {
 	query := fmt.Sprintf("INSERT INTO users (username, password, email) VALUES ('%s', '%s', '%s')",
 		u.Username, u.EncryptedPassword, u.Email,
 	)
