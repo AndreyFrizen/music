@@ -4,6 +4,8 @@ import (
 	"log/slog"
 	"user-service/config"
 	"user-service/internal/app"
+	"user-service/internal/repository"
+	services "user-service/internal/service"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
@@ -20,8 +22,8 @@ func main() {
 	ctx := context.Background()
 
 	// Init variables
-	var storeRepository store.Repository
-	var serviceMusic services.InterfaceService
+	var repository repository.UserRepository
+	var service services.UserService
 	var handler handlers.HandlerInterface
 
 	// Load configuration from YAML file

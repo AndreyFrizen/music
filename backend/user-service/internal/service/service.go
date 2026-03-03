@@ -3,18 +3,27 @@ package services
 import (
 	"context"
 	"log"
-	"mess/internal/model"
 	"strconv"
 	"time"
+	"user-service/internal/model"
+	"user-service/internal/repository"
 
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type userService interface {
+type UserService interface {
 	Register(user *model.User, ctx context.Context) error
 	UserByID(id int, ctx context.Context) (*model.User, error)
 	Auth(user *model.User, ctx context.Context) (string, error)
+}
+
+type Service struct {
+	Repo repository.UserRepository
+}
+
+func NewService(repo repository.UserRepository) *Service {
+	return &Service{Repo: repo}
 }
 
 // Register registers a new user

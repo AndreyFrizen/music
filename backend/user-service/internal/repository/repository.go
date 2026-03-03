@@ -8,14 +8,14 @@ import (
 	"user-service/internal/model"
 )
 
-type userRepository interface {
+type UserRepository interface {
 	CreateUser(u *model.User, ctx context.Context) error
 	UserByID(id int, ctx context.Context) (*model.User, error)
 	UserByEmail(email string, ctx context.Context) (*model.User, error)
 }
 
 type Store struct {
-	db *sql.DB
+	repository UserRepository
 }
 
 func NewRepository(host, port, user, password, dbname string) (*Store, error) {
