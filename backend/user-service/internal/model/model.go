@@ -6,7 +6,7 @@ import (
 
 // User represents a user in the system
 type User struct {
-	ID                int    `json:"id" db:"id" redis:"id"`
+	ID                int64  `json:"id" db:"id" redis:"id"`
 	Username          string `json:"username" db:"username" redis:"username"`
 	Password          string `json:"password" validate:"required,min=6,max=100"`
 	EncryptedPassword string `db:"password"`

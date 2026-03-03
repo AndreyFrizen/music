@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"mess/internal/model"
 	"net/http"
 	"strconv"
+	"user-service/internal/model"
 
 	"github.com/gin-gonic/gin"
 )

@@ -14,25 +14,38 @@ type userRepository interface {
 	UserByEmail(email string, ctx context.Context) (*model.User, error)
 }
 
-type PostgresRepo struct {
+type Store struct {
 	db *sql.DB
 }
 
-// Post
+func NewRepository(host, port, user, password, dbname string) (*Store, error) {
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
 
-// Create user in database
-func (s *PostgresRepo) CreateUser(u *model.User, ctx context.Context) error {
-	query := fmt.Sprintf("INSERT INTO users (username, password, email) VALUES ('%s', '%s', '%s')",
-		u.Username, u.EncryptedPassword, u.Email,
-	)
-
-	_, err := s.db.ExecContext(ctx, query)
-
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	if err := db.Ping(); err != nil {
+		return nil, err
+	}
+
+	return &Store{db: db}, nil
+}
+
+// Create user in database
+func (s *Store) CreateUser(u *model.User, ctx context.Context) (int64, error) {
+	var id int64
+	err := s.db.QueryRowContext(ctx,
+		"INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING id",
+		u.Email, u.Username, u.EncryptedPassword).Scan(&id)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }
 
 // Get user by id

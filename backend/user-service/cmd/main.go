@@ -1,16 +1,9 @@
 package main
 
 import (
-	"context"
-	"database/sql"
-	"log"
 	"log/slog"
-	"mess/internal/api/handlers"
-	"mess/internal/config"
-	"mess/internal/repository/store"
-	routes "mess/internal/routes/rout"
-	services "mess/internal/service"
-	"os"
+	"user-service/config"
+	"user-service/internal/app"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
@@ -40,7 +33,10 @@ func main() {
 
 	// Setup logger
 	log := setupLogger(config.Env)
-	log.Info("Logger setup")
+	log.Info("Logger setup", slog.Any("cfg",cfg))
+
+	application := app.NewApp(log, config.GRPCPort, config.TokenExpiration)
+	application.Run()
 
 	// Initialize database connection
 	db, err := sql.Open("sqlite3", config.StoragePath)
@@ -94,16 +90,13 @@ func setupLogger(env string) *slog.Logger {
 	switch env {
 	case envLocal:
 		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+		)
 
 	case envProd:
 		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
-
-	case envDev:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	}
+			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
+		)
 
 	return log
 }

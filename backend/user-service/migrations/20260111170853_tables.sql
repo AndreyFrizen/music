@@ -1,9 +1,9 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE users (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     username TEXT NOT NULL,
-    password TEXT NOT NULL ,
+    password TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE
 );
 -- +goose StatementEnd
