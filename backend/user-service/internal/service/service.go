@@ -6,31 +6,36 @@ import (
 	"strconv"
 	"time"
 	"user-service/internal/model"
-	"user-service/internal/repository"
 
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserService interface {
-	Register(user *model.User, ctx context.Context) error
+type userRepository interface {
+	CreateUser(u *model.User, ctx context.Context) error
 	UserByID(id int, ctx context.Context) (*model.User, error)
-	Auth(user *model.User, ctx context.Context) (string, error)
+	UserByEmail(email string, ctx context.Context) (*model.User, error)
 }
+
+// type UserService interface {
+// 	Register(user *model.User, ctx context.Context) error
+// 	UserByID(id int, ctx context.Context) (*model.User, error)
+// 	Auth(user *model.User, ctx context.Context) (string, error)
+// }
 
 type Service struct {
-	Repo repository.UserRepository
+	repo userRepository
 }
 
-func NewService(repo repository.UserRepository) *Service {
-	return &Service{Repo: repo}
+func NewService(repo userRepository) *Service {
+	return &Service{repo: repo}
 }
 
 // Register registers a new user
 func (m *Service) Register(user *model.User, ctx context.Context) error {
 	err := validate.Struct(user)
 	err = user.EncryptPassword()
-	err = m.Repo.CreateUser(user, ctx)
+	err = m.repo.CreateUser(user, ctx)
 
 	m.Auth(user, ctx)
 
@@ -39,13 +44,13 @@ func (m *Service) Register(user *model.User, ctx context.Context) error {
 
 // UserByID retrieves a user by ID
 func (m *Service) UserByID(id int, ctx context.Context) (*model.User, error) {
-	return m.Repo.UserByID(id, ctx)
+	return m.repo.UserByID(id, ctx)
 }
 
 // GetUserByEmail retrieves a user by email
 func (m *Service) Auth(u *model.User, ctx context.Context) (string, error) {
 	log.Println("Authenticating user...", u)
-	user, err := m.Repo.UserByEmail(u.Email, ctx)
+	user, err := m.repo.UserByEmail(u.Email, ctx)
 	if err != nil {
 		return "", err
 	}
