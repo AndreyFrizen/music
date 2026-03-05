@@ -3,75 +3,139 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"log"
-	"user-service/internal/model"
+	"time"
+	"user-service/internal/domain/errors"
+
+	modeluser "user-service/internal/domain/model"
+
+	"github.com/redis/go-redis/v9"
 )
 
-type Store struct {
-	db *sql.DB
+type store struct {
+	db       *sql.DB
+	redis    *redis.Client
+	cacheTTL time.Duration
 }
 
-func NewRepository(host, port, user, password, dbname string) (*Store, error) {
-	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		return nil, err
+func NewRepository(db *sql.DB, redis *redis.Client) *store {
+	return &store{
+		db:       db,
+		redis:    redis,
+		cacheTTL: 15 * time.Minute,
 	}
-
-	if err := db.Ping(); err != nil {
-		return nil, err
-	}
-
-	return &Store{db: db}, nil
 }
 
 // Create user in database
-func (s *Store) CreateUser(u *model.User, ctx context.Context) (int64, error) {
+func (s *store) Register(ctx context.Context, u *modeluser.User) (int64, error) {
+	const op = "repository.UserRepository.CreateUser"
+
 	var id int64
 	err := s.db.QueryRowContext(ctx,
 		"INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING id",
 		u.Email, u.Username, u.EncryptedPassword).Scan(&id)
 
 	if err != nil {
-		return 0, err
+		return 0, errors.DatabaseError(op, err)
 	}
 
 	return id, nil
 }
 
 // Get user by id
-func (s *Store) UserByID(id int, ctx context.Context) (*model.User, error) {
-	query := fmt.Sprintf("SELECT * FROM users WHERE id = '%d'", id)
+func (s *store) UserByID(ctx context.Context, id int64) (*modeluser.User, error) {
+	const op = "repository.UserRepository.UserByID"
 
-	row := s.db.QueryRowContext(ctx, query)
+	query := "SELECT id, username, email FROM users WHERE id = $1"
 
-	var user model.User
+	row := s.db.QueryRowContext(ctx, query, id)
 
-	err := row.Scan(&user.ID, &user.Username, &user.EncryptedPassword, &user.Email)
+	var user modeluser.User
 
+	err := row.Scan(&user.ID, &user.Username, &user.Email)
+
+	if err == sql.ErrNoRows {
+		return nil, errors.NotFoundError(op, "user not found")
+	}
 	if err != nil {
-		return nil, err
+		return nil, errors.DatabaseError(op, err)
 	}
 
 	return &user, nil
 }
 
 // Get user by email
-func (s *Store) UserByEmail(email string, ctx context.Context) (*model.User, error) {
-	query := fmt.Sprintf("SELECT * FROM users WHERE email = '%s'", email)
+func (s *store) UserByEmail(ctx context.Context, email string) (*modeluser.User, error) {
+	const op = "repository.UserRepository.UserByEmail"
 
-	row := s.db.QueryRowContext(ctx, query)
+	query := "SELECT id, username, email FROM users WHERE email = $1"
 
-	var user model.User
+	row := s.db.QueryRowContext(ctx, query, email)
 
-	err := row.Scan(&user.ID, &user.Username, &user.EncryptedPassword, &user.Email)
-	log.Println("User found:", user)
+	var user modeluser.User
+
+	err := row.Scan(&user.ID, &user.Username, &user.Email)
+
+	if err == sql.ErrNoRows {
+		return nil, errors.NotFoundError(op, "user not found")
+	}
 	if err != nil {
-		return nil, err
+		return nil, errors.DatabaseError(op, err)
 	}
 
 	return &user, nil
+}
+
+// Update user in database
+func (s *store) UpdateUser(ctx context.Context, u *modeluser.User) error {
+	const op = "repository.UserRepository.UpdateUser"
+
+	result, err := s.db.ExecContext(ctx,
+		"UPDATE users SET username = $1 WHERE id = $2",
+		u.Username, u.ID)
+
+	if err != nil {
+		return s.handleError(op, err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return s.handleError(op, err)
+	}
+
+	if rows == 0 {
+		return s.handleError(op, err)
+	}
+
+	return nil
+}
+
+func (s *store) UpdateUserEmail(ctx context.Context, u *modeluser.User) error {
+	const op = "repository.UserRepository.UpdateUserEmail"
+
+	result, err := s.db.ExecContext(ctx,
+		"UPDATE users SET email = $1 WHERE id = $2",
+		u.Email, u.ID)
+
+	if err != nil {
+		return s.handleError(op, err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return s.handleError(op, err)
+	}
+
+	if rows == 0 {
+		return s.handleError(op, err)
+	}
+
+	return nil
+}
+
+func (s *store) handleError(op string, err error) error {
+	if err == sql.ErrNoRows {
+		return errors.NotFoundError(op, "user not found")
+	}
+
+	return errors.DatabaseError(op, err)
 }

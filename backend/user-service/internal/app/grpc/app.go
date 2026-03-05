@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
-	usergrpc "user-service/internal/api"
+	"user-service/config"
+	handlers "user-service/internal/api"
+	"user-service/internal/pkg/jwt"
+	"user-service/internal/repository"
+	services "user-service/internal/service"
 
 	"google.golang.org/grpc"
 )
@@ -12,16 +16,22 @@ import (
 type App struct {
 	log        *slog.Logger
 	gRPCServer *grpc.Server
-	port       int
+	config     *config.Config
 }
 
-func NewApp(log *slog.Logger, port int) *App {
+func NewApp(log *slog.Logger, config *config.Config) *App {
+	tokenManager := jwt.NewTokenManager(nil)
+	repo := repository.NewRepository(nil, nil)
+	userService := services.NewService(repo, log, tokenManager)
+
 	grpcServer := grpc.NewServer()
-	usergrpc.Register(grpcServer)
+
+	handlers.Register(grpcServer, log, userService)
+
 	return &App{
 		log:        log,
 		gRPCServer: grpcServer,
-		port:       port,
+		config:     config,
 	}
 }
 

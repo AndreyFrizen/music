@@ -3,12 +3,14 @@ package main
 import (
 	"log/slog"
 	"user-service/config"
+	handlers "user-service/internal/api"
 	"user-service/internal/app"
 	"user-service/internal/repository"
 	services "user-service/internal/service"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
+	"google.golang.org/grpc"
 )
 
 // Constants

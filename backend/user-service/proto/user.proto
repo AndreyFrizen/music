@@ -7,34 +7,38 @@ import "google/api/annotations.proto";
 option go_package = "/user";
 
 service UserService {
-  rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse){
+  // Register
+  rpc RegisterUser (RegisterUserRequest) returns (UserResponse){
       option (google.api.http) = {
           post: "/users"
           body: "*"
       };
   };
-  rpc GetUser (GetUserRequest) returns (GetUserResponse){
+
+  // Get user by ID
+  rpc GetUser (GetUserRequest) returns (UserResponse){
       option (google.api.http) = {
           get: "/users/{id}"
       };
   };
-  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse){
+
+  // Update user
+  rpc UpdateUser (UpdateUserRequest) returns (UserResponse){
       option (google.api.http) = {
-          patch: "/users/{user.id}"
-          body: "user"
+          patch: "/users/{id}"
+          body: "*"
       };
   };
-  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse){
-      option (google.api.http) = {
-          delete: "/users/{id}"
-      };
-  };
+
+  // Login
   rpc LoginUser (LoginUserRequest) returns (LoginUserResponse){
       option (google.api.http) = {
           post: "/users/login"
           body: "*"
       };
   };
+
+  // Logout
   rpc LogoutUser (LogoutUserRequest) returns (LogoutUserResponse){
       option (google.api.http) = {
           post: "/users/logout"
@@ -43,57 +47,42 @@ service UserService {
   };
 }
 
-message User {
-    int64 id = 1;
-    string email = 2;
-    string username = 3;
-    string password = 4;
-}
-
 message RegisterUserRequest {
-    User user = 1;
-}
-
-message RegisterUserResponse {
-    int64 id = 1;
+    string username = 1;
+    string email = 2;
+    string password = 3;
 }
 
 message GetUserRequest {
     int64 id = 1;
 }
 
-message GetUserResponse {
-    User user = 1;
-}
-
 message UpdateUserRequest {
-    User user = 1;
-}
-
-message UpdateUserResponse {
     int64 id = 1;
-}
-
-message DeleteUserRequest {
-    int64 id = 1;
-}
-
-message DeleteUserResponse {
-    int64 id = 1;
+    string username = 2;
+    string email = 3;
 }
 
 message LoginUserRequest {
-    User user = 1;
-}
-
-message LoginUserResponse {
-    string token = 1;
+    string email = 1;
+    string password = 2;
 }
 
 message LogoutUserRequest {
+}
+
+message UserResponse {
     int64 id = 1;
+    string username = 2;
+    string email = 3;
+}
+
+message LoginUserResponse {
+    string access_token = 1;
+    string refresh_token = 2;
 }
 
 message LogoutUserResponse {
-    int64 id = 1;
+    bool success = 1;
+    string message = 2;
 }
