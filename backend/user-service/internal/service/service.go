@@ -91,7 +91,7 @@ func (s *service) Register(ctx context.Context, req *RegisterRequest) (*UserResp
 		return nil, errors.InternalError(op, err)
 	}
 	if existing != nil {
-		return nil, errors.NotFoundError(op, "user not found")
+		return nil, errors.ConflictError(op, "email already exists")
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
