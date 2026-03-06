@@ -90,7 +90,7 @@ func (s *service) Register(ctx context.Context, req *RegisterRequest) (*UserResp
 		)
 		return nil, errors.InternalError(op, err)
 	}
-	if existing == nil {
+	if existing != nil {
 		return nil, errors.NotFoundError(op, "user not found")
 	}
 
