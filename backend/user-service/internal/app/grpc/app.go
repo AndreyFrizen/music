@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
-	"user-service/config"
+	config "user-service/config/grpc_server"
 	handlers "user-service/internal/api"
 	"user-service/internal/pkg/jwt"
 	"user-service/internal/repository"
@@ -40,11 +40,11 @@ func (a *App) Run() error {
 
 	log := a.log.With(
 		slog.String("op", op),
-		slog.Int("port", a.port),
+		slog.Int("port", a.config.GRPCPort),
 	)
 	log.Info("gRPC server started")
 
-	l, err := net.Listen("tcp", fmt.Sprintf(":%d", a.port))
+	l, err := net.Listen("tcp", fmt.Sprintf(":%d", a.config.GRPCPort))
 	if err != nil {
 		return fmt.Errorf("failed to listen: %s %w", op, err)
 	}

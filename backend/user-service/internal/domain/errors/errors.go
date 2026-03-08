@@ -4,6 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type ErrorCode string
@@ -117,4 +123,30 @@ func ConflictError(op string, msg string) *AppError {
 		Message: msg,
 		Op:      op,
 	}
+}
+
+func ErrorHandler(c *gin.Context, err error) {
+	st := status.Convert(err)
+
+	errorResponse := gin.H{
+		"error": gin.H{
+			"code":    st.Code().String(),
+			"message": st.Message(),
+			"details": st.Details(),
+		},
+		"timestamp": time.Now().UTC().Format(time.RFC3339),
+		"path":      c.Request.URL.Path,
+	}
+
+	// Добавляем подсказки
+	switch st.Code() {
+	case codes.InvalidArgument:
+		errorResponse["error"].(gin.H)["hint"] = "Check your request parameters"
+	case codes.NotFound:
+		errorResponse["error"].(gin.H)["hint"] = "The requested resource does not exist"
+	case codes.Unauthenticated:
+		errorResponse["error"].(gin.H)["hint"] = "Please provide valid authentication"
+	}
+
+	c.JSON(runtime.HTTPStatusFromCode(st.Code()), errorResponse)
 }

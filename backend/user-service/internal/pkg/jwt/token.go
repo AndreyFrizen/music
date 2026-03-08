@@ -2,7 +2,7 @@ package jwt
 
 import (
 	"time"
-	"user-service/config"
+	config "user-service/config/grpc_server"
 
 	"github.com/dgrijalva/jwt-go"
 )

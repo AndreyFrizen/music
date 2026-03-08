@@ -1,6 +1,6 @@
 env: "local"
 grpc_port: 50051
-http_port: ""
+http_port: 8080
 db_host: ""
 db_port: ""
 db_user: ""

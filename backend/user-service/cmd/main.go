@@ -1,6 +1,9 @@
 package main
 
 import (
+	"context"
+	"database/sql"
+	"log"
 	"log/slog"
 	"user-service/config"
 	handlers "user-service/internal/api"
@@ -10,14 +13,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
-	"google.golang.org/grpc"
-)
-
-// Constants
-const (
-	envLocal = "local"
-	envProd  = "prod"
-	envDev   = "dev"
 )
 
 func main() {
@@ -37,7 +32,7 @@ func main() {
 
 	// Setup logger
 	log := setupLogger(config.Env)
-	log.Info("Logger setup", slog.Any("cfg",cfg))
+	log.Info("Logger setup", slog.Any("cfg", cfg))
 
 	application := app.NewApp(log, config.GRPCPort, config.TokenExpiration)
 	application.Run()
@@ -86,21 +81,4 @@ func main() {
 
 	// Run router
 	r.Run(config.Server.Address)
-}
-
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case envLocal:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-
-	case envProd:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
-		)
-
-	return log
 }

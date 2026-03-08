@@ -54,3 +54,12 @@ services:
       - db
     networks:
       - music
+
+  elasticsearch:
+    image:
+
+  kibana:
+
+  opentelemetry:
+
+  prometheus:

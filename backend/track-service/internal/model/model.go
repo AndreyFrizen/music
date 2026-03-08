@@ -73,7 +73,7 @@ type ArtistTracks struct {
 // PlaylistTracks represents a collection of tracks in a playlist
 type PlaylistTracks struct {
 	PlaylistID int             `json:"playlist_id" db:"playlist_id" redis:"playlist_id"`
-	Tracks     []PlaylistTrack `json:"tracks" db:"tracks" redis:"tracks"`
+	Tracks     []PlaylistTrack ` json:"tracks" db:"tracks" redis:"tracks"`
 }
 
 // UserAlbums represents a collection of albums by a user
