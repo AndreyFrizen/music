@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"strconv"
 	"user-service/internal/app/database"
 	"user-service/internal/domain/errors"
 
@@ -32,12 +33,19 @@ func (s *store) Register(ctx context.Context, u *modeluser.User) (int64, error) 
 		return 0, errors.DatabaseError(op, err)
 	}
 
+	s.setUserToCache(ctx, "id", &modeluser.User{ID: id})
+
 	return id, nil
 }
 
 // Get user by id
 func (s *store) UserByID(ctx context.Context, id int64) (*modeluser.User, error) {
 	const op = "repository.UserRepository.UserByID"
+
+	key := strconv.Itoa(int(id))
+	if cached, err := s.getUserFromCache(ctx, key); err == nil && cached != nil {
+		return cached, nil
+	}
 
 	query := "SELECT id, username, email FROM users WHERE id = $1"
 
@@ -54,12 +62,17 @@ func (s *store) UserByID(ctx context.Context, id int64) (*modeluser.User, error)
 		return nil, errors.DatabaseError(op, err)
 	}
 
+	s.setUserToCache(ctx, key, &user)
 	return &user, nil
 }
 
 // Get user by email
 func (s *store) UserByEmail(ctx context.Context, email string) (*modeluser.User, error) {
 	const op = "repository.UserRepository.UserByEmail"
+
+	if cached, err := s.getUserFromCache(ctx, email); err == nil && cached != nil {
+		return cached, nil
+	}
 
 	query := "SELECT id, username, email FROM users WHERE email = $1"
 
@@ -75,6 +88,8 @@ func (s *store) UserByEmail(ctx context.Context, email string) (*modeluser.User,
 	if err != nil {
 		return nil, errors.DatabaseError(op, err)
 	}
+
+	s.setUserToCache(ctx, email, &user)
 
 	return &user, nil
 }

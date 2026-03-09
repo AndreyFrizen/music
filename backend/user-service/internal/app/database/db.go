@@ -115,14 +115,6 @@ func (d *DB) Ping(ctx context.Context) error {
 	return nil
 }
 
-func (d *DB) GetPG() *pgxpool.Pool {
-	return d.pg
-}
-
-func (d *DB) GetRedis() *redis.Client {
-	return d.redis
-}
-
 func (db *DB) QueryRowContext(ctx context.Context, query string, args ...any) pgx.Row {
 	return db.pg.QueryRow(ctx, query, args...)
 }
@@ -135,4 +127,20 @@ func (db *DB) ExecContext(ctx context.Context, query string, args ...any) (pgcon
 // QueryContext выполняет запрос, возвращая несколько строк.
 func (db *DB) QueryContext(ctx context.Context, query string, args ...any) (pgx.Rows, error) {
 	return db.pg.Query(ctx, query, args...)
+}
+
+func (db *DB) GetRedis(ctx context.Context, key string) *redis.StringCmd {
+	return db.redis.Get(ctx, key)
+}
+
+func (db *DB) SetRedis(ctx context.Context, key string, value any, expiration time.Duration) *redis.StatusCmd {
+	return db.redis.Set(ctx, key, value, expiration)
+}
+
+func (db *DB) DelRedis(ctx context.Context, keys ...string) *redis.IntCmd {
+	return db.redis.Del(ctx, keys...)
+}
+
+func (db *DB) Log() *slog.Logger {
+	return db.log
 }
