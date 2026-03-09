@@ -6,6 +6,7 @@ import (
 	"net"
 	config "user-service/config/grpc_server"
 	handlers "user-service/internal/api"
+	"user-service/internal/app/database"
 	"user-service/internal/pkg/jwt"
 	"user-service/internal/repository"
 	services "user-service/internal/service"
@@ -19,9 +20,9 @@ type App struct {
 	config     *config.Config
 }
 
-func NewApp(log *slog.Logger, config *config.Config) *App {
+func NewApp(log *slog.Logger, config *config.Config, db *database.DB) *App {
 	tokenManager := jwt.NewTokenManager(nil)
-	repo := repository.NewRepository(nil, nil)
+	repo := repository.NewRepository(db)
 	userService := services.NewService(repo, log, tokenManager)
 
 	grpcServer := grpc.NewServer()

@@ -3,25 +3,19 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"time"
+	"user-service/internal/app/database"
 	"user-service/internal/domain/errors"
 
 	modeluser "user-service/internal/domain/model"
-
-	"github.com/redis/go-redis/v9"
 )
 
 type store struct {
-	db       *sql.DB
-	redis    *redis.Client
-	cacheTTL time.Duration
+	db *database.DB
 }
 
-func NewRepository(db *sql.DB, redis *redis.Client) *store {
+func NewRepository(db *database.DB) *store {
 	return &store{
-		db:       db,
-		redis:    redis,
-		cacheTTL: 15 * time.Minute,
+		db: db,
 	}
 }
 
@@ -97,10 +91,7 @@ func (s *store) UpdateUser(ctx context.Context, u *modeluser.User) error {
 		return s.handleError(op, err)
 	}
 
-	rows, err := result.RowsAffected()
-	if err != nil {
-		return s.handleError(op, err)
-	}
+	rows := result.RowsAffected()
 
 	if rows == 0 {
 		return s.handleError(op, err)
@@ -120,10 +111,7 @@ func (s *store) UpdateUserEmail(ctx context.Context, u *modeluser.User) error {
 		return s.handleError(op, err)
 	}
 
-	rows, err := result.RowsAffected()
-	if err != nil {
-		return s.handleError(op, err)
-	}
+	rows := result.RowsAffected()
 
 	if rows == 0 {
 		return s.handleError(op, err)

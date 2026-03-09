@@ -16,6 +16,10 @@ type Config struct {
 	DBUser            string        `mapstructure:"db_user"`
 	DBPassword        string        `mapstructure:"db_password"`
 	DBName            string        `mapstructure:"db_name"`
+	MaxConns          int32         `mapstructure:"max_conns"`
+	MinConns          int32         `mapstructure:"min_conns"`
+	MaxConnIdle       time.Duration `mapstructure:"max_conn_idle"`
+	ConnTimeout       time.Duration `mapstructure:"conn_timeout"`
 	RedisHost         string        `mapstructure:"redis_host"`
 	RedisPort         string        `mapstructure:"redis_port"`
 	JWTSecret         string        `mapstructure:"jwt_secret"`
@@ -28,7 +32,7 @@ type Config struct {
 func LoadConfig() (*Config, error) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("./")
+	viper.AddConfigPath("/home/andrey/projects/music/backend/user-service/config/grpc_server")
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file: %v", err)

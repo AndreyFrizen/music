@@ -1,9 +1,7 @@
 package middleware
 
 import (
-	"net/http"
 	"strings"
-	response "user-service/internal/pkg/respsonse"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -20,14 +18,12 @@ func JWTAuth() gin.HandlerFunc {
 
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			response.Error(c, http.StatusUnauthorized, "Authorization header required")
 			c.Abort()
 			return
 		}
 
 		parts := strings.SplitN(authHeader, " ", 2)
 		if !(len(parts) == 2 && parts[0] == "Bearer") {
-			response.Error(c, http.StatusUnauthorized, "Authorization header format must be Bearer {token}")
 			c.Abort()
 			return
 		}
@@ -42,7 +38,6 @@ func JWTAuth() gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			response.Error(c, http.StatusUnauthorized, "Invalid or expired token")
 			c.Abort()
 			return
 		}
