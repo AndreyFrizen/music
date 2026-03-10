@@ -4,23 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"mess/internal/model"
+	"track-service/internal/model"
+
 	"strconv"
 	"time"
 )
 
 type trackRepository interface {
 	AddTrack(t *model.Track, ctx context.Context) error
-	AddTrackToPlaylist(t *model.PlaylistTrack, ctx context.Context) error
 	TrackByID(id int, ctx context.Context) (*model.Track, error)
-	TrackFromPlaylist(id int, ctx context.Context) (*model.Track, error)
-	DeleteTrackFromPlaylist(id int, ctx context.Context) error
 	TracksByTitle(title string, ctx context.Context) ([]model.Track, error)
 	TracksByArtist(artistID int, ctx context.Context) ([]model.Track, error)
-	FindTracks(input string) (error, []model.Track)
 }
-
-// Post
 
 // Add track to database
 func (s *Store) AddTrack(t *model.Track, ctx context.Context) error {
@@ -33,22 +28,6 @@ func (s *Store) AddTrack(t *model.Track, ctx context.Context) error {
 		return err
 	}
 
-	return nil
-}
-
-// Add track to playlist
-func (s *Store) AddTrackToPlaylist(t *model.PlaylistTrack, ctx context.Context) error {
-	query := fmt.Sprintf("INSERT INTO track_to_playlist VALUES ('%v', '%v', '%d')",
-		t.PlaylistID, t.TrackID, t.Position)
-
-	_, err := s.db.ExecContext(ctx, query)
-
-	if err != nil {
-		return err
-	}
-
-	jsonData, _ := json.MarshalIndent(t, "", "  ")
-	s.cash.Set(ctx, strconv.Itoa(t.TrackID), string(jsonData), time.Minute*10)
 	return nil
 }
 

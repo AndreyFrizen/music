@@ -33,7 +33,7 @@ func (s *store) Register(ctx context.Context, u *modeluser.User) (int64, error) 
 		return 0, errors.DatabaseError(op, err)
 	}
 
-	s.setUserToCache(ctx, "id", &modeluser.User{ID: id})
+	go s.setUserToCache(ctx, "id", &modeluser.User{ID: id})
 
 	return id, nil
 }
