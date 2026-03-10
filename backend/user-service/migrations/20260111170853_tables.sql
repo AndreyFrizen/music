@@ -2,9 +2,9 @@
 -- +goose StatementBegin
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    username TEXT NOT NULL,
-    password TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE
+    username VARCHAR NOT NULL,
+    password VARCHAR NOT NULL,
+    email VARCHAR NOT NULL UNIQUE
 );
 CREATE UNIQUE INDEX idx_users_email ON users(email);
 CREATE UNIQUE INDEX idx_users_username ON users(username);

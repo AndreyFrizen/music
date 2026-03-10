@@ -13,7 +13,6 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// DB – обёртка над пулом PostgreSQL и клиентом Redis
 type DB struct {
 	pg    *pgxpool.Pool
 	redis *redis.Client
