@@ -270,7 +270,6 @@ func (s *service) UpdateUser(ctx context.Context, req *UpdateUserRequest) (*User
 			return nil, errors.InternalError(op, err)
 		}
 	} else {
-		// Если email не меняется, обновляем остальное
 		err = s.repo.UpdateUser(ctx, user)
 		if err != nil {
 			s.log.ErrorContext(ctx, "failed to update user",
