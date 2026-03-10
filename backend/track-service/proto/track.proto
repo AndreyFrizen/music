@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package track;
+
+import "google/api/annotations.proto";
+
+option go_package = "/track";
+
+service UserService {
+  rpc CreateTrack (CreateTrackRequest) returns (CreateTrackResponse){
+      option (google.api.http) = {
+          post: "/tracks"
+          body: "*"
+      };
+  };
+  rpc GetTrack (GetTrackRequest) returns (GetTrackResponse){
+      option (google.api.http) = {
+          get: "/tracks/{id}"
+      };
+  };
+  rpc UpdateTrack (UpdateTrackRequest) returns (UpdateTrackResponse){
+      option (google.api.http) = {
+          patch: "/tracks/{id}"
+          body: "*"
+      };
+  };
+  rpc DeleteTrack (DeleteTrackRequest) returns (DeleteTrackResponse){
+      option (google.api.http) = {
+          delete: "/tracks/{id}"
+      };
+  };
+}
+
+message Track {
+    int64 id = 1;
+    string title = 2;
+    int64 duration = 3;
+    string audioURL = 4;
+    int64 artistId = 5;
+    int64 albumId = 6;
+}
+
+message CreateTrackRequest {
+    Track track = 1;
+}
+
+message CreateTrackResponse {
+    int64 id = 1;
+}
+
+message GetTrackRequest {
+    int64 id = 1;
+}
+
+message GetTrackResponse {
+    Track track = 1;
+}
+
+message UpdateTrackRequest {
+    int64 id = 1;
+    Track track = 2;
+}
+
+message UpdateTrackResponse {
+    int64 id = 1;
+}
+
+message DeleteTrackRequest {
+    int64 id = 1;
+}
+
+message DeleteTrackResponse {
+    bool success = 1;
+}
