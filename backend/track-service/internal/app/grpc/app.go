@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net"
 	config "track-service/config/grpc_server"
+	handlers "track-service/internal/api"
 	"track-service/internal/app/database"
 	"track-service/internal/repository"
 
