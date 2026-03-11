@@ -63,3 +63,10 @@ services:
   opentelemetry:
 
   prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - backend
+    networks:
+      - music
