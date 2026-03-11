@@ -8,9 +8,3 @@ type User struct {
 	EncryptedPassword string `db:"password"`
 	Email             string `db:"email" redis:"email"`
 }
-
-type NewUser struct {
-	Username string
-	Email    string
-	Password string
-}

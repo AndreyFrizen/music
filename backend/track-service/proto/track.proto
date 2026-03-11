@@ -57,7 +57,8 @@ message GetTrackResponse {
 }
 
 message UpdateTrackRequest {
-    Track track = 1;
+    int64 id = 1;
+    Track track = 2;
 }
 
 message UpdateTrackResponse {
@@ -69,5 +70,5 @@ message DeleteTrackRequest {
 }
 
 message DeleteTrackResponse {
-    int64 id = 1;
+    bool success = 1;
 }

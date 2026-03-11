@@ -1,0 +1,33 @@
+package configate
+
+import (
+	"log"
+
+	"github.com/spf13/viper"
+)
+
+type Config struct {
+	Env      string `mapstructure:"env"`
+	GRPCPort string `mapstructure:"grpc_port"`
+	HTTPPort string `mapstructure:"http_port"`
+}
+
+// LoadConfig loads the configuration from YAML file
+func LoadConfig() (*Config, error) {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("/home/andrey/projects/music/backend/user-service/config/gateway")
+
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Error reading config file: %v", err)
+		return nil, err
+	}
+
+	var config Config
+	if err := viper.Unmarshal(&config); err != nil {
+		log.Fatalf("Error unmarshaling config: %v", err)
+		return nil, err
+	}
+
+	return &config, nil
+}
