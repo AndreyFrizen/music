@@ -32,7 +32,7 @@ type Config struct {
 func LoadConfig() (*Config, error) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("/home/andrey/projects/music/backend/user-service/config/grpc_server")
+	viper.AddConfigPath("/home/andrey/projects/music/backend/track-service/config/grpc_server")
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file: %v", err)

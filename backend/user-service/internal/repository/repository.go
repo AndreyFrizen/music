@@ -33,7 +33,7 @@ func (s *store) Register(ctx context.Context, u *modeluser.User) (int64, error) 
 		return 0, errors.DatabaseError(op, err)
 	}
 
-	go s.setUserToCache(ctx, "id", &modeluser.User{ID: id})
+	go s.setUserToCache(ctx, strconv.Itoa(int(id)), &modeluser.User{ID: id, Username: u.Username, Email: u.Email})
 
 	return id, nil
 }
@@ -82,11 +82,8 @@ func (s *store) UserByEmail(ctx context.Context, email string) (*modeluser.User,
 
 	err := row.Scan(&user.ID, &user.Username, &user.Email)
 
-	if err == sql.ErrNoRows {
-		return nil, errors.NotFoundError(op, "user not found")
-	}
 	if err != nil {
-		return nil, errors.DatabaseError(op, err)
+		return nil, s.handleError(op, err)
 	}
 
 	s.setUserToCache(ctx, email, &user)
@@ -112,9 +109,12 @@ func (s *store) UpdateUser(ctx context.Context, u *modeluser.User) error {
 		return s.handleError(op, err)
 	}
 
+	go s.setUserToCache(ctx, strconv.Itoa(int(u.ID)), &modeluser.User{ID: u.ID, Username: u.Username})
+
 	return nil
 }
 
+// UpdateUserEmail updates the email of a user in the database
 func (s *store) UpdateUserEmail(ctx context.Context, u *modeluser.User) error {
 	const op = "repository.UserRepository.UpdateUserEmail"
 
@@ -131,6 +131,8 @@ func (s *store) UpdateUserEmail(ctx context.Context, u *modeluser.User) error {
 	if rows == 0 {
 		return s.handleError(op, err)
 	}
+
+	go s.setUserToCache(ctx, strconv.Itoa(int(u.ID)), &modeluser.User{ID: u.ID, Email: u.Email})
 
 	return nil
 }
