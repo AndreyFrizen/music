@@ -62,7 +62,7 @@ func (m *TokenManager) GenerateRefreshToken(userID int64) (string, error) {
 
 func (m *TokenManager) ValidateToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		// Проверяем метод подписи
+
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, ErrInvalidSigningMethod
 		}
@@ -94,7 +94,6 @@ func (m *TokenManager) RefreshTokens(refreshToken string) (string, string, error
 		return "", "", err
 	}
 
-	// Генерируем новые токены
 	accessToken, err := m.GenerateAccessToken(claims.UserID, claims.Email, claims.Role)
 	if err != nil {
 		return "", "", err

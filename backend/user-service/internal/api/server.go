@@ -54,7 +54,7 @@ func (s *serverAPI) Register(ctx context.Context, req *user.RegisterUserRequest)
 			"email", req.Email,
 			"error", err,
 		)
-		return nil, s.handleError(err)
+		return nil, status.Error(codes.Internal, "internal error")
 	}
 
 	return &user.UserResponse{
@@ -74,7 +74,7 @@ func (s *serverAPI) GetUser(ctx context.Context, req *user.GetUserRequest) (*use
 			"id", req.Id,
 			"error", err,
 		)
-		return nil, s.handleError(err)
+		return nil, status.Error(codes.NotFound, "user not found")
 	}
 
 	return &user.UserResponse{
@@ -100,7 +100,7 @@ func (s *serverAPI) UpdateUser(ctx context.Context, req *user.UpdateUserRequest)
 			"id", req.Id,
 			"error", err,
 		)
-		return nil, s.handleError(err)
+		return nil, status.Error(codes.NotFound, "user not found")
 	}
 
 	return &user.UserResponse{
@@ -125,7 +125,7 @@ func (s *serverAPI) LoginUser(ctx context.Context, req *user.LoginUserRequest) (
 			"email", req.Email,
 			"error", err,
 		)
-		return nil, s.handleError(err)
+		return nil, status.Error(codes.Internal, "internal error")
 	}
 
 	return &user.LoginUserResponse{
@@ -136,7 +136,6 @@ func (s *serverAPI) LoginUser(ctx context.Context, req *user.LoginUserRequest) (
 
 func (s *serverAPI) LogoutUser(ctx context.Context, req *user.LogoutUserRequest) (*user.LogoutUserResponse, error) {
 	const op = "handler.LogoutUser"
-
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		s.log.ErrorContext(ctx, "no metadata in context",
@@ -170,31 +169,11 @@ func (s *serverAPI) LogoutUser(ctx context.Context, req *user.LogoutUserRequest)
 			"op", op,
 			"error", err,
 		)
-		return nil, s.handleError(err)
+		return nil, status.Error(codes.Internal, "internal error")
 	}
 
 	return &user.LogoutUserResponse{
 		Success: true,
 		Message: "logged out successfully",
 	}, nil
-}
-
-// handleError конвертирует ошибки сервиса в gRPC статусы
-func (s *serverAPI) handleError(err error) error {
-	// Здесь можно добавить маппинг ваших errors в gRPC codes
-	// Например:
-	// if errors.IsNotFound(err) {
-	//     return status.Error(codes.NotFound, err.Error())
-	// }
-	// if errors.IsValidation(err) {
-	//     return status.Error(codes.InvalidArgument, err.Error())
-	// }
-	// if errors.IsConflict(err) {
-	//     return status.Error(codes.AlreadyExists, err.Error())
-	// }
-	// if errors.IsUnauthorized(err) {
-	//     return status.Error(codes.Unauthenticated, err.Error())
-	// }
-
-	return status.Error(codes.Internal, "internal error")
 }

@@ -21,7 +21,7 @@ type App struct {
 }
 
 func NewApp(log *slog.Logger, config *config.Config, db *database.DB) *App {
-	tokenManager := jwt.NewTokenManager(nil)
+	tokenManager := jwt.NewTokenManager(config)
 	repo := repository.NewRepository(db)
 	userService := services.NewService(repo, log, tokenManager)
 
