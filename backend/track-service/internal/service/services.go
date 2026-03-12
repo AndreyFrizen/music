@@ -41,14 +41,11 @@ func (s *service) CreateTrack(ctx context.Context, req *CreateTrackRequest) (*Cr
 
 	track, err := s.repo.CreateTrack(ctx, req)
 	if err != nil {
-		s.log.Error(op, "failed to create track", "track", req, "error", err)
+		s.log.Error(op, "failed to create track", err)
 		return nil, errors.InternalError(op, err)
 	}
 
-	s.log.Info(op, "track created successfully",
-		"op", op,
-		"track_id", track.ID,
-	)
+	s.log.Info(op, "track created successfully", req.Title)
 
 	return &CreateTrackResponse{ID: track.ID}, nil
 }
