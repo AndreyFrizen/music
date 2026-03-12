@@ -20,13 +20,13 @@ func NewRepository(db *database.DB) *store {
 }
 
 // Add track to database
-func (s *store) CreateTrack(t *model.Track, ctx context.Context) (int64, error) {
+func (s *store) CreateTrack(ctx context.Context, t *model.Track) (int64, error) {
 	const op = "repository.TrackRepository.CreateTrack"
 
 	var id int64
 	err := s.db.QueryRowContext(ctx,
-		"INSERT INTO tracks(title, duration, audio_url, artist_id) VALUES ($1, $2, $3, $4) RETURNING id",
-		t.Title, t.Duration, t.AudioURL, t.ArtistID).Scan(&id)
+		"INSERT INTO tracks(title, duration, artist_id) VALUES ($1, $2, $3) RETURNING id",
+		t.Title, t.Duration, t.ArtistID).Scan(&id)
 
 	if err != nil {
 		return 0, errors.DatabaseError(op, err)
@@ -38,7 +38,7 @@ func (s *store) CreateTrack(t *model.Track, ctx context.Context) (int64, error) 
 }
 
 // TrackByID retrieves a track by its ID from the database
-func (s *store) TrackByID(id int64, ctx context.Context) (*model.Track, error) {
+func (s *store) TrackByID(ctx context.Context, id int64) (*model.Track, error) {
 	const op = "repository.TrackRepository.TrackByID"
 
 	key := strconv.Itoa(int(id))
@@ -62,12 +62,12 @@ func (s *store) TrackByID(id int64, ctx context.Context) (*model.Track, error) {
 	return &track, nil
 }
 
-func (s *store) UpdateTrack(t *model.Track, ctx context.Context) error {
+func (s *store) UpdateTrack(ctx context.Context, t *model.Track) error {
 	const op = "repository.TrackRepository.UpdateTrack"
 
 	result, err := s.db.ExecContext(ctx,
-		"UPDATE tracks SET title = $1, duration = $2, audio_url = $3, artist_id = $4 WHERE id = $5",
-		t.Title, t.Duration, t.AudioURL, t.ArtistID, t.ID)
+		"UPDATE tracks SET title = $1, duration = $2, artist_id = $3 WHERE id = $4",
+		t.Title, t.Duration, t.ArtistID, t.ID)
 
 	if err != nil {
 		return s.handleError(op, err)
@@ -85,7 +85,7 @@ func (s *store) UpdateTrack(t *model.Track, ctx context.Context) error {
 }
 
 // DeleteTrack deletes a track from the database
-func (s *store) DeleteTrack(id int64, ctx context.Context) error {
+func (s *store) DeleteTrack(ctx context.Context, id int64) error {
 	const op = "repository.TrackRepository.DeleteTrack"
 
 	query := "DELETE FROM tracks WHERE id = $1"

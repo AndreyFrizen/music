@@ -24,10 +24,10 @@ func NewService(repo TrackRepository, log *slog.Logger) *service {
 }
 
 type TrackRepository interface {
-	CreateTrack(ctx context.Context, req *CreateTrackRequest) (int64, error)
-	TrackByID(ctx context.Context, req *GetTrackRequest) (*model.Track, error)
-	UpdateTrack(ctx context.Context, req *UpdateTrackRequest) error
-	DeleteTrack(ctx context.Context, req *DeleteTrackRequest) error
+	CreateTrack(ctx context.Context, t *model.Track) (int64, error)
+	TrackByID(ctx context.Context, id int64) (*model.Track, error)
+	UpdateTrack(ctx context.Context, t *model.Track) error
+	DeleteTrack(ctx context.Context, id int64) error
 }
 
 // CreateTrack creates a track in the database
@@ -40,7 +40,14 @@ func (s *service) CreateTrack(ctx context.Context, req *CreateTrackRequest) (*Cr
 		})
 	}
 
-	track, err := s.repo.CreateTrack(ctx, req)
+	t := &model.Track{
+		Title:    req.Title,
+		Duration: req.Duration,
+		ArtistID: req.ArtistID,
+		AlbumID:  req.AlbumID,
+	}
+
+	track, err := s.repo.CreateTrack(ctx, t)
 	if err != nil {
 		s.log.Error(op, "failed to create track", err)
 		return nil, errors.InternalError(op, err)
@@ -55,7 +62,7 @@ func (s *service) CreateTrack(ctx context.Context, req *CreateTrackRequest) (*Cr
 func (s *service) TrackByID(ctx context.Context, req *GetTrackRequest) (*GetTrackResponse, error) {
 	const op = "service.TrackByID"
 
-	track, err := s.repo.TrackByID(ctx, req)
+	track, err := s.repo.TrackByID(ctx, req.ID)
 
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -80,7 +87,15 @@ func (s *service) TrackByID(ctx context.Context, req *GetTrackRequest) (*GetTrac
 func (s *service) UpdateTrack(ctx context.Context, req *UpdateTrackRequest) (*UpdateTrackResponse, error) {
 	const op = "service.UpdateTrack"
 
-	err := s.repo.UpdateTrack(ctx, req)
+	t := &model.Track{
+		ID:       req.ID,
+		Title:    req.Title,
+		Duration: req.Duration,
+		ArtistID: req.ArtistID,
+		AlbumID:  req.AlbumID,
+	}
+
+	err := s.repo.UpdateTrack(ctx, t)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return nil, errors.NotFoundError(op, "track not found")
@@ -97,7 +112,7 @@ func (s *service) UpdateTrack(ctx context.Context, req *UpdateTrackRequest) (*Up
 func (s *service) DeleteTrack(ctx context.Context, req *DeleteTrackRequest) (*DeleteTrackResponse, error) {
 	const op = "service.DeleteTrack"
 
-	err := s.repo.DeleteTrack(ctx, req)
+	err := s.repo.DeleteTrack(ctx, req.ID)
 	if err != nil {
 		s.log.Error(op, "failed to delete track", err)
 		return nil, errors.InternalError(op, err)
