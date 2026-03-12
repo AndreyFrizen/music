@@ -16,11 +16,10 @@ type serverAPI struct {
 }
 
 type UserAPI interface {
-	Register(ctx context.Context, req *services.RegisterRequest) (*services.UserResponse, error)
-	UserByID(ctx context.Context, id int64) (*services.UserResponse, error)
-	UpdateUser(ctx context.Context, req *services.UpdateUserRequest) (*services.UserResponse, error)
-	Login(ctx context.Context, req *services.LoginRequest) (*services.LoginResponse, error)
-	Logout(ctx context.Context, token string) error
+	TrackByID(ctx context.Context, req *services.GetTrackRequest) (*services.GetTrackResponse, error)
+	CreateTrack(ctx context.Context, req *services.CreateTrackRequest) (*services.CreateTrackResponse, error)
+	UpdateTrack(ctx context.Context, req *services.UpdateTrackRequest) (*services.UpdateTrackResponse, error)
+	DeleteTrack(ctx context.Context, req *services.DeleteTrackRequest) (*services.DeleteTrackResponse, error)
 }
 
 func NewServerAPI(log *slog.Logger, service UserAPI) *serverAPI {

@@ -109,6 +109,7 @@ func (s *service) UpdateTrack(ctx context.Context, req *UpdateTrackRequest) (*Up
 	return &UpdateTrackResponse{ID: req.ID}, nil
 }
 
+// DeleteTrack deletes a track by its ID
 func (s *service) DeleteTrack(ctx context.Context, req *DeleteTrackRequest) (*DeleteTrackResponse, error) {
 	const op = "service.DeleteTrack"
 
