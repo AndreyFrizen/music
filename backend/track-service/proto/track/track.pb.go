@@ -27,7 +27,6 @@ type Track struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	Duration      int64                  `protobuf:"varint,3,opt,name=duration,proto3" json:"duration,omitempty"`
-	AudioURL      string                 `protobuf:"bytes,4,opt,name=audioURL,proto3" json:"audioURL,omitempty"`
 	ArtistId      int64                  `protobuf:"varint,5,opt,name=artistId,proto3" json:"artistId,omitempty"`
 	AlbumId       int64                  `protobuf:"varint,6,opt,name=albumId,proto3" json:"albumId,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -85,13 +84,6 @@ func (x *Track) GetDuration() int64 {
 	return 0
 }
 
-func (x *Track) GetAudioURL() string {
-	if x != nil {
-		return x.AudioURL
-	}
-	return ""
-}
-
 func (x *Track) GetArtistId() int64 {
 	if x != nil {
 		return x.ArtistId
@@ -110,7 +102,6 @@ type NewTrack struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	Duration      int64                  `protobuf:"varint,3,opt,name=duration,proto3" json:"duration,omitempty"`
-	AudioURL      string                 `protobuf:"bytes,4,opt,name=audioURL,proto3" json:"audioURL,omitempty"`
 	ArtistId      int64                  `protobuf:"varint,5,opt,name=artistId,proto3" json:"artistId,omitempty"`
 	AlbumId       int64                  `protobuf:"varint,6,opt,name=albumId,proto3" json:"albumId,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -159,13 +150,6 @@ func (x *NewTrack) GetDuration() int64 {
 		return x.Duration
 	}
 	return 0
-}
-
-func (x *NewTrack) GetAudioURL() string {
-	if x != nil {
-		return x.AudioURL
-	}
-	return ""
 }
 
 func (x *NewTrack) GetArtistId() int64 {
@@ -546,18 +530,16 @@ var File_track_proto protoreflect.FileDescriptor
 
 const file_track_proto_rawDesc = "" +
 	"\n" +
-	"\vtrack.proto\x12\x05track\x1a\x1cgoogle/api/annotations.proto\"\x9b\x01\n" +
+	"\vtrack.proto\x12\x05track\x1a\x1cgoogle/api/annotations.proto\"\x7f\n" +
 	"\x05Track\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x1a\n" +
 	"\bduration\x18\x03 \x01(\x03R\bduration\x12\x1a\n" +
-	"\baudioURL\x18\x04 \x01(\tR\baudioURL\x12\x1a\n" +
 	"\bartistId\x18\x05 \x01(\x03R\bartistId\x12\x18\n" +
-	"\aalbumId\x18\x06 \x01(\x03R\aalbumId\"\x8e\x01\n" +
+	"\aalbumId\x18\x06 \x01(\x03R\aalbumId\"r\n" +
 	"\bNewTrack\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x1a\n" +
 	"\bduration\x18\x03 \x01(\x03R\bduration\x12\x1a\n" +
-	"\baudioURL\x18\x04 \x01(\tR\baudioURL\x12\x1a\n" +
 	"\bartistId\x18\x05 \x01(\x03R\bartistId\x12\x18\n" +
 	"\aalbumId\x18\x06 \x01(\x03R\aalbumId\";\n" +
 	"\x12CreateTrackRequest\x12%\n" +

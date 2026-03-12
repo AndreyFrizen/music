@@ -8,6 +8,7 @@ import (
 	handlers "track-service/internal/api"
 	"track-service/internal/app/database"
 	"track-service/internal/repository"
+	services "track-service/internal/service"
 
 	"google.golang.org/grpc"
 )
@@ -19,9 +20,8 @@ type App struct {
 }
 
 func NewApp(log *slog.Logger, config *config.Config, db *database.DB) *App {
-	tokenManager := jwt.NewTokenManager(nil)
 	repo := repository.NewRepository(db)
-	userService := services.NewService(repo, log, tokenManager)
+	userService := services.NewService(repo, log)
 
 	grpcServer := grpc.NewServer()
 

@@ -31,7 +31,6 @@ message Track {
     int64 id = 1;
     string title = 2;
     int64 duration = 3;
-    string audioURL = 4;
     int64 artistId = 5;
     int64 albumId = 6;
 }
@@ -39,7 +38,6 @@ message Track {
 message NewTrack {
     string title = 2;
     int64 duration = 3;
-    string audioURL = 4;
     int64 artistId = 5;
     int64 albumId = 6;
 }

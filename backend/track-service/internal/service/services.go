@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"track-service/internal/domain/errors"
+	"track-service/internal/domain/model"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -23,10 +24,10 @@ func NewService(repo TrackRepository, log *slog.Logger) *service {
 }
 
 type TrackRepository interface {
-	CreateTrack(ctx context.Context, req *CreateTrackRequest) (*CreateTrackResponse, error)
-	TrackByID(ctx context.Context, req *GetTrackRequest) (*GetTrackResponse, error)
-	UpdateTrack(ctx context.Context, req *UpdateTrackRequest) (*UpdateTrackResponse, error)
-	DeleteTrack(ctx context.Context, req *DeleteTrackRequest) (*DeleteTrackResponse, error)
+	CreateTrack(ctx context.Context, req *CreateTrackRequest) (int64, error)
+	TrackByID(ctx context.Context, req *GetTrackRequest) (*model.Track, error)
+	UpdateTrack(ctx context.Context, req *UpdateTrackRequest) error
+	DeleteTrack(ctx context.Context, req *DeleteTrackRequest) error
 }
 
 // CreateTrack creates a track in the database
@@ -47,7 +48,7 @@ func (s *service) CreateTrack(ctx context.Context, req *CreateTrackRequest) (*Cr
 
 	s.log.Info(op, "track created successfully", req.Title)
 
-	return &CreateTrackResponse{ID: track.ID}, nil
+	return &CreateTrackResponse{ID: track}, nil
 }
 
 // TrackByID retrieves a track by its ID
@@ -66,14 +67,20 @@ func (s *service) TrackByID(ctx context.Context, req *GetTrackRequest) (*GetTrac
 
 	s.log.Info(op, "track retrieved successfully", track.ID)
 
-	return track, nil
+	return &GetTrackResponse{
+		ID:       track.ID,
+		Title:    track.Title,
+		Duration: track.Duration,
+		AlbumID:  track.AlbumID,
+		ArtistID: track.ArtistID,
+	}, nil
 }
 
 // UpdateTrack updates a track by its ID
 func (s *service) UpdateTrack(ctx context.Context, req *UpdateTrackRequest) (*UpdateTrackResponse, error) {
 	const op = "service.UpdateTrack"
 
-	track, err := s.repo.UpdateTrack(ctx, req)
+	err := s.repo.UpdateTrack(ctx, req)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return nil, errors.NotFoundError(op, "track not found")
@@ -84,13 +91,13 @@ func (s *service) UpdateTrack(ctx context.Context, req *UpdateTrackRequest) (*Up
 
 	s.log.Info(op, "track updated successfully", req.ID)
 
-	return track, nil
+	return &UpdateTrackResponse{ID: req.ID}, nil
 }
 
 func (s *service) DeleteTrack(ctx context.Context, req *DeleteTrackRequest) (*DeleteTrackResponse, error) {
 	const op = "service.DeleteTrack"
 
-	sc, err := s.repo.DeleteTrack(ctx, req)
+	err := s.repo.DeleteTrack(ctx, req)
 	if err != nil {
 		s.log.Error(op, "failed to delete track", err)
 		return nil, errors.InternalError(op, err)
@@ -98,5 +105,5 @@ func (s *service) DeleteTrack(ctx context.Context, req *DeleteTrackRequest) (*De
 
 	s.log.Info(op, "track deleted successfully", req.ID)
 
-	return sc, nil
+	return &DeleteTrackResponse{Success: true}, nil
 }
