@@ -4,93 +4,111 @@ import (
 	"context"
 	"log/slog"
 	"track-service/internal/domain/errors"
-	"track-service/internal/domain/model"
 
 	"github.com/go-playground/validator/v10"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type service struct {
-	repo         TrackRepository
-	log          *slog.Logger
-	validate     *validator.Validate
-	tokenManager *jwt.TokenManager
+	repo     TrackRepository
+	log      *slog.Logger
+	validate *validator.Validate
 }
 
-func NewService(repo TrackRepository, log *slog.Logger, jwt *jwt.TokenManager) *service {
+func NewService(repo TrackRepository, log *slog.Logger) *service {
 	return &service{
-		repo:         repo,
-		log:          log,
-		validate:     validator.New(),
-		tokenManager: jwt,
+		repo:     repo,
+		log:      log,
+		validate: validator.New(),
 	}
 }
 
 type TrackRepository interface {
-	CreateTrack(ctx context.Context, req *CreateTrackRequest) (CreateTrackResponse, error)
-	TrackByID(ctx context.Context, req *GetTrackRequest) (GetTrackResponse, error)
-	UpdateTrack(ctx context.Context, req *UpdateTrackRequest) (UpdateTrackResponse, error)
-	DeleteTrack(ctx context.Context, req *DeleteTrackRequest) (DeleteTrackResponse, error)
+	CreateTrack(ctx context.Context, req *CreateTrackRequest) (*CreateTrackResponse, error)
+	TrackByID(ctx context.Context, req *GetTrackRequest) (*GetTrackResponse, error)
+	UpdateTrack(ctx context.Context, req *UpdateTrackRequest) (*UpdateTrackResponse, error)
+	DeleteTrack(ctx context.Context, req *DeleteTrackRequest) (*DeleteTrackResponse, error)
 }
 
 // CreateTrack creates a track in the database
-func (s *service) CreateTrack(track *model.Track, ctx context.Context) (int64, error) {
+func (s *service) CreateTrack(ctx context.Context, req *CreateTrackRequest) (*CreateTrackResponse, error) {
 	const op = "service.UserService.Register"
 
 	if err := s.validate.Struct(req); err != nil {
-		return errors.ValidationError(op, map[string]string{
-			"username": "invalid username",
-			"email":    "invalid email",
-			"password": "invalid password",
+		return nil, errors.ValidationError(op, map[string]string{
+			"track": "invalid track",
 		})
 	}
 
-	existing, err := s.repo.UserByEmail(ctx, req.Email)
-	if err != nil && !errors.IsNotFound(err) {
-		s.log.ErrorContext(ctx, "failed to check existing user",
-			"op", op,
-			"email", req.Email,
-			"error", err,
-		)
-		return nil, errors.InternalError(op, err)
-	}
-	if existing != nil {
-		return nil, errors.ConflictError(op, "email already exists")
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	track, err := s.repo.CreateTrack(ctx, req)
 	if err != nil {
-		s.log.ErrorContext(ctx, "failed to hash password",
-			"op", op,
-			"error", err,
-		)
+		s.log.Error(op, "failed to create track", "track", req, "error", err)
 		return nil, errors.InternalError(op, err)
 	}
 
-	user := &modeluser.User{
-		Username:          req.Username,
-		Email:             req.Email,
-		EncryptedPassword: string(hashedPassword),
-	}
-
-	id, err := s.repo.Register(ctx, user)
-	if err != nil {
-		s.log.ErrorContext(ctx, "failed to create user",
-			"op", op,
-			"error", err,
-		)
-		return nil, errors.InternalError(op, err)
-	}
-
-	s.log.InfoContext(ctx, "user registered successfully",
+	s.log.Info(op, "track created successfully",
 		"op", op,
-		"user_id", id,
-		"email", req.Email,
+		"track_id", track.ID,
 	)
 
-	return &UserResponse{
-		ID:       id,
-		Username: req.Username,
-		Email:    req.Email,
-	}, nil
+	return &CreateTrackResponse{ID: track.ID}, nil
+}
+
+// TrackByID retrieves a track by its ID
+func (s *service) TrackByID(ctx context.Context, req *GetTrackRequest) (*GetTrackResponse, error) {
+	const op = "service.TrackByID"
+
+	track, err := s.repo.TrackByID(ctx, req)
+
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, errors.NotFoundError(op, "track not found")
+		}
+		s.log.Error(op, "failed to get track", "track_id", req.ID, "error", err)
+		return nil, errors.InternalError(op, err)
+	}
+
+	s.log.Info(op, "track retrieved successfully",
+		"op", op,
+		"track_id", track.ID,
+	)
+
+	return track, nil
+}
+
+// UpdateTrack updates a track by its ID
+func (s *service) UpdateTrack(ctx context.Context, req *UpdateTrackRequest) (*UpdateTrackResponse, error) {
+	const op = "service.UpdateTrack"
+
+	track, err := s.repo.UpdateTrack(ctx, req)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, errors.NotFoundError(op, "track not found")
+		}
+		s.log.Error(op, "failed to update track", "track_id", req.ID, "error", err)
+		return nil, errors.InternalError(op, err)
+	}
+
+	s.log.Info(op, "track updated successfully",
+		"op", op,
+		"track_id", track.ID,
+	)
+
+	return track, nil
+}
+
+func (s *service) DeleteTrack(ctx context.Context, req *DeleteTrackRequest) (*DeleteTrackResponse, error) {
+	const op = "service.DeleteTrack"
+
+	sc, err := s.repo.DeleteTrack(ctx, req)
+	if err != nil {
+		s.log.Error(op, "failed to delete track", "track_id", req.ID, "error", err)
+		return nil, errors.InternalError(op, err)
+	}
+
+	s.log.Info(op, "track deleted successfully",
+		"op", op,
+		"track_id", req.ID,
+	)
+
+	return sc, nil
 }

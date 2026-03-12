@@ -138,7 +138,6 @@ func ErrorHandler(c *gin.Context, err error) {
 		"path":      c.Request.URL.Path,
 	}
 
-	// Добавляем подсказки
 	switch st.Code() {
 	case codes.InvalidArgument:
 		errorResponse["error"].(gin.H)["hint"] = "Check your request parameters"
