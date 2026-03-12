@@ -60,14 +60,11 @@ func (s *service) TrackByID(ctx context.Context, req *GetTrackRequest) (*GetTrac
 		if errors.IsNotFound(err) {
 			return nil, errors.NotFoundError(op, "track not found")
 		}
-		s.log.Error(op, "failed to get track", "track_id", req.ID, "error", err)
+		s.log.Error(op, "failed to get track", err)
 		return nil, errors.InternalError(op, err)
 	}
 
-	s.log.Info(op, "track retrieved successfully",
-		"op", op,
-		"track_id", track.ID,
-	)
+	s.log.Info(op, "track retrieved successfully", track.ID)
 
 	return track, nil
 }
@@ -81,14 +78,11 @@ func (s *service) UpdateTrack(ctx context.Context, req *UpdateTrackRequest) (*Up
 		if errors.IsNotFound(err) {
 			return nil, errors.NotFoundError(op, "track not found")
 		}
-		s.log.Error(op, "failed to update track", "track_id", req.ID, "error", err)
+		s.log.Error(op, "failed to update track", err)
 		return nil, errors.InternalError(op, err)
 	}
 
-	s.log.Info(op, "track updated successfully",
-		"op", op,
-		"track_id", track.ID,
-	)
+	s.log.Info(op, "track updated successfully", req.ID)
 
 	return track, nil
 }
@@ -98,14 +92,11 @@ func (s *service) DeleteTrack(ctx context.Context, req *DeleteTrackRequest) (*De
 
 	sc, err := s.repo.DeleteTrack(ctx, req)
 	if err != nil {
-		s.log.Error(op, "failed to delete track", "track_id", req.ID, "error", err)
+		s.log.Error(op, "failed to delete track", err)
 		return nil, errors.InternalError(op, err)
 	}
 
-	s.log.Info(op, "track deleted successfully",
-		"op", op,
-		"track_id", req.ID,
-	)
+	s.log.Info(op, "track deleted successfully", req.ID)
 
 	return sc, nil
 }
