@@ -29,7 +29,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
-	CreateTrack(ctx context.Context, in *CreateTrackRequest, opts ...grpc.CallOption) (*CreateTrackResponse, error)
+	CreateTrack(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[CreateTrackRequest, CreateTrackResponse], error)
 	GetTrack(ctx context.Context, in *GetTrackRequest, opts ...grpc.CallOption) (*GetTrackResponse, error)
 	UpdateTrack(ctx context.Context, in *UpdateTrackRequest, opts ...grpc.CallOption) (*UpdateTrackResponse, error)
 	DeleteTrack(ctx context.Context, in *DeleteTrackRequest, opts ...grpc.CallOption) (*DeleteTrackResponse, error)
@@ -43,15 +43,18 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 	return &userServiceClient{cc}
 }
 
-func (c *userServiceClient) CreateTrack(ctx context.Context, in *CreateTrackRequest, opts ...grpc.CallOption) (*CreateTrackResponse, error) {
+func (c *userServiceClient) CreateTrack(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[CreateTrackRequest, CreateTrackResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateTrackResponse)
-	err := c.cc.Invoke(ctx, UserService_CreateTrack_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &UserService_ServiceDesc.Streams[0], UserService_CreateTrack_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &grpc.GenericClientStream[CreateTrackRequest, CreateTrackResponse]{ClientStream: stream}
+	return x, nil
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type UserService_CreateTrackClient = grpc.ClientStreamingClient[CreateTrackRequest, CreateTrackResponse]
 
 func (c *userServiceClient) GetTrack(ctx context.Context, in *GetTrackRequest, opts ...grpc.CallOption) (*GetTrackResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -87,7 +90,7 @@ func (c *userServiceClient) DeleteTrack(ctx context.Context, in *DeleteTrackRequ
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
 type UserServiceServer interface {
-	CreateTrack(context.Context, *CreateTrackRequest) (*CreateTrackResponse, error)
+	CreateTrack(grpc.ClientStreamingServer[CreateTrackRequest, CreateTrackResponse]) error
 	GetTrack(context.Context, *GetTrackRequest) (*GetTrackResponse, error)
 	UpdateTrack(context.Context, *UpdateTrackRequest) (*UpdateTrackResponse, error)
 	DeleteTrack(context.Context, *DeleteTrackRequest) (*DeleteTrackResponse, error)
@@ -101,8 +104,8 @@ type UserServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedUserServiceServer struct{}
 
-func (UnimplementedUserServiceServer) CreateTrack(context.Context, *CreateTrackRequest) (*CreateTrackResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method CreateTrack not implemented")
+func (UnimplementedUserServiceServer) CreateTrack(grpc.ClientStreamingServer[CreateTrackRequest, CreateTrackResponse]) error {
+	return status.Error(codes.Unimplemented, "method CreateTrack not implemented")
 }
 func (UnimplementedUserServiceServer) GetTrack(context.Context, *GetTrackRequest) (*GetTrackResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetTrack not implemented")
@@ -134,23 +137,12 @@ func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
 	s.RegisterService(&UserService_ServiceDesc, srv)
 }
 
-func _UserService_CreateTrack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateTrackRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).CreateTrack(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserService_CreateTrack_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).CreateTrack(ctx, req.(*CreateTrackRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+func _UserService_CreateTrack_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(UserServiceServer).CreateTrack(&grpc.GenericServerStream[CreateTrackRequest, CreateTrackResponse]{ServerStream: stream})
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type UserService_CreateTrackServer = grpc.ClientStreamingServer[CreateTrackRequest, CreateTrackResponse]
 
 func _UserService_GetTrack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetTrackRequest)
@@ -214,10 +206,6 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreateTrack",
-			Handler:    _UserService_CreateTrack_Handler,
-		},
-		{
 			MethodName: "GetTrack",
 			Handler:    _UserService_GetTrack_Handler,
 		},
@@ -230,6 +218,12 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_DeleteTrack_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "CreateTrack",
+			Handler:       _UserService_CreateTrack_Handler,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "track.proto",
 }

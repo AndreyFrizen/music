@@ -167,9 +167,12 @@ func (x *NewTrack) GetAlbumId() int64 {
 }
 
 type CreateTrackRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Track         *NewTrack              `protobuf:"bytes,1,opt,name=track,proto3" json:"track,omitempty"`
-	Chunk         []byte                 `protobuf:"bytes,2,opt,name=chunk,proto3" json:"chunk,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Data:
+	//
+	//	*CreateTrackRequest_Track
+	//	*CreateTrackRequest_Chunk
+	Data          isCreateTrackRequest_Data `protobuf_oneof:"data"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -204,19 +207,46 @@ func (*CreateTrackRequest) Descriptor() ([]byte, []int) {
 	return file_track_proto_rawDescGZIP(), []int{2}
 }
 
+func (x *CreateTrackRequest) GetData() isCreateTrackRequest_Data {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
 func (x *CreateTrackRequest) GetTrack() *NewTrack {
 	if x != nil {
-		return x.Track
+		if x, ok := x.Data.(*CreateTrackRequest_Track); ok {
+			return x.Track
+		}
 	}
 	return nil
 }
 
 func (x *CreateTrackRequest) GetChunk() []byte {
 	if x != nil {
-		return x.Chunk
+		if x, ok := x.Data.(*CreateTrackRequest_Chunk); ok {
+			return x.Chunk
+		}
 	}
 	return nil
 }
+
+type isCreateTrackRequest_Data interface {
+	isCreateTrackRequest_Data()
+}
+
+type CreateTrackRequest_Track struct {
+	Track *NewTrack `protobuf:"bytes,1,opt,name=track,proto3,oneof"`
+}
+
+type CreateTrackRequest_Chunk struct {
+	Chunk []byte `protobuf:"bytes,2,opt,name=chunk,proto3,oneof"`
+}
+
+func (*CreateTrackRequest_Track) isCreateTrackRequest_Data() {}
+
+func (*CreateTrackRequest_Chunk) isCreateTrackRequest_Data() {}
 
 type CreateTrackResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -549,10 +579,11 @@ const file_track_proto_rawDesc = "" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12\x1a\n" +
 	"\bduration\x18\x02 \x01(\x03R\bduration\x12\x1a\n" +
 	"\bartistId\x18\x03 \x01(\x03R\bartistId\x12\x18\n" +
-	"\aalbumId\x18\x04 \x01(\x03R\aalbumId\"Q\n" +
-	"\x12CreateTrackRequest\x12%\n" +
-	"\x05track\x18\x01 \x01(\v2\x0f.track.NewTrackR\x05track\x12\x14\n" +
-	"\x05chunk\x18\x02 \x01(\fR\x05chunk\"%\n" +
+	"\aalbumId\x18\x04 \x01(\x03R\aalbumId\"]\n" +
+	"\x12CreateTrackRequest\x12'\n" +
+	"\x05track\x18\x01 \x01(\v2\x0f.track.NewTrackH\x00R\x05track\x12\x16\n" +
+	"\x05chunk\x18\x02 \x01(\fH\x00R\x05chunkB\x06\n" +
+	"\x04data\"%\n" +
 	"\x13CreateTrackResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"!\n" +
 	"\x0fGetTrackRequest\x12\x0e\n" +
@@ -567,9 +598,9 @@ const file_track_proto_rawDesc = "" +
 	"\x12DeleteTrackRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"/\n" +
 	"\x13DeleteTrackResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess2\xf5\x02\n" +
-	"\vUserService\x12X\n" +
-	"\vCreateTrack\x12\x19.track.CreateTrackRequest\x1a\x1a.track.CreateTrackResponse\"\x12\x82\xd3\xe4\x93\x02\f:\x01*\"\a/tracks\x12Q\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess2\xf7\x02\n" +
+	"\vUserService\x12Z\n" +
+	"\vCreateTrack\x12\x19.track.CreateTrackRequest\x1a\x1a.track.CreateTrackResponse\"\x12\x82\xd3\xe4\x93\x02\f:\x01*\"\a/tracks(\x01\x12Q\n" +
 	"\bGetTrack\x12\x16.track.GetTrackRequest\x1a\x17.track.GetTrackResponse\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/tracks/{id}\x12]\n" +
 	"\vUpdateTrack\x12\x19.track.UpdateTrackRequest\x1a\x1a.track.UpdateTrackResponse\"\x17\x82\xd3\xe4\x93\x02\x11:\x01*2\f/tracks/{id}\x12Z\n" +
 	"\vDeleteTrack\x12\x19.track.DeleteTrackRequest\x1a\x1a.track.DeleteTrackResponse\"\x14\x82\xd3\xe4\x93\x02\x0e*\f/tracks/{id}B\bZ\x06/trackb\x06proto3"
@@ -623,6 +654,10 @@ func init() { file_track_proto_init() }
 func file_track_proto_init() {
 	if File_track_proto != nil {
 		return
+	}
+	file_track_proto_msgTypes[2].OneofWrappers = []any{
+		(*CreateTrackRequest_Track)(nil),
+		(*CreateTrackRequest_Chunk)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
