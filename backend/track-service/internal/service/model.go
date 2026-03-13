@@ -3,7 +3,6 @@ package services
 type CreateTrackRequest struct {
 	Title    string `json:"title" validate:"required"`
 	Duration int64  `json:"duration" validate:"required"`
-	AudioURL string `json:"audio_url"`
 	ArtistID int64  `json:"artist_id"`
 	AlbumID  int64  `json:"album_id"`
 }
@@ -22,6 +21,7 @@ type GetTrackResponse struct {
 	Duration int64  `json:"duration"`
 	ArtistID int64  `json:"artist_id"`
 	AlbumID  int64  `json:"album_id"`
+	AudioURL string `json:"audio_url"`
 }
 
 type UpdateTrackRequest struct {

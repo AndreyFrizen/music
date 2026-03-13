@@ -24,7 +24,7 @@ func NewService(repo TrackRepository, log *slog.Logger) *service {
 }
 
 type TrackRepository interface {
-	CreateTrack(ctx context.Context, t *model.Track) (int64, error)
+	CreateTrack(ctx context.Context, t *model.NewTrack) (int64, error)
 	TrackByID(ctx context.Context, id int64) (*model.Track, error)
 	UpdateTrack(ctx context.Context, t *model.Track) error
 	DeleteTrack(ctx context.Context, id int64) error
@@ -40,7 +40,7 @@ func (s *service) CreateTrack(ctx context.Context, req *CreateTrackRequest) (*Cr
 		})
 	}
 
-	t := &model.Track{
+	t := &model.NewTrack{
 		Title:    req.Title,
 		Duration: req.Duration,
 		ArtistID: req.ArtistID,
@@ -80,6 +80,7 @@ func (s *service) TrackByID(ctx context.Context, req *GetTrackRequest) (*GetTrac
 		Duration: track.Duration,
 		AlbumID:  track.AlbumID,
 		ArtistID: track.ArtistID,
+		AudioURL: track.AudioURL,
 	}, nil
 }
 

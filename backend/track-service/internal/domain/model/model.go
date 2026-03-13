@@ -9,3 +9,10 @@ type Track struct {
 	ArtistID int64  `json:"artist_id" db:"artist_id" redis:"artist_id"`
 	AlbumID  int64  `json:"album_id" db:"album_id" redis:"album_id"`
 }
+
+type NewTrack struct {
+	Title    string `json:"title" db:"title" redis:"title"`
+	Duration int64  `json:"duration" db:"duration" redis:"duration"`
+	ArtistID int64  `json:"artist_id" db:"artist_id" redis:"artist_id"`
+	AlbumID  int64  `json:"album_id" db:"album_id" redis:"album_id"`
+}

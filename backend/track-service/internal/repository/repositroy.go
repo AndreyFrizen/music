@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"strconv"
 	"track-service/internal/app/database"
 	"track-service/internal/domain/errors"
@@ -20,19 +21,28 @@ func NewRepository(db *database.DB) *store {
 }
 
 // Add track to database
-func (s *store) CreateTrack(ctx context.Context, t *model.Track) (int64, error) {
+func (s *store) CreateTrack(ctx context.Context, t *model.NewTrack) (int64, error) {
 	const op = "repository.TrackRepository.CreateTrack"
 
 	var id int64
 	err := s.db.QueryRowContext(ctx,
-		"INSERT INTO tracks(title, duration, artist_id) VALUES ($1, $2, $3) RETURNING id",
-		t.Title, t.Duration, t.ArtistID).Scan(&id)
+		"INSERT INTO tracks(title, duration, artist_id, album_id) VALUES ($1, $2, $3, $4) RETURNING id",
+		t.Title, t.Duration, t.ArtistID, t.AlbumID).Scan(&id)
+
+	url := fmt.Sprintf("%s/%d", "tracks", id)
+
+	_, err = s.db.ExecContext(ctx, "UPDATE tracks SET audio_url = $1 WHERE id = $2", url, id)
 
 	if err != nil {
 		return 0, errors.DatabaseError(op, err)
 	}
 
-	go s.setTrackToCache(ctx, strconv.Itoa(int(id)), t)
+	go func() {
+		t, err := s.TrackByID(ctx, id)
+		if err == nil {
+			s.setTrackToCache(ctx, strconv.Itoa(int(id)), t)
+		}
+	}()
 
 	return id, nil
 }
@@ -52,7 +62,7 @@ func (s *store) TrackByID(ctx context.Context, id int64) (*model.Track, error) {
 
 	var track model.Track
 
-	err := row.Scan(&track.ID, &track.Title, &track.Duration, &track.AudioURL, &track.ArtistID)
+	err := row.Scan(&track.ID, &track.Title, &track.Duration, &track.AudioURL, &track.ArtistID, &track.AlbumID)
 
 	if err != nil {
 		return nil, s.handleError(op, err)
@@ -62,6 +72,7 @@ func (s *store) TrackByID(ctx context.Context, id int64) (*model.Track, error) {
 	return &track, nil
 }
 
+// UpdateTrack updates a track in the database
 func (s *store) UpdateTrack(ctx context.Context, t *model.Track) error {
 	const op = "repository.TrackRepository.UpdateTrack"
 

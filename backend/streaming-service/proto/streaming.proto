@@ -7,10 +7,10 @@ import "google/api/annotations.proto";
 option go_package = "/stream";
 
 service UserService {
-  rpc StreamTrack(GetTrackRequest) returns (GetTrackResponse) {
+  rpc StreamTrack(StreamRequest) returns (StreamResponse) {
     option (google.api.http) = {
-        get: "/stream/{id}"
-        body: "*"
+      get: "/stream/{id}"
+      body: "*"
     };
   }
 }
@@ -23,10 +23,10 @@ message Track {
   int32 duration = 5;
 }
 
-message GetTrackRequest {
-  string idd = 1;
+message StreamRequest {
+    string id = 1;
 }
 
-message GetTrackResponse {
-  repeated Track track = 1;
+message StreamResponse {
+    Track track = 1;
 }
