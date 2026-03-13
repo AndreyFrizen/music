@@ -16,30 +16,54 @@ import (
 type serverAPI struct {
 	track.UnimplementedUserServiceServer
 	log     *slog.Logger
-	service UserAPI
+	service Service
 }
 
-type UserAPI interface {
+type Service interface {
 	TrackByID(ctx context.Context, req *services.GetTrackRequest) (*services.GetTrackResponse, error)
 	CreateTrack(ctx context.Context, req *services.CreateTrackRequest) (*services.CreateTrackResponse, error)
 	UpdateTrack(ctx context.Context, req *services.UpdateTrackRequest) (*services.UpdateTrackResponse, error)
 	DeleteTrack(ctx context.Context, req *services.DeleteTrackRequest) (*services.DeleteTrackResponse, error)
 }
 
-func NewServerAPI(log *slog.Logger, service UserAPI) *serverAPI {
+func NewServerAPI(log *slog.Logger, service Service) *serverAPI {
 	return &serverAPI{
 		log:     log,
 		service: service,
 	}
 }
 
-func Register(gRPC *grpc.Server, log *slog.Logger, service UserAPI) {
+func Register(gRPC *grpc.Server, log *slog.Logger, service Service) {
 	track.RegisterUserServiceServer(gRPC, NewServerAPI(log, service))
 }
 
 func (s *serverAPI) CreateTrack(stream track.UserService_CreateTrackServer) error {
-	const op = "serverAPI.CreateTrack"
-	fileHandle, err := os.Create("g")
+
+	err := s.uploadTrack(stream)
+	if err != nil {
+		return err
+	}
+
+	return stream.SendAndClose(&track.CreateTrackResponse{
+		Id: 1,
+	})
+}
+
+func (s *serverAPI) uploadTrack(stream track.UserService_CreateTrackServer) error {
+
+	req, err := stream.Recv()
+	if err != nil {
+		return status.Errorf(codes.Unknown, "cannot receive chunk: %v", err)
+	}
+
+	s.service.CreateTrack(context.Background(), &services.CreateTrackRequest{
+		Title:    req.GetTrack().Title,
+		Duration: req.GetTrack().Duration,
+		ArtistID: req.GetTrack().ArtistId,
+		AlbumID:  req.GetTrack().AlbumId,
+	})
+
+	fileHandle, err := os.Create("")
 	if err != nil {
 		return status.Errorf(codes.Internal, "cannot create audio file: %v", err)
 	}
@@ -51,7 +75,6 @@ func (s *serverAPI) CreateTrack(stream track.UserService_CreateTrackServer) erro
 			break
 		}
 		if err != nil {
-			// Удаляем файл при ошибке
 			os.Remove("")
 			return status.Errorf(codes.Unknown, "cannot receive chunk: %v", err)
 		}
@@ -68,7 +91,5 @@ func (s *serverAPI) CreateTrack(stream track.UserService_CreateTrackServer) erro
 		}
 	}
 
-	return stream.SendAndClose(&track.CreateTrackResponse{
-		Id: 1,
-	})
+	return nil
 }
