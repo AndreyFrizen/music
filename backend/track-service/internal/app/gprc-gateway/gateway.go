@@ -44,14 +44,11 @@ func NewGatewayApp(log *slog.Logger, config *configate.Config, opts ...grpc.Dial
 	}
 	allOpts := append(defaultOpts, opts...)
 
-	// FIX: grpc.NewClient is correct (not deprecated), but note it connects lazily
-	// Use grpc.DialContext if you need immediate connection verification
 	conn, err := grpc.NewClient(config.GRPCPort, allOpts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create grpc client: %s, %w", op, err)
 	}
 
-	// FIX: Add protojson import and use proper marshaler
 	gwmux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
 			MarshalOptions: protojson.MarshalOptions{
@@ -109,7 +106,6 @@ func NewGatewayApp(log *slog.Logger, config *configate.Config, opts ...grpc.Dial
 
 	router.Any("/api/v1/*path", gin.WrapH(gwmux))
 
-	// Health check
 	router.GET("/health", func(c *gin.Context) {
 		state := conn.GetState()
 		c.JSON(http.StatusOK, gin.H{

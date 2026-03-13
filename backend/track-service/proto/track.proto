@@ -28,49 +28,50 @@ service UserService {
 }
 
 message Track {
-    int64 id = 1;
-    string title = 2;
-    int64 duration = 3;
-    int64 artistId = 5;
-    int64 albumId = 6;
+  int64 id = 1;
+  string title = 2;
+  int64 duration = 3;
+  int64 artistId = 5;
+  int64 albumId = 6;
 }
 
 message NewTrack {
-    string title = 2;
-    int64 duration = 3;
-    int64 artistId = 5;
-    int64 albumId = 6;
+  string title = 1;
+  int64 duration = 2;
+  int64 artistId = 3;
+  int64 albumId = 4;
 }
 
 message CreateTrackRequest {
-    NewTrack track = 1;
+  NewTrack track = 1;
+  bytes chunk = 2;
 }
 
 message CreateTrackResponse {
-    int64 id = 1;
+  int64 id = 1;
 }
 
 message GetTrackRequest {
-    int64 id = 1;
+  int64 id = 1;
 }
 
 message GetTrackResponse {
-    Track track = 1;
+  Track track = 1;
 }
 
 message UpdateTrackRequest {
-    int64 id = 1;
-    NewTrack track = 2;
+  int64 id = 1;
+  NewTrack track = 2;
 }
 
 message UpdateTrackResponse {
-    Track track = 1;
+  Track track = 1;
 }
 
 message DeleteTrackRequest {
-    int64 id = 1;
+  int64 id = 1;
 }
 
 message DeleteTrackResponse {
-    bool success = 1;
+  bool success = 1;
 }

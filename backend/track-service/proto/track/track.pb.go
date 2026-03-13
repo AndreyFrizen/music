@@ -100,10 +100,10 @@ func (x *Track) GetAlbumId() int64 {
 
 type NewTrack struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	Duration      int64                  `protobuf:"varint,3,opt,name=duration,proto3" json:"duration,omitempty"`
-	ArtistId      int64                  `protobuf:"varint,5,opt,name=artistId,proto3" json:"artistId,omitempty"`
-	AlbumId       int64                  `protobuf:"varint,6,opt,name=albumId,proto3" json:"albumId,omitempty"`
+	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Duration      int64                  `protobuf:"varint,2,opt,name=duration,proto3" json:"duration,omitempty"`
+	ArtistId      int64                  `protobuf:"varint,3,opt,name=artistId,proto3" json:"artistId,omitempty"`
+	AlbumId       int64                  `protobuf:"varint,4,opt,name=albumId,proto3" json:"albumId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -169,6 +169,7 @@ func (x *NewTrack) GetAlbumId() int64 {
 type CreateTrackRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Track         *NewTrack              `protobuf:"bytes,1,opt,name=track,proto3" json:"track,omitempty"`
+	Chunk         []byte                 `protobuf:"bytes,2,opt,name=chunk,proto3" json:"chunk,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -206,6 +207,13 @@ func (*CreateTrackRequest) Descriptor() ([]byte, []int) {
 func (x *CreateTrackRequest) GetTrack() *NewTrack {
 	if x != nil {
 		return x.Track
+	}
+	return nil
+}
+
+func (x *CreateTrackRequest) GetChunk() []byte {
+	if x != nil {
+		return x.Chunk
 	}
 	return nil
 }
@@ -538,12 +546,13 @@ const file_track_proto_rawDesc = "" +
 	"\bartistId\x18\x05 \x01(\x03R\bartistId\x12\x18\n" +
 	"\aalbumId\x18\x06 \x01(\x03R\aalbumId\"r\n" +
 	"\bNewTrack\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x12\x1a\n" +
-	"\bduration\x18\x03 \x01(\x03R\bduration\x12\x1a\n" +
-	"\bartistId\x18\x05 \x01(\x03R\bartistId\x12\x18\n" +
-	"\aalbumId\x18\x06 \x01(\x03R\aalbumId\";\n" +
+	"\x05title\x18\x01 \x01(\tR\x05title\x12\x1a\n" +
+	"\bduration\x18\x02 \x01(\x03R\bduration\x12\x1a\n" +
+	"\bartistId\x18\x03 \x01(\x03R\bartistId\x12\x18\n" +
+	"\aalbumId\x18\x04 \x01(\x03R\aalbumId\"Q\n" +
 	"\x12CreateTrackRequest\x12%\n" +
-	"\x05track\x18\x01 \x01(\v2\x0f.track.NewTrackR\x05track\"%\n" +
+	"\x05track\x18\x01 \x01(\v2\x0f.track.NewTrackR\x05track\x12\x14\n" +
+	"\x05chunk\x18\x02 \x01(\fR\x05chunk\"%\n" +
 	"\x13CreateTrackResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"!\n" +
 	"\x0fGetTrackRequest\x12\x0e\n" +
