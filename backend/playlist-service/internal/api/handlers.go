@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"net/http"
-	"playlist-service/domain/model"
+	"playlist-service/internal/domain/model"
 	"playlist-service/proto/playlist"
 	"strconv"
 

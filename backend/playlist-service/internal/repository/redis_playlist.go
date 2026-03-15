@@ -3,7 +3,8 @@ package repository
 import (
 	"context"
 	"encoding/json"
-	"playlist-service/domain/model"
+	"playlist-service/internal/domain/model"
+
 	"time"
 
 	"github.com/redis/go-redis/v9"

@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 	"log/slog"
-	"playlist-service/domain/model"
+	"playlist-service/internal/domain/model"
 
 	"github.com/go-playground/validator/v10"
 )

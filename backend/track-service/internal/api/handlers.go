@@ -5,7 +5,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
-	services "track-service/internal/service"
+	"track-service/internal/domain/model"
 	"track-service/proto/track"
 
 	"google.golang.org/grpc"
@@ -20,10 +20,10 @@ type serverAPI struct {
 }
 
 type Service interface {
-	TrackByID(ctx context.Context, req *services.GetTrackRequest) (*services.GetTrackResponse, error)
-	CreateTrack(ctx context.Context, req *services.CreateTrackRequest) (*services.CreateTrackResponse, error)
-	UpdateTrack(ctx context.Context, req *services.UpdateTrackRequest) (*services.UpdateTrackResponse, error)
-	DeleteTrack(ctx context.Context, req *services.DeleteTrackRequest) (*services.DeleteTrackResponse, error)
+	TrackByID(ctx context.Context, req *model.GetTrackRequest) (*model.GetTrackResponse, error)
+	CreateTrack(ctx context.Context, req *model.CreateTrackRequest) (*model.CreateTrackResponse, error)
+	UpdateTrack(ctx context.Context, req *model.UpdateTrackRequest) (*model.UpdateTrackResponse, error)
+	DeleteTrack(ctx context.Context, req *model.DeleteTrackRequest) (*model.DeleteTrackResponse, error)
 }
 
 func NewServerAPI(log *slog.Logger, service Service) *serverAPI {
@@ -45,7 +45,7 @@ func (s *serverAPI) CreateTrack(stream track.UserService_CreateTrackServer) erro
 	}
 
 	return stream.SendAndClose(&track.CreateTrackResponse{
-		Id: 1,
+		Id: resp.ID,
 	})
 }
 
@@ -56,7 +56,7 @@ func (s *serverAPI) uploadTrack(stream track.UserService_CreateTrackServer) erro
 		return status.Errorf(codes.Unknown, "cannot receive chunk: %v", err)
 	}
 
-	s.service.CreateTrack(context.Background(), &services.CreateTrackRequest{
+	resp, err := s.service.CreateTrack(context.Background(), &model.CreateTrackRequest{
 		Title:    req.GetTrack().Title,
 		Duration: req.GetTrack().Duration,
 		ArtistID: req.GetTrack().ArtistId,
@@ -95,7 +95,7 @@ func (s *serverAPI) uploadTrack(stream track.UserService_CreateTrackServer) erro
 }
 
 func (s *serverAPI) GetTrack(ctx context.Context, req *track.GetTrackRequest) (*track.GetTrackResponse, error) {
-	track, err := s.service.GetTrack(context.Background(), req.Id)
+	track, err := s.service.TrackByID(ctx, req)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "cannot get track: %v", err)
 	}

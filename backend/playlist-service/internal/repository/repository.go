@@ -2,9 +2,9 @@ package repository
 
 import (
 	"context"
-	"playlist-service/domain/errors"
-	"playlist-service/domain/model"
 	"playlist-service/internal/app/database"
+	"playlist-service/internal/domain/errors"
+	"playlist-service/internal/domain/model"
 	"strconv"
 )
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"strings"
-	services "user-service/internal/service"
+	"user-service/internal/domain/model"
 	"user-service/proto/user"
 
 	"google.golang.org/grpc"
@@ -20,11 +20,11 @@ type serverAPI struct {
 }
 
 type UserAPI interface {
-	Register(ctx context.Context, req *services.RegisterRequest) (*services.UserResponse, error)
-	UserByID(ctx context.Context, id int64) (*services.UserResponse, error)
-	UpdateUser(ctx context.Context, req *services.UpdateUserRequest) (*services.UserResponse, error)
-	Login(ctx context.Context, req *services.LoginRequest) (*services.LoginResponse, error)
-	Logout(ctx context.Context, token string) error
+	Register(ctx context.Context, req *model.RegisterRequest) (*model.RegisterResponse, error)
+	UserByID(ctx context.Context, req *model.UserRequest) (*model.UserResponse, error)
+	UpdateUser(ctx context.Context, req *model.UpdateUserRequest) error
+	Login(ctx context.Context, req *model.LoginRequest) (*model.LoginResponse, error)
+	Logout(ctx context.Context, req *model.LogoutRequest) (*model.LogoutResponse, error)
 }
 
 func NewServerAPI(log *slog.Logger, service UserAPI) *serverAPI {
@@ -41,7 +41,7 @@ func Register(gRPC *grpc.Server, log *slog.Logger, service UserAPI) {
 func (s *serverAPI) Register(ctx context.Context, req *user.RegisterUserRequest) (*user.UserResponse, error) {
 	const op = "handler.RegisterUser"
 
-	serviceReq := &services.RegisterRequest{
+	serviceReq := &model.RegisterRequest{
 		Username: req.Username,
 		Email:    req.Email,
 		Password: req.Password,
@@ -59,15 +59,15 @@ func (s *serverAPI) Register(ctx context.Context, req *user.RegisterUserRequest)
 
 	return &user.UserResponse{
 		Id:       resp.ID,
-		Username: resp.Username,
-		Email:    resp.Email,
+		Username: req.Username,
+		Email:    req.Email,
 	}, nil
 }
 
 func (s *serverAPI) GetUser(ctx context.Context, req *user.GetUserRequest) (*user.UserResponse, error) {
 	const op = "handler.GetUser"
 
-	resp, err := s.service.UserByID(ctx, req.Id)
+	resp, err := s.service.UserByID(ctx, &model.UserRequest{ID: req.Id})
 	if err != nil {
 		s.log.ErrorContext(ctx, "failed to get user",
 			"op", op,
@@ -87,13 +87,13 @@ func (s *serverAPI) GetUser(ctx context.Context, req *user.GetUserRequest) (*use
 func (s *serverAPI) UpdateUser(ctx context.Context, req *user.UpdateUserRequest) (*user.UserResponse, error) {
 	const op = "handler.UpdateUser"
 
-	serviceReq := &services.UpdateUserRequest{
+	serviceReq := &model.UpdateUserRequest{
 		ID:       req.Id,
 		Username: req.Username,
 		Email:    req.Email,
 	}
 
-	resp, err := s.service.UpdateUser(ctx, serviceReq)
+	err := s.service.UpdateUser(ctx, serviceReq)
 	if err != nil {
 		s.log.ErrorContext(ctx, "failed to update user",
 			"op", op,
@@ -104,16 +104,16 @@ func (s *serverAPI) UpdateUser(ctx context.Context, req *user.UpdateUserRequest)
 	}
 
 	return &user.UserResponse{
-		Id:       resp.ID,
-		Username: resp.Username,
-		Email:    resp.Email,
+		Id:       req.Id,
+		Username: req.Username,
+		Email:    req.Email,
 	}, nil
 }
 
 func (s *serverAPI) LoginUser(ctx context.Context, req *user.LoginUserRequest) (*user.LoginUserResponse, error) {
 	const op = "handler.LoginUser"
 
-	serviceReq := &services.LoginRequest{
+	serviceReq := &model.LoginRequest{
 		Email:    req.Email,
 		Password: req.Password,
 	}
@@ -163,7 +163,7 @@ func (s *serverAPI) LogoutUser(ctx context.Context, req *user.LogoutUserRequest)
 	}
 	token := parts[1]
 
-	err := s.service.Logout(ctx, token)
+	resp, err := s.service.Logout(ctx, &model.LogoutRequest{AccessToken: token})
 	if err != nil {
 		s.log.ErrorContext(ctx, "failed to logout",
 			"op", op,
@@ -173,7 +173,6 @@ func (s *serverAPI) LogoutUser(ctx context.Context, req *user.LogoutUserRequest)
 	}
 
 	return &user.LogoutUserResponse{
-		Success: true,
-		Message: "logged out successfully",
+		Success: resp.Success,
 	}, nil
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"user-service/internal/domain/errors"
-	modeluser "user-service/internal/domain/model"
+	"user-service/internal/domain/model"
 	"user-service/internal/pkg/jwt"
 
 	"github.com/go-playground/validator/v10"
@@ -28,31 +28,31 @@ func NewService(repo UserRepository, log *slog.Logger, jwt *jwt.TokenManager) *s
 }
 
 type UserRepository interface {
-	Register(ctx context.Context, user *modeluser.User) (int64, error)
-	UserByID(ctx context.Context, id int64) (*modeluser.User, error)
-	UserByEmail(ctx context.Context, email string) (*modeluser.User, error)
-	UpdateUser(ctx context.Context, user *modeluser.User) error
-	UpdateUserEmail(ctx context.Context, user *modeluser.User) error
+	Register(ctx context.Context, user *model.User) (int64, error)
+	UserByID(ctx context.Context, id int64) (*model.User, error)
+	UserByEmail(ctx context.Context, email string) (*model.User, error)
+	UpdateUser(ctx context.Context, user *model.User) error
+	UpdateUserEmail(ctx context.Context, user *model.User) error
 }
 
 // UserByID retrieves a user by ID
-func (s *service) UserByID(ctx context.Context, id int64) (*UserResponse, error) {
+func (s *service) UserByID(ctx context.Context, req *model.UserRequest) (*model.UserResponse, error) {
 	const op = "service.UserService.GetUserByID"
 
-	if id <= 0 {
+	if req.ID <= 0 {
 		return nil, errors.ValidationError(op, map[string]string{
 			"id": "must be greater than 0",
 		})
 	}
 
-	user, err := s.repo.UserByID(ctx, id)
+	user, err := s.repo.UserByID(ctx, req.ID)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return nil, errors.NotFoundError(op, "user not found")
 		}
 		s.log.ErrorContext(ctx, "failed to get user",
 			"op", op,
-			"id", id,
+			"id", req.ID,
 			"error", err,
 		)
 		return nil, errors.InternalError(op, err)
@@ -62,7 +62,7 @@ func (s *service) UserByID(ctx context.Context, id int64) (*UserResponse, error)
 		return nil, errors.NotFoundError(op, "user not found")
 	}
 
-	return &UserResponse{
+	return &model.UserResponse{
 		ID:       user.ID,
 		Username: user.Username,
 		Email:    user.Email,
@@ -70,7 +70,7 @@ func (s *service) UserByID(ctx context.Context, id int64) (*UserResponse, error)
 }
 
 // Register registers a new user
-func (s *service) Register(ctx context.Context, req *RegisterRequest) (*UserResponse, error) {
+func (s *service) Register(ctx context.Context, req *model.RegisterRequest) (*model.RegisterResponse, error) {
 	const op = "service.UserService.Register"
 
 	if err := s.validate.Struct(req); err != nil {
@@ -103,7 +103,7 @@ func (s *service) Register(ctx context.Context, req *RegisterRequest) (*UserResp
 		return nil, errors.InternalError(op, err)
 	}
 
-	user := &modeluser.User{
+	user := &model.User{
 		Username:          req.Username,
 		Email:             req.Email,
 		EncryptedPassword: string(hashedPassword),
@@ -124,15 +124,11 @@ func (s *service) Register(ctx context.Context, req *RegisterRequest) (*UserResp
 		"email", req.Email,
 	)
 
-	return &UserResponse{
-		ID:       id,
-		Username: req.Username,
-		Email:    req.Email,
-	}, nil
+	return &model.RegisterResponse{ID: id}, nil
 }
 
 // Login authenticates a user and returns tokens
-func (s *service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
+func (s *service) Login(ctx context.Context, req *model.LoginRequest) (*model.LoginResponse, error) {
 	const op = "service.UserService.Login"
 
 	if err := s.validate.Struct(req); err != nil {
@@ -189,96 +185,59 @@ func (s *service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse,
 		"user_id", user.ID,
 	)
 
-	return &LoginResponse{
+	return &model.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
 }
 
 // Logout invalidates user's token (if you have token blacklist)
-func (s *service) Logout(ctx context.Context, token string) error {
+func (s *service) Logout(ctx context.Context, req *model.LogoutRequest) (*model.LogoutResponse, error) {
 	const op = "service.UserService.Logout"
 
-	_, err := s.tokenManager.ValidateToken(token)
+	_, err := s.tokenManager.ValidateToken(req.AccessToken)
 	if err != nil {
-		return errors.UnauthorizedError(op, "invalid token")
+		return nil, errors.UnauthorizedError(op, "invalid token")
 	}
 
 	s.log.InfoContext(ctx, "user logged out",
 		"op", op,
 	)
 
-	return nil
+	return &model.LogoutResponse{
+		Success: true,
+	}, nil
 }
 
 // UpdateUser updates user information
-func (s *service) UpdateUser(ctx context.Context, req *UpdateUserRequest) (*UserResponse, error) {
+func (s *service) UpdateUser(ctx context.Context, req *model.UpdateUserRequest) error {
 	const op = "service.UserService.UpdateUser"
 
 	if req.ID <= 0 {
-		return nil, errors.ValidationError(op, map[string]string{
+		return errors.ValidationError(op, map[string]string{
 			"id": "must be greater than 0",
 		})
 	}
 
 	if err := s.validate.Struct(req); err != nil {
-		return nil, errors.ValidationError(op, map[string]string{
+		return errors.ValidationError(op, map[string]string{
 			"username": "not valid",
 			"email":    "not valid",
 		})
 	}
 
-	user, err := s.repo.UserByID(ctx, req.ID)
+	err := s.repo.UpdateUser(ctx, &model.User{
+		ID:       req.ID,
+		Username: req.Username,
+		Email:    req.Email,
+	})
 	if err != nil {
-		if errors.IsNotFound(err) {
-			return nil, errors.NotFoundError(op, "user not found")
-		}
-		s.log.ErrorContext(ctx, "failed to get user for update",
+		s.log.ErrorContext(ctx, "failed to update user",
 			"op", op,
 			"id", req.ID,
 			"error", err,
 		)
-		return nil, errors.InternalError(op, err)
-	}
-
-	if req.Username != "" {
-		user.Username = req.Username
-	}
-
-	if req.Email != "" && req.Email != user.Email {
-		existing, err := s.repo.UserByEmail(ctx, req.Email)
-		if err != nil && !errors.IsNotFound(err) {
-			s.log.ErrorContext(ctx, "failed to check email availability",
-				"op", op,
-				"email", req.Email,
-				"error", err,
-			)
-			return nil, errors.InternalError(op, err)
-		}
-		if existing != nil && existing.ID != req.ID {
-			return nil, errors.ConflictError(op, "email already taken")
-		}
-
-		user.Email = req.Email
-		err = s.repo.UpdateUserEmail(ctx, user)
-		if err != nil {
-			s.log.ErrorContext(ctx, "failed to update user email",
-				"op", op,
-				"id", req.ID,
-				"error", err,
-			)
-			return nil, errors.InternalError(op, err)
-		}
-	} else {
-		err = s.repo.UpdateUser(ctx, user)
-		if err != nil {
-			s.log.ErrorContext(ctx, "failed to update user",
-				"op", op,
-				"id", req.ID,
-				"error", err,
-			)
-			return nil, errors.InternalError(op, err)
-		}
+		return errors.InternalError(op, err)
 	}
 
 	s.log.InfoContext(ctx, "user updated successfully",
@@ -286,9 +245,5 @@ func (s *service) UpdateUser(ctx context.Context, req *UpdateUserRequest) (*User
 		"user_id", req.ID,
 	)
 
-	return &UserResponse{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-	}, nil
+	return nil
 }
