@@ -24,10 +24,10 @@ func NewRepository(db *database.DB) *store {
 func (s *store) Register(ctx context.Context, u *modeluser.User) (int64, error) {
 	const op = "repository.UserRepository.CreateUser"
 
+	query := "INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING id"
+
 	var id int64
-	err := s.db.QueryRowContext(ctx,
-		"INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING id",
-		u.Email, u.Username, u.EncryptedPassword).Scan(&id)
+	err := s.db.QueryRowContext(ctx, query, u.Email, u.Username, u.EncryptedPassword).Scan(&id)
 
 	if err != nil {
 		return 0, errors.DatabaseError(op, err)
@@ -95,9 +95,9 @@ func (s *store) UserByEmail(ctx context.Context, email string) (*modeluser.User,
 func (s *store) UpdateUser(ctx context.Context, u *modeluser.User) error {
 	const op = "repository.UserRepository.UpdateUser"
 
-	result, err := s.db.ExecContext(ctx,
-		"UPDATE users SET username = $1 WHERE id = $2",
-		u.Username, u.ID)
+	query := "UPDATE users SET username = $1 WHERE id = $2"
+
+	result, err := s.db.ExecContext(ctx, query, u.Username, u.ID)
 
 	if err != nil {
 		return s.handleError(op, err)
@@ -118,9 +118,9 @@ func (s *store) UpdateUser(ctx context.Context, u *modeluser.User) error {
 func (s *store) UpdateUserEmail(ctx context.Context, u *modeluser.User) error {
 	const op = "repository.UserRepository.UpdateUserEmail"
 
-	result, err := s.db.ExecContext(ctx,
-		"UPDATE users SET email = $1 WHERE id = $2",
-		u.Email, u.ID)
+	query := "UPDATE users SET email = $1 WHERE id = $2"
+
+	result, err := s.db.ExecContext(ctx, query, u.Email, u.ID)
 
 	if err != nil {
 		return s.handleError(op, err)

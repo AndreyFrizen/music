@@ -1,21 +1,30 @@
 package handlers
 
 import (
-	"mess/internal/model"
 	"net/http"
+	"playlist-service/domain/model"
+	"playlist-service/proto/playlist"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-type playlistHandler interface {
-	PlaylistByID(c *gin.Context)
-	CreatePlaylist(c *gin.Context)
-	DeletePlaylist(c *gin.Context)
+type handler struct {
+	playlist.UnimplementedPlaylistServiceServer
+	service PlaylistService
+}
+
+type PlaylistService interface {
+	CreatePlaylist(*model.Playlist, *gin.Context) error
+	DeletePlaylist(int64, *gin.Context) error
+	PlaylistByID(int64, *gin.Context) (*model.Playlist, error)
+	UpdatePlaylist(int64, *model.Playlist, *gin.Context) error
+	AddTrack(int64, int64, *gin.Context) error
+	RemoveTrack(int64, int64, *gin.Context) error
 }
 
 // Create playlist
-func (h *Handler) CreatePlaylist(c *gin.Context) {
+func (h *handler) CreatePlaylist(c *gin.Context) {
 	var playlist model.Playlist
 	if err := c.BindJSON(&playlist); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -30,7 +39,7 @@ func (h *Handler) CreatePlaylist(c *gin.Context) {
 }
 
 // Delete playlist
-func (h *Handler) DeletePlaylist(c *gin.Context) {
+func (h *handler) DeletePlaylist(c *gin.Context) {
 	id := c.Param("id")
 	ids, err := strconv.Atoi(id)
 	if err != nil {

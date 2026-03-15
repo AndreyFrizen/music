@@ -1,4 +1,4 @@
-package config
+package configate
 
 import (
 	"log"
@@ -7,21 +7,16 @@ import (
 )
 
 type Config struct {
-	Env         string `yaml:"env"`
-	StoragePath string `yaml:"storagePath"`
-	Redis       string `yaml:"redis"`
-	Server      Server `yaml:"server"`
-}
-
-type Server struct {
-	Address string `yaml:"address"`
+	Env      string `mapstructure:"env"`
+	GRPCPort string `mapstructure:"grpc_port"`
+	HTTPPort string `mapstructure:"http_port"`
 }
 
 // LoadConfig loads the configuration from YAML file
 func LoadConfig() (*Config, error) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("/home/andrey/projects/music/back/config")
+	viper.AddConfigPath("/home/andrey/projects/music/backend/track-service/config/gateway")
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file: %v", err)

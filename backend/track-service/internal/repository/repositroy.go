@@ -25,13 +25,14 @@ func (s *store) CreateTrack(ctx context.Context, t *model.NewTrack) (int64, erro
 	const op = "repository.TrackRepository.CreateTrack"
 
 	var id int64
-	err := s.db.QueryRowContext(ctx,
-		"INSERT INTO tracks(title, duration, artist_id, album_id) VALUES ($1, $2, $3, $4) RETURNING id",
-		t.Title, t.Duration, t.ArtistID, t.AlbumID).Scan(&id)
+
+	query := "INSERT INTO tracks(title, duration, artist_id, album_id) VALUES ($1, $2, $3, $4) RETURNING id"
+	err := s.db.QueryRowContext(ctx, query, t.Title, t.Duration, t.ArtistID, t.AlbumID).Scan(&id)
 
 	url := fmt.Sprintf("%s/%d", "tracks", id)
 
-	_, err = s.db.ExecContext(ctx, "UPDATE tracks SET audio_url = $1 WHERE id = $2", url, id)
+	queryUpdate := "UPDATE tracks SET audio_url = $1 WHERE id = $2"
+	_, err = s.db.ExecContext(ctx, queryUpdate, url, id)
 
 	if err != nil {
 		return 0, errors.DatabaseError(op, err)
@@ -76,9 +77,9 @@ func (s *store) TrackByID(ctx context.Context, id int64) (*model.Track, error) {
 func (s *store) UpdateTrack(ctx context.Context, t *model.Track) error {
 	const op = "repository.TrackRepository.UpdateTrack"
 
-	result, err := s.db.ExecContext(ctx,
-		"UPDATE tracks SET title = $1, duration = $2, artist_id = $3 WHERE id = $4",
-		t.Title, t.Duration, t.ArtistID, t.ID)
+	query := "UPDATE tracks SET title = $1, duration = $2, artist_id = $3 WHERE id = $4"
+
+	result, err := s.db.ExecContext(ctx, query, t.Title, t.Duration, t.ArtistID, t.ID)
 
 	if err != nil {
 		return s.handleError(op, err)

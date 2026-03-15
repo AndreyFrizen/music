@@ -6,7 +6,7 @@ import "google/api/annotations.proto";
 
 option go_package = "/track";
 
-service UserService {
+service TrackService {
   rpc CreateTrack(stream CreateTrackRequest) returns (CreateTrackResponse) {
     option (google.api.http) = {
       post: "/tracks"
@@ -43,10 +43,10 @@ message NewTrack {
 }
 
 message CreateTrackRequest {
-    oneof data {
-        NewTrack track = 1;
-        bytes chunk = 2;
-    }
+  oneof data {
+    NewTrack track = 1;
+    bytes chunk = 2;
+  }
 }
 
 message CreateTrackResponse {

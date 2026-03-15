@@ -93,3 +93,14 @@ func (s *serverAPI) uploadTrack(stream track.UserService_CreateTrackServer) erro
 
 	return nil
 }
+
+func (s *serverAPI) GetTrack(ctx context.Context, req *track.GetTrackRequest) (*track.GetTrackResponse, error) {
+	track, err := s.service.GetTrack(context.Background(), req.Id)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "cannot get track: %v", err)
+	}
+
+	return &track.GetTrackResponse{
+		Track: track,
+	}, nil
+}
