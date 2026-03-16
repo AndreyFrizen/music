@@ -7,193 +7,151 @@ import "google/api/annotations.proto";
 option go_package = "/collection";
 
 service UserService {
-    rpc GetTracksCollection(GetTracksRequest) returns (GetTracksResponse){
-        option (google.api.http) = {
-            get: "/track_collection"
-            body: "*"
-        };
+  rpc GetTracksCollection(GetTracksRequest) returns (GetTracksResponse) {
+    option (google.api.http) = {
+      get: "/track_collection"
+      body: "*"
     };
-    rpc GetAlbumsCollection(GetAlbumsRequest) returns (GetAlbumsResponse){
-        option (google.api.http) = {
-            get: "/album_collection"
-            body: "*"
-        };
+  }
+  rpc GetAlbumsCollection(GetAlbumsRequest) returns (GetAlbumsResponse) {
+    option (google.api.http) = {
+      get: "/album_collection"
+      body: "*"
     };
-    rpc GetArtistsCollection(GetArtistsRequest) returns (GetArtistsResponse){
-        option (google.api.http) = {
-            get: "/artist_collection"
-            body: "*"
-        };
+  }
+  rpc GetArtistsCollection(GetArtistsRequest) returns (GetArtistsResponse) {
+    option (google.api.http) = {
+      get: "/artist_collection"
+      body: "*"
     };
-    rpc DeleteTrackCollection(DeleteTrackRequest) returns (DeleteTrackResponse){
-        option (google.api.http) = {
-            delete: "/track_collection/{trackId}"
-            body: "*"
-        };
+  }
+  rpc DeleteTrackCollection(DeleteTrackRequest) returns (DeleteTrackResponse) {
+    option (google.api.http) = {
+      delete: "/track_collection/{trackId}"
+      body: "*"
     };
-    rpc DeleteAlbumCollection(DeleteAlbumRequest) returns (DeleteAlbumResponse){
-        option (google.api.http) = {
-            delete: "/album_collection/{albumId}"
-            body: "*"
-        };
+  }
+  rpc DeleteAlbumCollection(DeleteAlbumRequest) returns (DeleteAlbumResponse) {
+    option (google.api.http) = {
+      delete: "/album_collection/{albumId}"
+      body: "*"
     };
-    rpc DeleteArtistCollection(DeleteArtistRequest) returns (DeleteArtistResponse){
-        option (google.api.http) = {
-            delete: "/artist_collection/{artistId}"
-            body: "*"
-        };
+  }
+  rpc DeleteArtistCollection(DeleteArtistRequest) returns (DeleteArtistResponse) {
+    option (google.api.http) = {
+      delete: "/artist_collection/{artistId}"
+      body: "*"
     };
+  }
 
-    rpc AddAlbumCollection(AddAlbumRequest) returns (AddAlbumResponse){
-        option (google.api.http) = {
-            post: "/album_collection"
-            body: "*"
-        };
+  rpc AddAlbumCollection(AddAlbumRequest) returns (AddAlbumResponse) {
+    option (google.api.http) = {
+      post: "/album_collection"
+      body: "*"
     };
-    rpc AddArtistCollection(AddArtistRequest) returns (AddArtistResponse){
-        option (google.api.http) = {
-            post: "/artist_collection"
-            body: "*"
-        };
+  }
+  rpc AddArtistCollection(AddArtistRequest) returns (AddArtistResponse) {
+    option (google.api.http) = {
+      post: "/artist_collection"
+      body: "*"
     };
-    rpc AddTrackCollection(AddTrackRequest) returns (AddTrackResponse){
-        option (google.api.http) = {
-            post: "/track_collection"
-            body: "*"
-        };
+  }
+  rpc AddTrackCollection(AddTrackRequest) returns (AddTrackResponse) {
+    option (google.api.http) = {
+      post: "/track_collection"
+      body: "*"
     };
+  }
 }
 
-// -----------------------------------------------------------------------------------------------------------------------------------------------------
-
-// struct track
-message FavoriteTrack {
-    int64 trackId = 1;
-    int64 userId = 2;
+message AlbumCollection {
+  int64 userId = 1;
+  repeated int64 albumId = 2;
 }
 
-// struct artist
-message FavoriteArtist {
-    int64 artistId = 1;
-    int64 userId = 2;
+message ArtistCollection {
+  int64 userId = 1;
+  repeated int64 artistId = 2;
 }
 
-// struct album
-message FavoriteAlbum {
-    int64 albumId = 1;
-    int64 userId = 2;
+message TrackCollection {
+  int64 userId = 1;
+  repeated int64 trackId = 2;
 }
 
-// -------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-// get fav tracks
-message GetTracksRequest {
-    int64 userId = 1;
+message PlaylistCollection {
+  int64 userId = 1;
+  repeated int64 playlistId = 2;
 }
 
-message GetTracksResponse {
-    repeated FavoriteTrack tracks = 1;
-}
-// get fav tracks
-
-// -------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-// get fav artists
-message GetArtistsRequest {
-    int64 userId = 1;
+message AddAlbumToCollectionRequest {
+  int64 userId = 1;
+  int64 albumId = 2;
 }
 
-message GetArtistsResponse {
-    repeated FavoriteArtist artists = 1;
-}
-// get fav artists
-
-// -------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-// get fav albums
-message GetAlbumsRequest {
-    int64 userId = 1;
+message AddAlbumToCollectionResponse {
+  int64 albumId = 1;
 }
 
-message GetAlbumsResponse {
-    repeated FavoriteAlbum albums = 1;
-}
-// get fav albums
-
-// -------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-// add track
-message AddTrackRequest {
-    int64 userId = 1;
-    int64 trackId = 2;
+message AddArtistToCollectionRequest {
+  int64 userId = 1;
+  int64 artistId = 2;
 }
 
-message AddTrackResponse {
-    int64 trackId = 1;
-}
-// add track
-
-// -------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-// add album
-message AddAlbumRequest {
-    int64 userId = 1;
-    int64 albumId = 2;
+message AddArtistToCollectionResponse {
+  int64 artistId = 1;
 }
 
-message AddAlbumResponse {
-    int64 albumId = 1;
-}
-// add album
-
-// -------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-// add artist
-message AddArtistRequest {
-    int64 userId = 1;
-    int64 artistId = 2;
+message AddTrackToCollectionRequest {
+  int64 userId = 1;
+  int64 trackId = 2;
 }
 
-message AddArtistResponse {
-    int64 artistId = 1;
-}
-// add artist
-
-// -------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-// delete track
-message DeleteTrackRequest {
-    int64 userId = 1;
-    int64 trackId = 2;
+message AddTrackToCollectionResponse {
+  int64 trackId = 1;
 }
 
-message DeleteTrackResponse {
-    int64 trackId = 1;
-}
-// delete track
-
-// -------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-// delete album
-message DeleteAlbumRequest {
-    int64 userId = 1;
-    int64 albumId = 2;
+message AddPlaylistToCollectionRequest {
+  int64 userId = 1;
+  int64 playlistId = 2;
 }
 
-message DeleteAlbumResponse {
-    int64 albumId = 1;
-}
-// delete album
-
-// -------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-// delete artist
-message DeleteArtistRequest {
-    int64 userId = 1;
-    int64 artistId = 2;
+message AddPlaylistToCollectionResponse {
+  int64 playlistId = 1;
 }
 
-message DeleteArtistResponse {
-    int64 artistId = 1;
+message RemoveAlbumFromCollectionRequest {
+  int64 userId = 1;
+  int64 albumId = 2;
 }
-// delete artist
+
+message RemoveAlbumFromCollectionResponse {
+  int64 albumId = 1;
+}
+
+message RemoveArtistFromCollectionRequest {
+  int64 userId = 1;
+  int64 artistId = 2;
+}
+
+message RemoveArtistFromCollectionResponse {
+  int64 artistId = 1;
+}
+
+message RemoveTrackFromCollectionRequest {
+  int64 userId = 1;
+  int64 trackId = 2;
+}
+
+message RemoveTrackFromCollectionResponse {
+  int64 trackId = 1;
+}
+
+message RemovePlaylistFromCollectionRequest {
+  int64 userId = 1;
+  int64 playlistId = 2;
+}
+
+message RemovePlaylistFromCollectionResponse {
+  int64 playlistId = 1;
+}
