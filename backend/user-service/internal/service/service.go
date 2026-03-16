@@ -31,8 +31,7 @@ type UserRepository interface {
 	Register(ctx context.Context, user *model.User) (int64, error)
 	UserByID(ctx context.Context, id int64) (*model.User, error)
 	UserByEmail(ctx context.Context, email string) (*model.User, error)
-	UpdateUser(ctx context.Context, user *model.User) error
-	UpdateUserEmail(ctx context.Context, user *model.User) error
+	UpdateUser(ctx context.Context, user *model.User) (*model.User, error)
 }
 
 // UserByID retrieves a user by ID
@@ -210,23 +209,23 @@ func (s *service) Logout(ctx context.Context, req *model.LogoutRequest) (*model.
 }
 
 // UpdateUser updates user information
-func (s *service) UpdateUser(ctx context.Context, req *model.UpdateUserRequest) error {
+func (s *service) UpdateUser(ctx context.Context, req *model.UpdateUserRequest) (*model.UpdateUserResponse, error) {
 	const op = "service.UserService.UpdateUser"
 
 	if req.ID <= 0 {
-		return errors.ValidationError(op, map[string]string{
+		return nil, errors.ValidationError(op, map[string]string{
 			"id": "must be greater than 0",
 		})
 	}
 
 	if err := s.validate.Struct(req); err != nil {
-		return errors.ValidationError(op, map[string]string{
+		return nil, errors.ValidationError(op, map[string]string{
 			"username": "not valid",
 			"email":    "not valid",
 		})
 	}
 
-	err := s.repo.UpdateUser(ctx, &model.User{
+	user, err := s.repo.UpdateUser(ctx, &model.User{
 		ID:       req.ID,
 		Username: req.Username,
 		Email:    req.Email,
@@ -237,7 +236,7 @@ func (s *service) UpdateUser(ctx context.Context, req *model.UpdateUserRequest) 
 			"id", req.ID,
 			"error", err,
 		)
-		return errors.InternalError(op, err)
+		return nil, errors.InternalError(op, err)
 	}
 
 	s.log.InfoContext(ctx, "user updated successfully",
@@ -245,5 +244,9 @@ func (s *service) UpdateUser(ctx context.Context, req *model.UpdateUserRequest) 
 		"user_id", req.ID,
 	)
 
-	return nil
+	return &model.UpdateUserResponse{
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+	}, nil
 }

@@ -31,7 +31,7 @@ type TrackRepository interface {
 }
 
 // CreateTrack creates a track in the database
-func (s *service) CreateTrack(ctx context.Context, req *CreateTrackRequest) (*CreateTrackResponse, error) {
+func (s *service) CreateTrack(ctx context.Context, req *model.CreateTrackRequest) (*model.CreateTrackResponse, error) {
 	const op = "service.UserService.Register"
 
 	if err := s.validate.Struct(req); err != nil {
@@ -55,11 +55,11 @@ func (s *service) CreateTrack(ctx context.Context, req *CreateTrackRequest) (*Cr
 
 	s.log.Info(op, "track created successfully", req.Title)
 
-	return &CreateTrackResponse{ID: track}, nil
+	return &model.CreateTrackResponse{ID: track}, nil
 }
 
 // TrackByID retrieves a track by its ID
-func (s *service) TrackByID(ctx context.Context, req *GetTrackRequest) (*GetTrackResponse, error) {
+func (s *service) TrackByID(ctx context.Context, req *model.GetTrackRequest) (*model.GetTrackResponse, error) {
 	const op = "service.TrackByID"
 
 	track, err := s.repo.TrackByID(ctx, req.ID)
@@ -74,27 +74,16 @@ func (s *service) TrackByID(ctx context.Context, req *GetTrackRequest) (*GetTrac
 
 	s.log.Info(op, "track retrieved successfully", track.ID)
 
-	return &GetTrackResponse{
-		ID:       track.ID,
-		Title:    track.Title,
-		Duration: track.Duration,
-		AlbumID:  track.AlbumID,
-		ArtistID: track.ArtistID,
-		AudioURL: track.AudioURL,
+	return &model.GetTrackResponse{
+		Track: track,
 	}, nil
 }
 
 // UpdateTrack updates a track by its ID
-func (s *service) UpdateTrack(ctx context.Context, req *UpdateTrackRequest) (*UpdateTrackResponse, error) {
+func (s *service) UpdateTrack(ctx context.Context, req *model.UpdateTrackRequest) (*model.UpdateTrackResponse, error) {
 	const op = "service.UpdateTrack"
 
-	t := &model.Track{
-		ID:       req.ID,
-		Title:    req.Title,
-		Duration: req.Duration,
-		ArtistID: req.ArtistID,
-		AlbumID:  req.AlbumID,
-	}
+	t := req.Track
 
 	err := s.repo.UpdateTrack(ctx, t)
 	if err != nil {
@@ -105,13 +94,13 @@ func (s *service) UpdateTrack(ctx context.Context, req *UpdateTrackRequest) (*Up
 		return nil, errors.InternalError(op, err)
 	}
 
-	s.log.Info(op, "track updated successfully", req.ID)
+	s.log.Info(op, "track updated successfully", t.ID)
 
-	return &UpdateTrackResponse{ID: req.ID}, nil
+	return &model.UpdateTrackResponse{ID: t.ID}, nil
 }
 
 // DeleteTrack deletes a track by its ID
-func (s *service) DeleteTrack(ctx context.Context, req *DeleteTrackRequest) (*DeleteTrackResponse, error) {
+func (s *service) DeleteTrack(ctx context.Context, req *model.DeleteTrackRequest) (*model.DeleteTrackResponse, error) {
 	const op = "service.DeleteTrack"
 
 	err := s.repo.DeleteTrack(ctx, req.ID)
@@ -122,5 +111,5 @@ func (s *service) DeleteTrack(ctx context.Context, req *DeleteTrackRequest) (*De
 
 	s.log.Info(op, "track deleted successfully", req.ID)
 
-	return &DeleteTrackResponse{Success: true}, nil
+	return &model.DeleteTrackResponse{Success: true}, nil
 }

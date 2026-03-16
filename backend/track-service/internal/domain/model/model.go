@@ -33,20 +33,11 @@ type GetTrackRequest struct {
 }
 
 type GetTrackResponse struct {
-	ID       int64  `json:"id"`
-	Title    string `json:"title"`
-	Duration int64  `json:"duration"`
-	ArtistID int64  `json:"artist_id"`
-	AlbumID  int64  `json:"album_id"`
-	AudioURL string `json:"audio_url"`
+	Track *Track `json:"track"`
 }
 
 type UpdateTrackRequest struct {
-	ID       int64  `json:"id" validate:"required"`
-	Title    string `json:"title"`
-	Duration int64  `json:"duration"`
-	ArtistID int64  `json:"artist_id"`
-	AlbumID  int64  `json:"album_id"`
+	Track *Track `json:"track"`
 }
 
 type UpdateTrackResponse struct {

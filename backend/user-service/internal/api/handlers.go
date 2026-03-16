@@ -22,7 +22,7 @@ type serverAPI struct {
 type UserAPI interface {
 	Register(ctx context.Context, req *model.RegisterRequest) (*model.RegisterResponse, error)
 	UserByID(ctx context.Context, req *model.UserRequest) (*model.UserResponse, error)
-	UpdateUser(ctx context.Context, req *model.UpdateUserRequest) error
+	UpdateUser(ctx context.Context, req *model.UpdateUserRequest) (*model.UpdateUserResponse, error)
 	Login(ctx context.Context, req *model.LoginRequest) (*model.LoginResponse, error)
 	Logout(ctx context.Context, req *model.LogoutRequest) (*model.LogoutResponse, error)
 }
@@ -93,7 +93,7 @@ func (s *serverAPI) UpdateUser(ctx context.Context, req *user.UpdateUserRequest)
 		Email:    req.Email,
 	}
 
-	err := s.service.UpdateUser(ctx, serviceReq)
+	resp, err := s.service.UpdateUser(ctx, serviceReq)
 	if err != nil {
 		s.log.ErrorContext(ctx, "failed to update user",
 			"op", op,
@@ -104,9 +104,9 @@ func (s *serverAPI) UpdateUser(ctx context.Context, req *user.UpdateUserRequest)
 	}
 
 	return &user.UserResponse{
-		Id:       req.Id,
-		Username: req.Username,
-		Email:    req.Email,
+		Id:       resp.ID,
+		Username: resp.Username,
+		Email:    resp.Email,
 	}, nil
 }
 

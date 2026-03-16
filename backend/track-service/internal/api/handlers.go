@@ -14,7 +14,7 @@ import (
 )
 
 type serverAPI struct {
-	track.UnimplementedUserServiceServer
+	track.UnimplementedTrackServiceServer
 	log     *slog.Logger
 	service Service
 }
@@ -34,22 +34,15 @@ func NewServerAPI(log *slog.Logger, service Service) *serverAPI {
 }
 
 func Register(gRPC *grpc.Server, log *slog.Logger, service Service) {
-	track.RegisterUserServiceServer(gRPC, NewServerAPI(log, service))
+	track.RegisterTrackServiceServer(gRPC, NewServerAPI(log, service))
 }
 
-func (s *serverAPI) CreateTrack(stream track.UserService_CreateTrackServer) error {
+func (s *serverAPI) CreateTrack(stream track.TrackService_CreateTrackServer) error {
 
 	err := s.uploadTrack(stream)
 	if err != nil {
 		return err
 	}
-
-	return stream.SendAndClose(&track.CreateTrackResponse{
-		Id: resp.ID,
-	})
-}
-
-func (s *serverAPI) uploadTrack(stream track.UserService_CreateTrackServer) error {
 
 	req, err := stream.Recv()
 	if err != nil {
@@ -63,6 +56,12 @@ func (s *serverAPI) uploadTrack(stream track.UserService_CreateTrackServer) erro
 		AlbumID:  req.GetTrack().AlbumId,
 	})
 
+	return stream.SendAndClose(&track.CreateTrackResponse{
+		Id: resp.ID,
+	})
+}
+
+func (s *serverAPI) uploadTrack(stream track.TrackService_CreateTrackServer) error {
 	fileHandle, err := os.Create("")
 	if err != nil {
 		return status.Errorf(codes.Internal, "cannot create audio file: %v", err)
@@ -95,12 +94,19 @@ func (s *serverAPI) uploadTrack(stream track.UserService_CreateTrackServer) erro
 }
 
 func (s *serverAPI) GetTrack(ctx context.Context, req *track.GetTrackRequest) (*track.GetTrackResponse, error) {
-	track, err := s.service.TrackByID(ctx, req)
+	resp, err := s.service.TrackByID(ctx, &model.GetTrackRequest{ID: req.Id})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "cannot get track: %v", err)
 	}
 
-	return &track.GetTrackResponse{
-		Track: track,
-	}, nil
+	t := &track.Track{
+		Id:       resp.Track.ID,
+		Title:    resp.Track.Title,
+		Duration: resp.Track.Duration,
+		ArtistId: resp.Track.ArtistID,
+		AlbumId:  resp.Track.AlbumID,
+		AudioUrl: resp.Track.AudioURL,
+	}
+
+	return &track.GetTrackResponse{Track: t}, nil
 }

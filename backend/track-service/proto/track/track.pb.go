@@ -29,6 +29,7 @@ type Track struct {
 	Duration      int64                  `protobuf:"varint,3,opt,name=duration,proto3" json:"duration,omitempty"`
 	ArtistId      int64                  `protobuf:"varint,5,opt,name=artistId,proto3" json:"artistId,omitempty"`
 	AlbumId       int64                  `protobuf:"varint,6,opt,name=albumId,proto3" json:"albumId,omitempty"`
+	AudioUrl      string                 `protobuf:"bytes,7,opt,name=audioUrl,proto3" json:"audioUrl,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -96,6 +97,13 @@ func (x *Track) GetAlbumId() int64 {
 		return x.AlbumId
 	}
 	return 0
+}
+
+func (x *Track) GetAudioUrl() string {
+	if x != nil {
+		return x.AudioUrl
+	}
+	return ""
 }
 
 type NewTrack struct {
@@ -382,8 +390,7 @@ func (x *GetTrackResponse) GetTrack() *Track {
 
 type UpdateTrackRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Track         *NewTrack              `protobuf:"bytes,2,opt,name=track,proto3" json:"track,omitempty"`
+	Track         *Track                 `protobuf:"bytes,1,opt,name=track,proto3" json:"track,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -418,14 +425,7 @@ func (*UpdateTrackRequest) Descriptor() ([]byte, []int) {
 	return file_track_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *UpdateTrackRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *UpdateTrackRequest) GetTrack() *NewTrack {
+func (x *UpdateTrackRequest) GetTrack() *Track {
 	if x != nil {
 		return x.Track
 	}
@@ -568,13 +568,14 @@ var File_track_proto protoreflect.FileDescriptor
 
 const file_track_proto_rawDesc = "" +
 	"\n" +
-	"\vtrack.proto\x12\x05track\x1a\x1cgoogle/api/annotations.proto\"\x7f\n" +
+	"\vtrack.proto\x12\x05track\x1a\x1cgoogle/api/annotations.proto\"\x9b\x01\n" +
 	"\x05Track\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x1a\n" +
 	"\bduration\x18\x03 \x01(\x03R\bduration\x12\x1a\n" +
 	"\bartistId\x18\x05 \x01(\x03R\bartistId\x12\x18\n" +
-	"\aalbumId\x18\x06 \x01(\x03R\aalbumId\"r\n" +
+	"\aalbumId\x18\x06 \x01(\x03R\aalbumId\x12\x1a\n" +
+	"\baudioUrl\x18\a \x01(\tR\baudioUrl\"r\n" +
 	"\bNewTrack\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12\x1a\n" +
 	"\bduration\x18\x02 \x01(\x03R\bduration\x12\x1a\n" +
@@ -589,20 +590,19 @@ const file_track_proto_rawDesc = "" +
 	"\x0fGetTrackRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"6\n" +
 	"\x10GetTrackResponse\x12\"\n" +
-	"\x05track\x18\x01 \x01(\v2\f.track.TrackR\x05track\"K\n" +
-	"\x12UpdateTrackRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12%\n" +
-	"\x05track\x18\x02 \x01(\v2\x0f.track.NewTrackR\x05track\"9\n" +
+	"\x05track\x18\x01 \x01(\v2\f.track.TrackR\x05track\"8\n" +
+	"\x12UpdateTrackRequest\x12\"\n" +
+	"\x05track\x18\x01 \x01(\v2\f.track.TrackR\x05track\"9\n" +
 	"\x13UpdateTrackResponse\x12\"\n" +
 	"\x05track\x18\x01 \x01(\v2\f.track.TrackR\x05track\"$\n" +
 	"\x12DeleteTrackRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"/\n" +
 	"\x13DeleteTrackResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess2\xf7\x02\n" +
-	"\vUserService\x12Z\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess2\xfe\x02\n" +
+	"\fTrackService\x12Z\n" +
 	"\vCreateTrack\x12\x19.track.CreateTrackRequest\x1a\x1a.track.CreateTrackResponse\"\x12\x82\xd3\xe4\x93\x02\f:\x01*\"\a/tracks(\x01\x12Q\n" +
-	"\bGetTrack\x12\x16.track.GetTrackRequest\x1a\x17.track.GetTrackResponse\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/tracks/{id}\x12]\n" +
-	"\vUpdateTrack\x12\x19.track.UpdateTrackRequest\x1a\x1a.track.UpdateTrackResponse\"\x17\x82\xd3\xe4\x93\x02\x11:\x01*2\f/tracks/{id}\x12Z\n" +
+	"\bGetTrack\x12\x16.track.GetTrackRequest\x1a\x17.track.GetTrackResponse\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/tracks/{id}\x12c\n" +
+	"\vUpdateTrack\x12\x19.track.UpdateTrackRequest\x1a\x1a.track.UpdateTrackResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*2\x12/tracks/{track.id}\x12Z\n" +
 	"\vDeleteTrack\x12\x19.track.DeleteTrackRequest\x1a\x1a.track.DeleteTrackResponse\"\x14\x82\xd3\xe4\x93\x02\x0e*\f/tracks/{id}B\bZ\x06/trackb\x06proto3"
 
 var (
@@ -633,16 +633,16 @@ var file_track_proto_goTypes = []any{
 var file_track_proto_depIdxs = []int32{
 	1, // 0: track.CreateTrackRequest.track:type_name -> track.NewTrack
 	0, // 1: track.GetTrackResponse.track:type_name -> track.Track
-	1, // 2: track.UpdateTrackRequest.track:type_name -> track.NewTrack
+	0, // 2: track.UpdateTrackRequest.track:type_name -> track.Track
 	0, // 3: track.UpdateTrackResponse.track:type_name -> track.Track
-	2, // 4: track.UserService.CreateTrack:input_type -> track.CreateTrackRequest
-	4, // 5: track.UserService.GetTrack:input_type -> track.GetTrackRequest
-	6, // 6: track.UserService.UpdateTrack:input_type -> track.UpdateTrackRequest
-	8, // 7: track.UserService.DeleteTrack:input_type -> track.DeleteTrackRequest
-	3, // 8: track.UserService.CreateTrack:output_type -> track.CreateTrackResponse
-	5, // 9: track.UserService.GetTrack:output_type -> track.GetTrackResponse
-	7, // 10: track.UserService.UpdateTrack:output_type -> track.UpdateTrackResponse
-	9, // 11: track.UserService.DeleteTrack:output_type -> track.DeleteTrackResponse
+	2, // 4: track.TrackService.CreateTrack:input_type -> track.CreateTrackRequest
+	4, // 5: track.TrackService.GetTrack:input_type -> track.GetTrackRequest
+	6, // 6: track.TrackService.UpdateTrack:input_type -> track.UpdateTrackRequest
+	8, // 7: track.TrackService.DeleteTrack:input_type -> track.DeleteTrackRequest
+	3, // 8: track.TrackService.CreateTrack:output_type -> track.CreateTrackResponse
+	5, // 9: track.TrackService.GetTrack:output_type -> track.GetTrackResponse
+	7, // 10: track.TrackService.UpdateTrack:output_type -> track.UpdateTrackResponse
+	9, // 11: track.TrackService.DeleteTrack:output_type -> track.DeleteTrackResponse
 	8, // [8:12] is the sub-list for method output_type
 	4, // [4:8] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name

@@ -18,7 +18,7 @@ service TrackService {
   }
   rpc UpdateTrack(UpdateTrackRequest) returns (UpdateTrackResponse) {
     option (google.api.http) = {
-      patch: "/tracks/{id}"
+      patch: "/tracks/{track.id}"
       body: "*"
     };
   }
@@ -33,6 +33,7 @@ message Track {
   int64 duration = 3;
   int64 artistId = 5;
   int64 albumId = 6;
+  string audioUrl = 7;
 }
 
 message NewTrack {
@@ -62,8 +63,7 @@ message GetTrackResponse {
 }
 
 message UpdateTrackRequest {
-  int64 id = 1;
-  NewTrack track = 2;
+  Track track = 1;
 }
 
 message UpdateTrackResponse {

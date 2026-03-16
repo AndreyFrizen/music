@@ -45,6 +45,12 @@ type UpdateUserRequest struct {
 	Email    string `json:"email,omitempty" validate:"omitempty,email"`
 }
 
+type UpdateUserResponse struct {
+	ID       int64  `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
 type LogoutRequest struct {
 	AccessToken string `json:"access_token" validate:"required"`
 }

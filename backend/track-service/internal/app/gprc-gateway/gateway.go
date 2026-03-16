@@ -87,9 +87,9 @@ func NewGatewayApp(log *slog.Logger, config *configate.Config, opts ...grpc.Dial
 	)
 
 	ctx := context.Background()
-	if err := track.RegisterUserServiceHandler(ctx, gwmux, conn); err != nil {
+	if err := track.RegisterTrackServiceHandler(ctx, gwmux, conn); err != nil {
 		conn.Close()
-		return nil, fmt.Errorf("failed to register user service handler: %w", err)
+		return nil, fmt.Errorf("failed to register track service handler: %w", err)
 	}
 
 	router := gin.New()

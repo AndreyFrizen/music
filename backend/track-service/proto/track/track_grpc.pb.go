@@ -19,33 +19,33 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_CreateTrack_FullMethodName = "/track.UserService/CreateTrack"
-	UserService_GetTrack_FullMethodName    = "/track.UserService/GetTrack"
-	UserService_UpdateTrack_FullMethodName = "/track.UserService/UpdateTrack"
-	UserService_DeleteTrack_FullMethodName = "/track.UserService/DeleteTrack"
+	TrackService_CreateTrack_FullMethodName = "/track.TrackService/CreateTrack"
+	TrackService_GetTrack_FullMethodName    = "/track.TrackService/GetTrack"
+	TrackService_UpdateTrack_FullMethodName = "/track.TrackService/UpdateTrack"
+	TrackService_DeleteTrack_FullMethodName = "/track.TrackService/DeleteTrack"
 )
 
-// UserServiceClient is the client API for UserService service.
+// TrackServiceClient is the client API for TrackService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type UserServiceClient interface {
+type TrackServiceClient interface {
 	CreateTrack(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[CreateTrackRequest, CreateTrackResponse], error)
 	GetTrack(ctx context.Context, in *GetTrackRequest, opts ...grpc.CallOption) (*GetTrackResponse, error)
 	UpdateTrack(ctx context.Context, in *UpdateTrackRequest, opts ...grpc.CallOption) (*UpdateTrackResponse, error)
 	DeleteTrack(ctx context.Context, in *DeleteTrackRequest, opts ...grpc.CallOption) (*DeleteTrackResponse, error)
 }
 
-type userServiceClient struct {
+type trackServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
-	return &userServiceClient{cc}
+func NewTrackServiceClient(cc grpc.ClientConnInterface) TrackServiceClient {
+	return &trackServiceClient{cc}
 }
 
-func (c *userServiceClient) CreateTrack(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[CreateTrackRequest, CreateTrackResponse], error) {
+func (c *trackServiceClient) CreateTrack(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[CreateTrackRequest, CreateTrackResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &UserService_ServiceDesc.Streams[0], UserService_CreateTrack_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &TrackService_ServiceDesc.Streams[0], TrackService_CreateTrack_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -54,174 +54,174 @@ func (c *userServiceClient) CreateTrack(ctx context.Context, opts ...grpc.CallOp
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type UserService_CreateTrackClient = grpc.ClientStreamingClient[CreateTrackRequest, CreateTrackResponse]
+type TrackService_CreateTrackClient = grpc.ClientStreamingClient[CreateTrackRequest, CreateTrackResponse]
 
-func (c *userServiceClient) GetTrack(ctx context.Context, in *GetTrackRequest, opts ...grpc.CallOption) (*GetTrackResponse, error) {
+func (c *trackServiceClient) GetTrack(ctx context.Context, in *GetTrackRequest, opts ...grpc.CallOption) (*GetTrackResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetTrackResponse)
-	err := c.cc.Invoke(ctx, UserService_GetTrack_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, TrackService_GetTrack_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userServiceClient) UpdateTrack(ctx context.Context, in *UpdateTrackRequest, opts ...grpc.CallOption) (*UpdateTrackResponse, error) {
+func (c *trackServiceClient) UpdateTrack(ctx context.Context, in *UpdateTrackRequest, opts ...grpc.CallOption) (*UpdateTrackResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpdateTrackResponse)
-	err := c.cc.Invoke(ctx, UserService_UpdateTrack_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, TrackService_UpdateTrack_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userServiceClient) DeleteTrack(ctx context.Context, in *DeleteTrackRequest, opts ...grpc.CallOption) (*DeleteTrackResponse, error) {
+func (c *trackServiceClient) DeleteTrack(ctx context.Context, in *DeleteTrackRequest, opts ...grpc.CallOption) (*DeleteTrackResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeleteTrackResponse)
-	err := c.cc.Invoke(ctx, UserService_DeleteTrack_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, TrackService_DeleteTrack_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// UserServiceServer is the server API for UserService service.
-// All implementations must embed UnimplementedUserServiceServer
+// TrackServiceServer is the server API for TrackService service.
+// All implementations must embed UnimplementedTrackServiceServer
 // for forward compatibility.
-type UserServiceServer interface {
+type TrackServiceServer interface {
 	CreateTrack(grpc.ClientStreamingServer[CreateTrackRequest, CreateTrackResponse]) error
 	GetTrack(context.Context, *GetTrackRequest) (*GetTrackResponse, error)
 	UpdateTrack(context.Context, *UpdateTrackRequest) (*UpdateTrackResponse, error)
 	DeleteTrack(context.Context, *DeleteTrackRequest) (*DeleteTrackResponse, error)
-	mustEmbedUnimplementedUserServiceServer()
+	mustEmbedUnimplementedTrackServiceServer()
 }
 
-// UnimplementedUserServiceServer must be embedded to have
+// UnimplementedTrackServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedUserServiceServer struct{}
+type UnimplementedTrackServiceServer struct{}
 
-func (UnimplementedUserServiceServer) CreateTrack(grpc.ClientStreamingServer[CreateTrackRequest, CreateTrackResponse]) error {
+func (UnimplementedTrackServiceServer) CreateTrack(grpc.ClientStreamingServer[CreateTrackRequest, CreateTrackResponse]) error {
 	return status.Error(codes.Unimplemented, "method CreateTrack not implemented")
 }
-func (UnimplementedUserServiceServer) GetTrack(context.Context, *GetTrackRequest) (*GetTrackResponse, error) {
+func (UnimplementedTrackServiceServer) GetTrack(context.Context, *GetTrackRequest) (*GetTrackResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetTrack not implemented")
 }
-func (UnimplementedUserServiceServer) UpdateTrack(context.Context, *UpdateTrackRequest) (*UpdateTrackResponse, error) {
+func (UnimplementedTrackServiceServer) UpdateTrack(context.Context, *UpdateTrackRequest) (*UpdateTrackResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateTrack not implemented")
 }
-func (UnimplementedUserServiceServer) DeleteTrack(context.Context, *DeleteTrackRequest) (*DeleteTrackResponse, error) {
+func (UnimplementedTrackServiceServer) DeleteTrack(context.Context, *DeleteTrackRequest) (*DeleteTrackResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteTrack not implemented")
 }
-func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
-func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
+func (UnimplementedTrackServiceServer) mustEmbedUnimplementedTrackServiceServer() {}
+func (UnimplementedTrackServiceServer) testEmbeddedByValue()                      {}
 
-// UnsafeUserServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to UserServiceServer will
+// UnsafeTrackServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to TrackServiceServer will
 // result in compilation errors.
-type UnsafeUserServiceServer interface {
-	mustEmbedUnimplementedUserServiceServer()
+type UnsafeTrackServiceServer interface {
+	mustEmbedUnimplementedTrackServiceServer()
 }
 
-func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
-	// If the following call panics, it indicates UnimplementedUserServiceServer was
+func RegisterTrackServiceServer(s grpc.ServiceRegistrar, srv TrackServiceServer) {
+	// If the following call panics, it indicates UnimplementedTrackServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&UserService_ServiceDesc, srv)
+	s.RegisterService(&TrackService_ServiceDesc, srv)
 }
 
-func _UserService_CreateTrack_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(UserServiceServer).CreateTrack(&grpc.GenericServerStream[CreateTrackRequest, CreateTrackResponse]{ServerStream: stream})
+func _TrackService_CreateTrack_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(TrackServiceServer).CreateTrack(&grpc.GenericServerStream[CreateTrackRequest, CreateTrackResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type UserService_CreateTrackServer = grpc.ClientStreamingServer[CreateTrackRequest, CreateTrackResponse]
+type TrackService_CreateTrackServer = grpc.ClientStreamingServer[CreateTrackRequest, CreateTrackResponse]
 
-func _UserService_GetTrack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TrackService_GetTrack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetTrackRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).GetTrack(ctx, in)
+		return srv.(TrackServiceServer).GetTrack(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_GetTrack_FullMethodName,
+		FullMethod: TrackService_GetTrack_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetTrack(ctx, req.(*GetTrackRequest))
+		return srv.(TrackServiceServer).GetTrack(ctx, req.(*GetTrackRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_UpdateTrack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TrackService_UpdateTrack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateTrackRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).UpdateTrack(ctx, in)
+		return srv.(TrackServiceServer).UpdateTrack(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_UpdateTrack_FullMethodName,
+		FullMethod: TrackService_UpdateTrack_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).UpdateTrack(ctx, req.(*UpdateTrackRequest))
+		return srv.(TrackServiceServer).UpdateTrack(ctx, req.(*UpdateTrackRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_DeleteTrack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TrackService_DeleteTrack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteTrackRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).DeleteTrack(ctx, in)
+		return srv.(TrackServiceServer).DeleteTrack(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_DeleteTrack_FullMethodName,
+		FullMethod: TrackService_DeleteTrack_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).DeleteTrack(ctx, req.(*DeleteTrackRequest))
+		return srv.(TrackServiceServer).DeleteTrack(ctx, req.(*DeleteTrackRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
+// TrackService_ServiceDesc is the grpc.ServiceDesc for TrackService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var UserService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "track.UserService",
-	HandlerType: (*UserServiceServer)(nil),
+var TrackService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "track.TrackService",
+	HandlerType: (*TrackServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetTrack",
-			Handler:    _UserService_GetTrack_Handler,
+			Handler:    _TrackService_GetTrack_Handler,
 		},
 		{
 			MethodName: "UpdateTrack",
-			Handler:    _UserService_UpdateTrack_Handler,
+			Handler:    _TrackService_UpdateTrack_Handler,
 		},
 		{
 			MethodName: "DeleteTrack",
-			Handler:    _UserService_DeleteTrack_Handler,
+			Handler:    _TrackService_DeleteTrack_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "CreateTrack",
-			Handler:       _UserService_CreateTrack_Handler,
+			Handler:       _TrackService_CreateTrack_Handler,
 			ClientStreams: true,
 		},
 	},

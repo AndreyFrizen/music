@@ -7,7 +7,7 @@ import (
 	"user-service/internal/app/database"
 	"user-service/internal/domain/errors"
 
-	modeluser "user-service/internal/domain/model"
+	"user-service/internal/domain/model"
 )
 
 type store struct {
@@ -21,7 +21,7 @@ func NewRepository(db *database.DB) *store {
 }
 
 // Create user in database
-func (s *store) Register(ctx context.Context, u *modeluser.User) (int64, error) {
+func (s *store) Register(ctx context.Context, u *model.User) (int64, error) {
 	const op = "repository.UserRepository.CreateUser"
 
 	query := "INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING id"
@@ -33,13 +33,13 @@ func (s *store) Register(ctx context.Context, u *modeluser.User) (int64, error) 
 		return 0, errors.DatabaseError(op, err)
 	}
 
-	go s.setUserToCache(ctx, strconv.Itoa(int(id)), &modeluser.User{ID: id, Username: u.Username, Email: u.Email})
+	go s.setUserToCache(ctx, strconv.Itoa(int(id)), &model.User{ID: id, Username: u.Username, Email: u.Email})
 
 	return id, nil
 }
 
 // Get user by id
-func (s *store) UserByID(ctx context.Context, id int64) (*modeluser.User, error) {
+func (s *store) UserByID(ctx context.Context, id int64) (*model.User, error) {
 	const op = "repository.UserRepository.UserByID"
 
 	key := strconv.Itoa(int(id))
@@ -51,7 +51,7 @@ func (s *store) UserByID(ctx context.Context, id int64) (*modeluser.User, error)
 
 	row := s.db.QueryRowContext(ctx, query, id)
 
-	var user modeluser.User
+	var user model.User
 
 	err := row.Scan(&user.ID, &user.Username, &user.Email)
 
@@ -67,7 +67,7 @@ func (s *store) UserByID(ctx context.Context, id int64) (*modeluser.User, error)
 }
 
 // Get user by email
-func (s *store) UserByEmail(ctx context.Context, email string) (*modeluser.User, error) {
+func (s *store) UserByEmail(ctx context.Context, email string) (*model.User, error) {
 	const op = "repository.UserRepository.UserByEmail"
 
 	if cached, err := s.getUserFromCache(ctx, email); err == nil && cached != nil {
@@ -78,7 +78,7 @@ func (s *store) UserByEmail(ctx context.Context, email string) (*modeluser.User,
 
 	row := s.db.QueryRowContext(ctx, query, email)
 
-	var user modeluser.User
+	var user model.User
 
 	err := row.Scan(&user.ID, &user.Username, &user.Email)
 
@@ -92,49 +92,26 @@ func (s *store) UserByEmail(ctx context.Context, email string) (*modeluser.User,
 }
 
 // Update user in database
-func (s *store) UpdateUser(ctx context.Context, u *modeluser.User) error {
+func (s *store) UpdateUser(ctx context.Context, u *model.User) (*model.User, error) {
 	const op = "repository.UserRepository.UpdateUser"
 
-	query := "UPDATE users SET username = $1 WHERE id = $2"
+	query := "UPDATE users SET username = $1, email = $2 WHERE id = $3"
 
-	result, err := s.db.ExecContext(ctx, query, u.Username, u.ID)
+	result, err := s.db.ExecContext(ctx, query, u.Username, u.Email, u.ID)
 
 	if err != nil {
-		return s.handleError(op, err)
+		return nil, s.handleError(op, err)
 	}
 
 	rows := result.RowsAffected()
 
 	if rows == 0 {
-		return s.handleError(op, err)
+		return nil, s.handleError(op, err)
 	}
 
-	go s.setUserToCache(ctx, strconv.Itoa(int(u.ID)), &modeluser.User{ID: u.ID, Username: u.Username})
+	go s.setUserToCache(ctx, strconv.Itoa(int(u.ID)), &model.User{ID: u.ID, Username: u.Username, Email: u.Email})
 
-	return nil
-}
-
-// UpdateUserEmail updates the email of a user in the database
-func (s *store) UpdateUserEmail(ctx context.Context, u *modeluser.User) error {
-	const op = "repository.UserRepository.UpdateUserEmail"
-
-	query := "UPDATE users SET email = $1 WHERE id = $2"
-
-	result, err := s.db.ExecContext(ctx, query, u.Email, u.ID)
-
-	if err != nil {
-		return s.handleError(op, err)
-	}
-
-	rows := result.RowsAffected()
-
-	if rows == 0 {
-		return s.handleError(op, err)
-	}
-
-	go s.setUserToCache(ctx, strconv.Itoa(int(u.ID)), &modeluser.User{ID: u.ID, Email: u.Email})
-
-	return nil
+	return &model.User{ID: u.ID, Username: u.Username, Email: u.Email}, nil
 }
 
 func (s *store) handleError(op string, err error) error {

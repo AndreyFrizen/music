@@ -35,7 +35,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_UserService_CreateTrack_0(ctx context.Context, marshaler runtime.Marshaler, client UserServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_TrackService_CreateTrack_0(ctx context.Context, marshaler runtime.Marshaler, client TrackServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var metadata runtime.ServerMetadata
 	stream, err := client.CreateTrack(ctx)
 	if err != nil {
@@ -76,7 +76,7 @@ func request_UserService_CreateTrack_0(ctx context.Context, marshaler runtime.Ma
 	return msg, metadata, err
 }
 
-func request_UserService_GetTrack_0(ctx context.Context, marshaler runtime.Marshaler, client UserServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_TrackService_GetTrack_0(ctx context.Context, marshaler runtime.Marshaler, client TrackServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetTrackRequest
 		metadata runtime.ServerMetadata
@@ -97,7 +97,7 @@ func request_UserService_GetTrack_0(ctx context.Context, marshaler runtime.Marsh
 	return msg, metadata, err
 }
 
-func local_request_UserService_GetTrack_0(ctx context.Context, marshaler runtime.Marshaler, server UserServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_TrackService_GetTrack_0(ctx context.Context, marshaler runtime.Marshaler, server TrackServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetTrackRequest
 		metadata runtime.ServerMetadata
@@ -115,7 +115,7 @@ func local_request_UserService_GetTrack_0(ctx context.Context, marshaler runtime
 	return msg, metadata, err
 }
 
-func request_UserService_UpdateTrack_0(ctx context.Context, marshaler runtime.Marshaler, client UserServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_TrackService_UpdateTrack_0(ctx context.Context, marshaler runtime.Marshaler, client TrackServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq UpdateTrackRequest
 		metadata runtime.ServerMetadata
@@ -127,19 +127,19 @@ func request_UserService_UpdateTrack_0(ctx context.Context, marshaler runtime.Ma
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["id"]
+	val, ok := pathParams["track.id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "track.id")
 	}
-	protoReq.Id, err = runtime.Int64(val)
+	err = runtime.PopulateFieldFromPath(&protoReq, "track.id", val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "track.id", err)
 	}
 	msg, err := client.UpdateTrack(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_UserService_UpdateTrack_0(ctx context.Context, marshaler runtime.Marshaler, server UserServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_TrackService_UpdateTrack_0(ctx context.Context, marshaler runtime.Marshaler, server TrackServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq UpdateTrackRequest
 		metadata runtime.ServerMetadata
@@ -148,19 +148,19 @@ func local_request_UserService_UpdateTrack_0(ctx context.Context, marshaler runt
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["id"]
+	val, ok := pathParams["track.id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "track.id")
 	}
-	protoReq.Id, err = runtime.Int64(val)
+	err = runtime.PopulateFieldFromPath(&protoReq, "track.id", val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "track.id", err)
 	}
 	msg, err := server.UpdateTrack(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-func request_UserService_DeleteTrack_0(ctx context.Context, marshaler runtime.Marshaler, client UserServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_TrackService_DeleteTrack_0(ctx context.Context, marshaler runtime.Marshaler, client TrackServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq DeleteTrackRequest
 		metadata runtime.ServerMetadata
@@ -181,7 +181,7 @@ func request_UserService_DeleteTrack_0(ctx context.Context, marshaler runtime.Ma
 	return msg, metadata, err
 }
 
-func local_request_UserService_DeleteTrack_0(ctx context.Context, marshaler runtime.Marshaler, server UserServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_TrackService_DeleteTrack_0(ctx context.Context, marshaler runtime.Marshaler, server TrackServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq DeleteTrackRequest
 		metadata runtime.ServerMetadata
@@ -199,85 +199,85 @@ func local_request_UserService_DeleteTrack_0(ctx context.Context, marshaler runt
 	return msg, metadata, err
 }
 
-// RegisterUserServiceHandlerServer registers the http handlers for service UserService to "mux".
-// UnaryRPC     :call UserServiceServer directly.
+// RegisterTrackServiceHandlerServer registers the http handlers for service TrackService to "mux".
+// UnaryRPC     :call TrackServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterUserServiceHandlerFromEndpoint instead.
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterTrackServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
-func RegisterUserServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server UserServiceServer) error {
-	mux.Handle(http.MethodPost, pattern_UserService_CreateTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+func RegisterTrackServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server TrackServiceServer) error {
+	mux.Handle(http.MethodPost, pattern_TrackService_CreateTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
 		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 		return
 	})
-	mux.Handle(http.MethodGet, pattern_UserService_GetTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_TrackService_GetTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/track.UserService/GetTrack", runtime.WithHTTPPathPattern("/tracks/{id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/track.TrackService/GetTrack", runtime.WithHTTPPathPattern("/tracks/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_UserService_GetTrack_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_TrackService_GetTrack_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_UserService_GetTrack_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_TrackService_GetTrack_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPatch, pattern_UserService_UpdateTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPatch, pattern_TrackService_UpdateTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/track.UserService/UpdateTrack", runtime.WithHTTPPathPattern("/tracks/{id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/track.TrackService/UpdateTrack", runtime.WithHTTPPathPattern("/tracks/{track.id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_UserService_UpdateTrack_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_TrackService_UpdateTrack_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_UserService_UpdateTrack_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_TrackService_UpdateTrack_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_UserService_DeleteTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_TrackService_DeleteTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/track.UserService/DeleteTrack", runtime.WithHTTPPathPattern("/tracks/{id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/track.TrackService/DeleteTrack", runtime.WithHTTPPathPattern("/tracks/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_UserService_DeleteTrack_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_TrackService_DeleteTrack_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_UserService_DeleteTrack_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_TrackService_DeleteTrack_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterUserServiceHandlerFromEndpoint is same as RegisterUserServiceHandler but
+// RegisterTrackServiceHandlerFromEndpoint is same as RegisterTrackServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterUserServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterTrackServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.NewClient(endpoint, opts...)
 	if err != nil {
 		return err
@@ -296,102 +296,102 @@ func RegisterUserServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.Se
 			}
 		}()
 	}()
-	return RegisterUserServiceHandler(ctx, mux, conn)
+	return RegisterTrackServiceHandler(ctx, mux, conn)
 }
 
-// RegisterUserServiceHandler registers the http handlers for service UserService to "mux".
+// RegisterTrackServiceHandler registers the http handlers for service TrackService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterUserServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterUserServiceHandlerClient(ctx, mux, NewUserServiceClient(conn))
+func RegisterTrackServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterTrackServiceHandlerClient(ctx, mux, NewTrackServiceClient(conn))
 }
 
-// RegisterUserServiceHandlerClient registers the http handlers for service UserService
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "UserServiceClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "UserServiceClient"
+// RegisterTrackServiceHandlerClient registers the http handlers for service TrackService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "TrackServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "TrackServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "UserServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
-func RegisterUserServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client UserServiceClient) error {
-	mux.Handle(http.MethodPost, pattern_UserService_CreateTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "TrackServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
+func RegisterTrackServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client TrackServiceClient) error {
+	mux.Handle(http.MethodPost, pattern_TrackService_CreateTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/track.UserService/CreateTrack", runtime.WithHTTPPathPattern("/tracks"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/track.TrackService/CreateTrack", runtime.WithHTTPPathPattern("/tracks"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_UserService_CreateTrack_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_TrackService_CreateTrack_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_UserService_CreateTrack_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_TrackService_CreateTrack_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_UserService_GetTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_TrackService_GetTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/track.UserService/GetTrack", runtime.WithHTTPPathPattern("/tracks/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/track.TrackService/GetTrack", runtime.WithHTTPPathPattern("/tracks/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_UserService_GetTrack_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_TrackService_GetTrack_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_UserService_GetTrack_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_TrackService_GetTrack_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPatch, pattern_UserService_UpdateTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPatch, pattern_TrackService_UpdateTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/track.UserService/UpdateTrack", runtime.WithHTTPPathPattern("/tracks/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/track.TrackService/UpdateTrack", runtime.WithHTTPPathPattern("/tracks/{track.id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_UserService_UpdateTrack_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_TrackService_UpdateTrack_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_UserService_UpdateTrack_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_TrackService_UpdateTrack_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_UserService_DeleteTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_TrackService_DeleteTrack_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/track.UserService/DeleteTrack", runtime.WithHTTPPathPattern("/tracks/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/track.TrackService/DeleteTrack", runtime.WithHTTPPathPattern("/tracks/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_UserService_DeleteTrack_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_TrackService_DeleteTrack_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_UserService_DeleteTrack_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_TrackService_DeleteTrack_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	return nil
 }
 
 var (
-	pattern_UserService_CreateTrack_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"tracks"}, ""))
-	pattern_UserService_GetTrack_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1}, []string{"tracks", "id"}, ""))
-	pattern_UserService_UpdateTrack_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1}, []string{"tracks", "id"}, ""))
-	pattern_UserService_DeleteTrack_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1}, []string{"tracks", "id"}, ""))
+	pattern_TrackService_CreateTrack_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"tracks"}, ""))
+	pattern_TrackService_GetTrack_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1}, []string{"tracks", "id"}, ""))
+	pattern_TrackService_UpdateTrack_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1}, []string{"tracks", "track.id"}, ""))
+	pattern_TrackService_DeleteTrack_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1}, []string{"tracks", "id"}, ""))
 )
 
 var (
-	forward_UserService_CreateTrack_0 = runtime.ForwardResponseMessage
-	forward_UserService_GetTrack_0    = runtime.ForwardResponseMessage
-	forward_UserService_UpdateTrack_0 = runtime.ForwardResponseMessage
-	forward_UserService_DeleteTrack_0 = runtime.ForwardResponseMessage
+	forward_TrackService_CreateTrack_0 = runtime.ForwardResponseMessage
+	forward_TrackService_GetTrack_0    = runtime.ForwardResponseMessage
+	forward_TrackService_UpdateTrack_0 = runtime.ForwardResponseMessage
+	forward_TrackService_DeleteTrack_0 = runtime.ForwardResponseMessage
 )
