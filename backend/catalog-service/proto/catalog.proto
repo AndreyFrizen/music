@@ -10,13 +10,11 @@ service CatalogService {
   rpc GetAlbum(GetAlbumRequest) returns (GetAlbumResponse) {
     option (google.api.http) = {
       get: "/album/{id}"
-      body: "*"
     };
   }
   rpc GetArtist(GetArtistRequest) returns (GetArtistResponse) {
     option (google.api.http) = {
       get: "/artist/{id}"
-      body: "*"
     };
   }
   rpc AddAlbum(AddAlbumRequest) returns (AddAlbumResponse) {
@@ -52,7 +50,7 @@ message Artist {
 }
 
 message GetAlbumRequest {
-  string id = 1;
+  int64 id = 1;
 }
 
 message GetAlbumResponse {
@@ -60,7 +58,7 @@ message GetAlbumResponse {
 }
 
 message GetArtistRequest {
-  string id = 1;
+  int64 id = 1;
 }
 
 message GetArtistResponse {
