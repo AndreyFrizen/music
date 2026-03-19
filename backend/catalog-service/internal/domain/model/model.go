@@ -1,53 +1,73 @@
 package model
 
-// Track represents a track in the system
-type Track struct {
-	ID       int64  `json:"id" db:"id" redis:"id"`
-	Title    string `json:"title" db:"title" redis:"title"`
-	Duration int64  `json:"duration" db:"duration" redis:"duration"`
-	AudioURL string `json:"audio_url" db:"audio_url" redis:"audio_url"`
-	ArtistID int64  `json:"artist_id" db:"artist_id" redis:"artist_id"`
-	AlbumID  int64  `json:"album_id" db:"album_id" redis:"album_id"`
+// Artist represents an artist in the system
+type Artist struct {
+	ID   int64  `json:"id" db:"id" redis:"id"`
+	Name string `json:"name" db:"name" redis:"name"`
 }
 
-type NewTrack struct {
-	Title    string `json:"title" db:"title" redis:"title"`
-	Duration int64  `json:"duration" db:"duration" redis:"duration"`
-	ArtistID int64  `json:"artist_id" db:"artist_id" redis:"artist_id"`
-	AlbumID  int64  `json:"album_id" db:"album_id" redis:"album_id"`
+// Album represents an album in the system
+type Album struct {
+	ID          int64  `json:"id" db:"id" redis:"id"`
+	Title       string `json:"title" db:"title" redis:"title"`
+	ArtistID    int64  `json:"artist_id" db:"artist_id" redis:"artist_id"`
+	ReleaseDate string `json:"release_date" db:"release_date" redis:"release_date"`
 }
 
-type CreateTrackRequest struct {
-	Title    string `json:"title" validate:"required"`
-	Duration int64  `json:"duration" validate:"required"`
-	ArtistID int64  `json:"artist_id"`
-	AlbumID  int64  `json:"album_id"`
+func (a *Album) GetID() int64 {
+	return a.ID
 }
 
-type CreateTrackResponse struct {
-	ID int64
+func (a *Artist) GetID() int64 {
+	return a.ID
 }
 
-type GetTrackRequest struct {
+type GetAlbumRequest struct {
 	ID int64 `json:"id" validate:"required"`
 }
 
-type GetTrackResponse struct {
-	Track *Track `json:"track"`
+type GetAlbumResponse struct {
+	Album *Album `json:"album"`
 }
 
-type UpdateTrackRequest struct {
-	Track *Track `json:"track"`
+type CreateAlbumRequest struct {
+	Title       string `json:"title" validate:"required"`
+	ArtistID    int64  `json:"artist_id" validate:"required"`
+	ReleaseDate string `json:"release_date" validate:"required"`
 }
 
-type UpdateTrackResponse struct {
-	ID int64
+type CreateAlbumResponse struct {
+	ID int64 `json:"id"`
 }
 
-type DeleteTrackRequest struct {
+type DeleteAlbumRequest struct {
+	ID int `json:"id" validate:"required"`
+}
+
+type DeleteAlbumResponse struct {
+	ID int64 `json:"id"`
+}
+
+type GetArtistRequest struct {
 	ID int64 `json:"id" validate:"required"`
 }
 
-type DeleteTrackResponse struct {
-	Success bool `json:"success"`
+type GetArtistResponse struct {
+	Artist *Artist `json:"artist"`
+}
+
+type CreateArtistRequest struct {
+	Name string `json:"name" validate:"required"`
+}
+
+type CreateArtistResponse struct {
+	ID int64 `json:"id"`
+}
+
+type DeleteArtistRequest struct {
+	ID int64 `json:"id" validate:"required"`
+}
+
+type DeleteArtistResponse struct {
+	ID int64 `json:"id"`
 }

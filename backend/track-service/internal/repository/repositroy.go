@@ -38,12 +38,13 @@ func (s *store) CreateTrack(ctx context.Context, t *model.NewTrack) (int64, erro
 		return 0, errors.DatabaseError(op, err)
 	}
 
-	go func() {
-		t, err := s.TrackByID(ctx, id)
-		if err == nil {
-			s.setTrackToCache(ctx, strconv.Itoa(int(id)), t)
-		}
-	}()
+	go s.setTrackToCache(ctx, strconv.Itoa(int(id)), &model.Track{
+		ID:       id,
+		Title:    t.Title,
+		Duration: t.Duration,
+		ArtistID: t.ArtistID,
+		AlbumID:  t.AlbumID,
+	})
 
 	return id, nil
 }
@@ -69,7 +70,7 @@ func (s *store) TrackByID(ctx context.Context, id int64) (*model.Track, error) {
 		return nil, s.handleError(op, err)
 	}
 
-	s.setTrackToCache(ctx, key, &track)
+	go s.setTrackToCache(ctx, key, &track)
 	return &track, nil
 }
 
@@ -113,6 +114,8 @@ func (s *store) DeleteTrack(ctx context.Context, id int64) error {
 	if rows == 0 {
 		return s.handleError(op, err)
 	}
+
+	go s.deleteTrackFromCache(ctx, strconv.Itoa(int(id)))
 
 	return nil
 }

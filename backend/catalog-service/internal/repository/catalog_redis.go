@@ -4,16 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"time"
-	"track-service/internal/domain/model"
 
 	"github.com/redis/go-redis/v9"
 )
+
+type ObjInterface interface {
+	GetID() int64
+}
 
 const (
 	cacheTTL = 15 * time.Minute
 )
 
-func (s *store) getTrackFromCache(ctx context.Context, key string) (*model.Track, error) {
+func (s *store) getObjectFromCache(ctx context.Context, key string) (ObjInterface, error) {
 	data, err := s.db.GetRedis(ctx, key).Bytes()
 	if err == redis.Nil {
 		return nil, nil
@@ -23,16 +26,16 @@ func (s *store) getTrackFromCache(ctx context.Context, key string) (*model.Track
 		return nil, nil
 	}
 
-	var track model.Track
-	if err := json.Unmarshal(data, &track); err != nil {
-		s.db.Log().WarnContext(ctx, "failed to unmarshal track from redis", "key", key, "error", err)
+	var obj ObjInterface
+	if err := json.Unmarshal(data, &obj); err != nil {
+		s.db.Log().WarnContext(ctx, "failed to unmarshal object from redis", "key", key, "error", err)
 		return nil, nil
 	}
-	return &track, nil
+	return obj, nil
 }
 
-func (s *store) setTrackToCache(ctx context.Context, key string, track *model.Track) {
-	data, err := json.Marshal(track)
+func (s *store) setObjectToCache(ctx context.Context, key string, obj ObjInterface) {
+	data, err := json.Marshal(obj)
 	if err != nil {
 		return
 	}
@@ -41,7 +44,7 @@ func (s *store) setTrackToCache(ctx context.Context, key string, track *model.Tr
 	}
 }
 
-func (s *store) deleteUserFromCache(ctx context.Context, keys ...string) {
+func (s *store) deleteObjectFromCache(ctx context.Context, keys ...string) {
 	for _, key := range keys {
 		if err := s.db.DelRedis(ctx, key).Err(); err != nil {
 			s.db.Log().WarnContext(ctx, "failed to delete redis key", "key", key, "error", err)

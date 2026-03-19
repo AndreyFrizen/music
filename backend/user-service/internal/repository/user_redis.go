@@ -40,11 +40,3 @@ func (s *store) setUserToCache(ctx context.Context, key string, user *modeluser.
 
 	}
 }
-
-func (s *store) deleteUserFromCache(ctx context.Context, keys ...string) {
-	for _, key := range keys {
-		if err := s.db.DelRedis(ctx, key).Err(); err != nil {
-			s.db.Log().WarnContext(ctx, "failed to delete redis key", "key", key, "error", err)
-		}
-	}
-}

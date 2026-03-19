@@ -41,7 +41,7 @@ func (s *store) setTrackToCache(ctx context.Context, key string, track *model.Tr
 	}
 }
 
-func (s *store) deleteUserFromCache(ctx context.Context, keys ...string) {
+func (s *store) deleteTrackFromCache(ctx context.Context, keys ...string) {
 	for _, key := range keys {
 		if err := s.db.DelRedis(ctx, key).Err(); err != nil {
 			s.db.Log().WarnContext(ctx, "failed to delete redis key", "key", key, "error", err)

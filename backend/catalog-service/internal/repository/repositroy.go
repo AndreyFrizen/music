@@ -1,13 +1,12 @@
 package repository
 
 import (
+	"catalog-service/internal/app/database"
+	"catalog-service/internal/domain/errors"
+	"catalog-service/internal/domain/model"
 	"context"
 	"database/sql"
-	"fmt"
 	"strconv"
-	"track-service/internal/app/database"
-	"track-service/internal/domain/errors"
-	"track-service/internal/domain/model"
 )
 
 type store struct {
@@ -21,86 +20,100 @@ func NewRepository(db *database.DB) *store {
 }
 
 // Add track to database
-func (s *store) CreateTrack(ctx context.Context, t *model.NewTrack) (int64, error) {
-	const op = "repository.TrackRepository.CreateTrack"
+func (s *store) CreateAlbum(ctx context.Context, a *model.Album) (int64, error) {
+	const op = "repository.CatalogRepository.CreateAlbum"
 
 	var id int64
 
-	query := "INSERT INTO tracks(title, duration, artist_id, album_id) VALUES ($1, $2, $3, $4) RETURNING id"
-	err := s.db.QueryRowContext(ctx, query, t.Title, t.Duration, t.ArtistID, t.AlbumID).Scan(&id)
-
-	url := fmt.Sprintf("%s/%d", "tracks", id)
-
-	queryUpdate := "UPDATE tracks SET audio_url = $1 WHERE id = $2"
-	_, err = s.db.ExecContext(ctx, queryUpdate, url, id)
+	query := "INSERT INTO albums(title, artist_id, release_date) VALUES ($1, $2, $3) RETURNING id"
+	err := s.db.QueryRowContext(ctx, query, a.Title, a.ArtistID, a.ReleaseDate).Scan(&id)
 
 	if err != nil {
 		return 0, errors.DatabaseError(op, err)
 	}
 
-	go func() {
-		t, err := s.TrackByID(ctx, id)
-		if err == nil {
-			s.setTrackToCache(ctx, strconv.Itoa(int(id)), t)
-		}
-	}()
+	go s.setObjectToCache(ctx, strconv.Itoa(int(id)), a)
 
 	return id, nil
 }
 
-// TrackByID retrieves a track by its ID from the database
-func (s *store) TrackByID(ctx context.Context, id int64) (*model.Track, error) {
-	const op = "repository.TrackRepository.TrackByID"
+// Add artist to database
+func (s *store) CreateArtist(ctx context.Context, a *model.Artist) (int64, error) {
+	const op = "repository.CatalogRepository.CreateArtist"
 
-	key := strconv.Itoa(int(id))
-	if cached, err := s.getTrackFromCache(ctx, key); err == nil && cached != nil {
-		return cached, nil
+	var id int64
+
+	query := "INSERT INTO artists(name) VALUES ($1) RETURNING id"
+	err := s.db.QueryRowContext(ctx, query, a.Name).Scan(&id)
+
+	if err != nil {
+		return 0, errors.DatabaseError(op, err)
 	}
 
-	query := "SELECT id, title, duration, audio_url, artist_id FROM tracks WHERE id = $1"
+	go s.setObjectToCache(ctx, strconv.Itoa(int(id)), a)
+
+	return id, nil
+}
+
+// ArtistByID retrieves an artist by its ID from the database
+func (s *store) ArtistByID(ctx context.Context, id int64) (*model.Artist, error) {
+	const op = "repository.CatalogRepository.ArtistByID"
+
+	key := strconv.Itoa(int(id))
+	if cached, err := s.getObjectFromCache(ctx, key); err == nil && cached != nil {
+		cachedArtist := cached.(*model.Artist)
+		return cachedArtist, nil
+	}
+
+	query := "SELECT name FROM artists WHERE id = $1"
 
 	row := s.db.QueryRowContext(ctx, query, id)
 
-	var track model.Track
+	var artist model.Artist
 
-	err := row.Scan(&track.ID, &track.Title, &track.Duration, &track.AudioURL, &track.ArtistID, &track.AlbumID)
+	err := row.Scan(&artist.Name)
+	artist.ID = id
 
 	if err != nil {
 		return nil, s.handleError(op, err)
 	}
 
-	s.setTrackToCache(ctx, key, &track)
-	return &track, nil
+	go s.setObjectToCache(ctx, key, &artist)
+	return &artist, nil
 }
 
-// UpdateTrack updates a track in the database
-func (s *store) UpdateTrack(ctx context.Context, t *model.Track) error {
-	const op = "repository.TrackRepository.UpdateTrack"
+// AlbumByID retrieves an album by its ID from the database
+func (s *store) AlbumByID(ctx context.Context, id int64) (*model.Album, error) {
+	const op = "repository.CatalogRepository.AlbumByID"
 
-	query := "UPDATE tracks SET title = $1, duration = $2, artist_id = $3 WHERE id = $4"
+	key := strconv.Itoa(int(id))
+	if cached, err := s.getObjectFromCache(ctx, key); err == nil && cached != nil {
+		cachedAlbum := cached.(*model.Album)
+		return cachedAlbum, nil
+	}
 
-	result, err := s.db.ExecContext(ctx, query, t.Title, t.Duration, t.ArtistID, t.ID)
+	query := "SELECT title, artist_id, release_date FROM albums WHERE id = $1"
+
+	row := s.db.QueryRowContext(ctx, query, id)
+
+	var album model.Album
+
+	err := row.Scan(&album.Title, &album.ArtistID, &album.ReleaseDate)
+	album.ID = id
 
 	if err != nil {
-		return s.handleError(op, err)
+		return nil, s.handleError(op, err)
 	}
 
-	rows := result.RowsAffected()
-
-	if rows == 0 {
-		return s.handleError(op, err)
-	}
-
-	go s.setTrackToCache(ctx, strconv.Itoa(int(t.ID)), t)
-
-	return nil
+	go s.setObjectToCache(ctx, key, &album)
+	return &album, nil
 }
 
-// DeleteTrack deletes a track from the database
-func (s *store) DeleteTrack(ctx context.Context, id int64) error {
-	const op = "repository.TrackRepository.DeleteTrack"
+// DeleteArtist deletes an artist from the database
+func (s *store) DeleteArtist(ctx context.Context, id int64) error {
+	const op = "repository.ArtistRepository.DeleteArtist"
 
-	query := "DELETE FROM tracks WHERE id = $1"
+	query := "DELETE FROM artists WHERE id = $1"
 
 	result, err := s.db.ExecContext(ctx, query, id)
 
@@ -113,6 +126,31 @@ func (s *store) DeleteTrack(ctx context.Context, id int64) error {
 	if rows == 0 {
 		return s.handleError(op, err)
 	}
+
+	go s.deleteObjectFromCache(ctx, strconv.Itoa(int(id)))
+
+	return nil
+}
+
+// DeleteAlbum deletes an album from the database
+func (s *store) DeleteAlbum(ctx context.Context, id int64) error {
+	const op = "repository.AlbumRepository.DeleteAlbum"
+
+	query := "DELETE FROM albums WHERE id = $1"
+
+	result, err := s.db.ExecContext(ctx, query, id)
+
+	if err != nil {
+		return s.handleError(op, err)
+	}
+
+	rows := result.RowsAffected()
+
+	if rows == 0 {
+		return s.handleError(op, err)
+	}
+
+	go s.deleteObjectFromCache(ctx, strconv.Itoa(int(id)))
 
 	return nil
 }

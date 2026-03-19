@@ -62,7 +62,7 @@ func (s *store) UserByID(ctx context.Context, id int64) (*model.User, error) {
 		return nil, errors.DatabaseError(op, err)
 	}
 
-	s.setUserToCache(ctx, key, &user)
+	go s.setUserToCache(ctx, key, &user)
 	return &user, nil
 }
 
@@ -86,7 +86,7 @@ func (s *store) UserByEmail(ctx context.Context, email string) (*model.User, err
 		return nil, s.handleError(op, err)
 	}
 
-	s.setUserToCache(ctx, email, &user)
+	go s.setUserToCache(ctx, email, &user)
 
 	return &user, nil
 }
