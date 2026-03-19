@@ -1,14 +1,14 @@
 package grpcapp
 
 import (
+	config "catalog-service/config/grpc_server"
+	handlers "catalog-service/internal/api"
+	"catalog-service/internal/app/database"
+	"catalog-service/internal/repository"
+	services "catalog-service/internal/service"
 	"fmt"
 	"log/slog"
 	"net"
-	config "track-service/config/grpc_server"
-	handlers "track-service/internal/api"
-	"track-service/internal/app/database"
-	"track-service/internal/repository"
-	services "track-service/internal/service"
 
 	"google.golang.org/grpc"
 )

@@ -1,11 +1,11 @@
 package database
 
 import (
+	config "catalog-service/config/grpc_server"
 	"context"
 	"fmt"
 	"log/slog"
 	"time"
-	config "track-service/config/grpc_server"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -27,14 +27,12 @@ func NewDB(log *slog.Logger, cfg *config.Config) (*DB, error) {
 		return nil, fmt.Errorf("%s: config is nil", op)
 	}
 
-	// Настройка пула PostgreSQL
 	pgConfig, err := pgxpool.ParseConfig(fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
 		cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName))
 	if err != nil {
 		return nil, fmt.Errorf("%s: failed to parse postgres DSN: %w", op, err)
 	}
 
-	// Дополнительные параметры пула (можно вынести в конфиг)
 	if cfg.MaxConns > 0 {
 		pgConfig.MaxConns = cfg.MaxConns
 	}
@@ -56,14 +54,12 @@ func NewDB(log *slog.Logger, cfg *config.Config) (*DB, error) {
 		return nil, fmt.Errorf("%s: failed to create postgres pool: %w", op, err)
 	}
 
-	// Проверяем соединение
 	if err := pgPool.Ping(ctx); err != nil {
 		pgPool.Close()
 		return nil, fmt.Errorf("%s: postgres ping failed: %w", op, err)
 	}
 	log.Info("Connected to PostgreSQL")
 
-	// Инициализация Redis
 	redisClient := redis.NewClient(&redis.Options{
 		Addr: fmt.Sprintf("%s:%s", cfg.RedisHost, cfg.RedisPort),
 	})

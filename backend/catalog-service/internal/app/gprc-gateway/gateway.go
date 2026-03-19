@@ -1,6 +1,8 @@
 package gateway
 
 import (
+	configate "catalog-service/config/gateway"
+	"catalog-service/proto/catalog"
 	"context"
 	"encoding/json"
 	"errors"
@@ -8,8 +10,6 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
-	configate "track-service/config/gateway"
-	"track-service/proto/track"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -87,9 +87,9 @@ func NewGatewayApp(log *slog.Logger, config *configate.Config, opts ...grpc.Dial
 	)
 
 	ctx := context.Background()
-	if err := track.RegisterTrackServiceHandler(ctx, gwmux, conn); err != nil {
+	if err := catalog.RegisterCatalogServiceHandler(ctx, gwmux, conn); err != nil {
 		conn.Close()
-		return nil, fmt.Errorf("failed to register track service handler: %w", err)
+		return nil, fmt.Errorf("failed to register catalog service handler: %w", err)
 	}
 
 	router := gin.New()

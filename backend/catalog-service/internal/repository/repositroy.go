@@ -23,36 +23,32 @@ func NewRepository(db *database.DB) *store {
 func (s *store) CreateAlbum(ctx context.Context, a *model.Album) (int64, error) {
 	const op = "repository.CatalogRepository.CreateAlbum"
 
-	var id int64
-
 	query := "INSERT INTO albums(title, artist_id, release_date) VALUES ($1, $2, $3) RETURNING id"
-	err := s.db.QueryRowContext(ctx, query, a.Title, a.ArtistID, a.ReleaseDate).Scan(&id)
+	err := s.db.QueryRowContext(ctx, query, a.Title, a.ArtistID, a.ReleaseDate).Scan(&a.ID)
 
 	if err != nil {
 		return 0, errors.DatabaseError(op, err)
 	}
 
-	go s.setObjectToCache(ctx, strconv.Itoa(int(id)), a)
+	go s.setObjectToCache(ctx, strconv.Itoa(int(a.ID)), a)
 
-	return id, nil
+	return a.ID, nil
 }
 
 // Add artist to database
 func (s *store) CreateArtist(ctx context.Context, a *model.Artist) (int64, error) {
 	const op = "repository.CatalogRepository.CreateArtist"
 
-	var id int64
-
 	query := "INSERT INTO artists(name) VALUES ($1) RETURNING id"
-	err := s.db.QueryRowContext(ctx, query, a.Name).Scan(&id)
+	err := s.db.QueryRowContext(ctx, query, a.Name).Scan(&a.ID)
 
 	if err != nil {
 		return 0, errors.DatabaseError(op, err)
 	}
 
-	go s.setObjectToCache(ctx, strconv.Itoa(int(id)), a)
+	go s.setObjectToCache(ctx, strconv.Itoa(int(a.ID)), a)
 
-	return id, nil
+	return a.ID, nil
 }
 
 // ArtistByID retrieves an artist by its ID from the database
@@ -110,7 +106,7 @@ func (s *store) AlbumByID(ctx context.Context, id int64) (*model.Album, error) {
 }
 
 // DeleteArtist deletes an artist from the database
-func (s *store) DeleteArtist(ctx context.Context, id int64) error {
+func (s *store) DeleteArtist(ctx context.Context, id int64) (int64, error) {
 	const op = "repository.ArtistRepository.DeleteArtist"
 
 	query := "DELETE FROM artists WHERE id = $1"
@@ -118,22 +114,22 @@ func (s *store) DeleteArtist(ctx context.Context, id int64) error {
 	result, err := s.db.ExecContext(ctx, query, id)
 
 	if err != nil {
-		return s.handleError(op, err)
+		return 0, s.handleError(op, err)
 	}
 
 	rows := result.RowsAffected()
 
 	if rows == 0 {
-		return s.handleError(op, err)
+		return 0, s.handleError(op, err)
 	}
 
 	go s.deleteObjectFromCache(ctx, strconv.Itoa(int(id)))
 
-	return nil
+	return id, nil
 }
 
 // DeleteAlbum deletes an album from the database
-func (s *store) DeleteAlbum(ctx context.Context, id int64) error {
+func (s *store) DeleteAlbum(ctx context.Context, id int64) (int64, error) {
 	const op = "repository.AlbumRepository.DeleteAlbum"
 
 	query := "DELETE FROM albums WHERE id = $1"
@@ -141,18 +137,18 @@ func (s *store) DeleteAlbum(ctx context.Context, id int64) error {
 	result, err := s.db.ExecContext(ctx, query, id)
 
 	if err != nil {
-		return s.handleError(op, err)
+		return 0, s.handleError(op, err)
 	}
 
 	rows := result.RowsAffected()
 
 	if rows == 0 {
-		return s.handleError(op, err)
+		return 0, s.handleError(op, err)
 	}
 
 	go s.deleteObjectFromCache(ctx, strconv.Itoa(int(id)))
 
-	return nil
+	return id, nil
 }
 
 func (s *store) handleError(op string, err error) error {

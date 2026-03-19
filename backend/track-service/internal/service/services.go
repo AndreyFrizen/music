@@ -24,7 +24,7 @@ func NewService(repo TrackRepository, log *slog.Logger) *service {
 }
 
 type TrackRepository interface {
-	CreateTrack(ctx context.Context, t *model.NewTrack) (int64, error)
+	CreateTrack(ctx context.Context, t *model.Track) (int64, error)
 	TrackByID(ctx context.Context, id int64) (*model.Track, error)
 	UpdateTrack(ctx context.Context, t *model.Track) error
 	DeleteTrack(ctx context.Context, id int64) error
@@ -40,14 +40,14 @@ func (s *service) CreateTrack(ctx context.Context, req *model.CreateTrackRequest
 		})
 	}
 
-	t := &model.NewTrack{
+	t := &model.Track{
 		Title:    req.Title,
 		Duration: req.Duration,
 		ArtistID: req.ArtistID,
 		AlbumID:  req.AlbumID,
 	}
 
-	track, err := s.repo.CreateTrack(ctx, t)
+	trackId, err := s.repo.CreateTrack(ctx, t)
 	if err != nil {
 		s.log.Error(op, "failed to create track", err)
 		return nil, errors.InternalError(op, err)
@@ -55,7 +55,7 @@ func (s *service) CreateTrack(ctx context.Context, req *model.CreateTrackRequest
 
 	s.log.Info(op, "track created successfully", req.Title)
 
-	return &model.CreateTrackResponse{ID: track}, nil
+	return &model.CreateTrackResponse{ID: trackId}, nil
 }
 
 // TrackByID retrieves a track by its ID

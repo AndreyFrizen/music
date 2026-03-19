@@ -21,32 +21,30 @@ func NewRepository(db *database.DB) *store {
 }
 
 // Add track to database
-func (s *store) CreateTrack(ctx context.Context, t *model.NewTrack) (int64, error) {
+func (s *store) CreateTrack(ctx context.Context, t *model.Track) (int64, error) {
 	const op = "repository.TrackRepository.CreateTrack"
 
-	var id int64
-
 	query := "INSERT INTO tracks(title, duration, artist_id, album_id) VALUES ($1, $2, $3, $4) RETURNING id"
-	err := s.db.QueryRowContext(ctx, query, t.Title, t.Duration, t.ArtistID, t.AlbumID).Scan(&id)
+	err := s.db.QueryRowContext(ctx, query, t.Title, t.Duration, t.ArtistID, t.AlbumID).Scan(&t.ID)
 
-	url := fmt.Sprintf("%s/%d", "tracks", id)
+	url := fmt.Sprintf("%s/%d", "tracks", t.ID)
 
 	queryUpdate := "UPDATE tracks SET audio_url = $1 WHERE id = $2"
-	_, err = s.db.ExecContext(ctx, queryUpdate, url, id)
+	_, err = s.db.ExecContext(ctx, queryUpdate, url, t.ID)
 
 	if err != nil {
 		return 0, errors.DatabaseError(op, err)
 	}
 
-	go s.setTrackToCache(ctx, strconv.Itoa(int(id)), &model.Track{
-		ID:       id,
+	go s.setTrackToCache(ctx, strconv.Itoa(int(t.ID)), &model.Track{
+		ID:       t.ID,
 		Title:    t.Title,
 		Duration: t.Duration,
 		ArtistID: t.ArtistID,
 		AlbumID:  t.AlbumID,
 	})
 
-	return id, nil
+	return t.ID, nil
 }
 
 // TrackByID retrieves a track by its ID from the database

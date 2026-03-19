@@ -26,16 +26,15 @@ func (s *store) Register(ctx context.Context, u *model.User) (int64, error) {
 
 	query := "INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING id"
 
-	var id int64
-	err := s.db.QueryRowContext(ctx, query, u.Email, u.Username, u.EncryptedPassword).Scan(&id)
+	err := s.db.QueryRowContext(ctx, query, u.Email, u.Username, u.EncryptedPassword).Scan(&u.ID)
 
 	if err != nil {
 		return 0, errors.DatabaseError(op, err)
 	}
 
-	go s.setUserToCache(ctx, strconv.Itoa(int(id)), &model.User{ID: id, Username: u.Username, Email: u.Email})
+	go s.setUserToCache(ctx, strconv.Itoa(int(u.ID)), &model.User{ID: u.ID, Username: u.Username, Email: u.Email})
 
-	return id, nil
+	return u.ID, nil
 }
 
 // Get user by id
