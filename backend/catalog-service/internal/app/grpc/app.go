@@ -21,11 +21,11 @@ type App struct {
 
 func NewApp(log *slog.Logger, config *config.Config, db *database.DB) *App {
 	repo := repository.NewRepository(db)
-	userService := services.NewService(repo, log)
+	catalogService := services.NewService(repo, log)
 
 	grpcServer := grpc.NewServer()
 
-	handlers.Register(grpcServer, log, userService)
+	handlers.Register(grpcServer, log, catalogService)
 
 	return &App{
 		log:        log,

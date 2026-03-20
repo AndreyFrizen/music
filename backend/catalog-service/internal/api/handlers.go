@@ -1,12 +1,10 @@
 package handlers
 
 import (
+	"catalog-service/internal/domain/model"
+	"catalog-service/proto/catalog"
 	"context"
-	"io"
 	"log/slog"
-	"os"
-	"track-service/internal/domain/model"
-	"track-service/proto/track"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -14,16 +12,18 @@ import (
 )
 
 type serverAPI struct {
-	track.UnimplementedTrackServiceServer
+	catalog.UnimplementedCatalogServiceServer
 	log     *slog.Logger
 	service Service
 }
 
 type Service interface {
-	TrackByID(ctx context.Context, req *model.GetTrackRequest) (*model.GetTrackResponse, error)
-	CreateTrack(ctx context.Context, req *model.CreateTrackRequest) (*model.CreateTrackResponse, error)
-	UpdateTrack(ctx context.Context, req *model.UpdateTrackRequest) (*model.UpdateTrackResponse, error)
-	DeleteTrack(ctx context.Context, req *model.DeleteTrackRequest) (*model.DeleteTrackResponse, error)
+	DeleteAlbum(ctx context.Context, req *model.DeleteAlbumRequest) (*model.DeleteAlbumResponse, error)
+	DeleteArtist(ctx context.Context, req *model.DeleteArtistRequest) (*model.DeleteArtistResponse, error)
+	CreateAlbum(ctx context.Context, req *model.CreateAlbumRequest) (*model.CreateAlbumResponse, error)
+	CreateArtist(ctx context.Context, req *model.CreateArtistRequest) (*model.CreateArtistResponse, error)
+	AlbumByID(ctx context.Context, req *model.GetAlbumRequest) (*model.GetAlbumResponse, error)
+	ArtistByID(ctx context.Context, req *model.GetArtistRequest) (*model.GetArtistResponse, error)
 }
 
 func NewServerAPI(log *slog.Logger, service Service) *serverAPI {
@@ -34,79 +34,129 @@ func NewServerAPI(log *slog.Logger, service Service) *serverAPI {
 }
 
 func Register(gRPC *grpc.Server, log *slog.Logger, service Service) {
-	track.RegisterTrackServiceServer(gRPC, NewServerAPI(log, service))
+	catalog.RegisterCatalogServiceServer(gRPC, NewServerAPI(log, service))
 }
 
-func (s *serverAPI) CreateTrack(stream track.TrackService_CreateTrackServer) error {
+func (s *serverAPI) CreateAlbum(ctx context.Context, req *catalog.AddAlbumRequest) (*catalog.AddAlbumResponse, error) {
+	const op = "handler.CreateAlbum"
 
-	err := s.uploadTrack(stream)
-	if err != nil {
-		return err
-	}
-
-	req, err := stream.Recv()
-	if err != nil {
-		return status.Errorf(codes.Unknown, "cannot receive chunk: %v", err)
-	}
-
-	resp, err := s.service.CreateTrack(context.Background(), &model.CreateTrackRequest{
-		Title:    req.GetTrack().Title,
-		Duration: req.GetTrack().Duration,
-		ArtistID: req.GetTrack().ArtistId,
-		AlbumID:  req.GetTrack().AlbumId,
+	resp, err := s.service.CreateAlbum(ctx, &model.CreateAlbumRequest{
+		Title:       req.Album.Title,
+		ArtistID:    req.Album.ArtistId,
+		ReleaseDate: req.Album.ReleaseDate,
 	})
+	if err != nil {
+		s.log.ErrorContext(ctx, "failed to create album",
+			"op", op,
+			"error", err,
+		)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
 
-	return stream.SendAndClose(&track.CreateTrackResponse{
+	return &catalog.AddAlbumResponse{
 		Id: resp.ID,
+	}, nil
+}
+
+func (s *serverAPI) CreateArtist(ctx context.Context, req *catalog.AddArtistRequest) (*catalog.AddArtistResponse, error) {
+	const op = "handler.CreateArtist"
+
+	resp, err := s.service.CreateArtist(ctx, &model.CreateArtistRequest{
+		Name: req.Artist.Name,
 	})
+	if err != nil {
+		s.log.ErrorContext(ctx, "failed to create artist",
+			"op", op,
+			"error", err,
+		)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	return &catalog.AddArtistResponse{
+		Id: resp.ID,
+	}, nil
 }
 
-func (s *serverAPI) uploadTrack(stream track.TrackService_CreateTrackServer) error {
-	fileHandle, err := os.Create("")
+func (s *serverAPI) AlbumByID(ctx context.Context, req *catalog.GetAlbumRequest) (*catalog.GetAlbumResponse, error) {
+	const op = "handler.GetAlbum"
+
+	resp, err := s.service.AlbumByID(ctx, &model.GetAlbumRequest{
+		ID: req.Id,
+	})
 	if err != nil {
-		return status.Errorf(codes.Internal, "cannot create audio file: %v", err)
-	}
-	defer fileHandle.Close()
-
-	for {
-		req, err := stream.Recv()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			os.Remove("")
-			return status.Errorf(codes.Unknown, "cannot receive chunk: %v", err)
-		}
-
-		chunk := req.GetChunk()
-		if chunk == nil {
-			continue
-		}
-
-		_, err = fileHandle.Write(chunk)
-		if err != nil {
-			os.Remove("")
-			return status.Errorf(codes.Internal, "cannot write chunk: %v", err)
-		}
+		s.log.ErrorContext(ctx, "failed to get album",
+			"op", op,
+			"error", err,
+		)
+		return nil, status.Error(codes.Internal, "internal error")
 	}
 
-	return nil
+	return &catalog.GetAlbumResponse{
+		Album: &catalog.Album{
+			Id:          resp.Album.ID,
+			Title:       resp.Album.Title,
+			ArtistId:    resp.Album.ArtistID,
+			ReleaseDate: resp.Album.ReleaseDate,
+		},
+	}, nil
 }
 
-func (s *serverAPI) GetTrack(ctx context.Context, req *track.GetTrackRequest) (*track.GetTrackResponse, error) {
-	resp, err := s.service.TrackByID(ctx, &model.GetTrackRequest{ID: req.Id})
+func (s *serverAPI) ArtistByID(ctx context.Context, req *catalog.GetArtistRequest) (*catalog.GetArtistResponse, error) {
+	const op = "handler.GetArtist"
+
+	resp, err := s.service.ArtistByID(ctx, &model.GetArtistRequest{
+		ID: req.Id,
+	})
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "cannot get track: %v", err)
+		s.log.ErrorContext(ctx, "failed to get artist",
+			"op", op,
+			"error", err,
+		)
+		return nil, status.Error(codes.Internal, "internal error")
 	}
 
-	t := &track.Track{
-		Id:       resp.Track.ID,
-		Title:    resp.Track.Title,
-		Duration: resp.Track.Duration,
-		ArtistId: resp.Track.ArtistID,
-		AlbumId:  resp.Track.AlbumID,
-		AudioUrl: resp.Track.AudioURL,
+	return &catalog.GetArtistResponse{
+		Artist: &catalog.Artist{
+			Id:   resp.Artist.ID,
+			Name: resp.Artist.Name,
+		},
+	}, nil
+}
+
+func (s *serverAPI) DeleteAlbum(ctx context.Context, req *catalog.DeleteAlbumRequest) (*catalog.DeleteAlbumResponse, error) {
+	const op = "handler.DeleteAlbum"
+
+	id, err := s.service.DeleteAlbum(ctx, &model.DeleteAlbumRequest{
+		ID: req.Id,
+	})
+	if err != nil {
+		s.log.ErrorContext(ctx, "failed to delete album",
+			"op", op,
+			"error", err,
+		)
+		return nil, status.Error(codes.Internal, "internal error")
 	}
 
-	return &track.GetTrackResponse{Track: t}, nil
+	return &catalog.DeleteAlbumResponse{
+		Id: id.ID,
+	}, nil
+}
+
+func (s *serverAPI) DeleteArtist(ctx context.Context, req *catalog.DeleteArtistRequest) (*catalog.DeleteArtistResponse, error) {
+	const op = "handler.DeleteArtist"
+
+	id, err := s.service.DeleteArtist(ctx, &model.DeleteArtistRequest{
+		ID: req.Id,
+	})
+	if err != nil {
+		s.log.ErrorContext(ctx, "failed to delete artist",
+			"op", op,
+			"error", err,
+		)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	return &catalog.DeleteArtistResponse{
+		Id: id.ID,
+	}, nil
 }

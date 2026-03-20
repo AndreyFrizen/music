@@ -83,3 +83,80 @@ func (s *service) CreateArtist(ctx context.Context, req *model.CreateArtistReque
 
 	return &model.CreateArtistResponse{ID: artistId}, nil
 }
+
+// ArtistByID returns an artist by its ID.
+func (s *service) ArtistByID(ctx context.Context, req *model.GetArtistRequest) (*model.GetArtistResponse, error) {
+	const op = "service.CatalogService.ArtistByID"
+
+	artist, err := s.repo.ArtistByID(ctx, req.ID)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, errors.NotFoundError(op, "artist not found")
+		}
+		s.log.Error(op, "failed to get artist", err)
+		return nil, errors.InternalError(op, err)
+	}
+
+	s.log.Info(op, "artist retrieved successfully", artist.ID)
+
+	return &model.GetArtistResponse{
+		Artist: artist,
+	}, nil
+}
+
+// AlbumByID returns an album by its ID.
+func (s *service) AlbumByID(ctx context.Context, req *model.GetAlbumRequest) (*model.GetAlbumResponse, error) {
+	const op = "service.CatalogService.AlbumByID"
+
+	album, err := s.repo.AlbumByID(ctx, req.ID)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, errors.NotFoundError(op, "album not found")
+		}
+		s.log.Error(op, "failed to get album", err)
+		return nil, errors.InternalError(op, err)
+	}
+
+	s.log.Info(op, "album retrieved successfully", album.ID)
+
+	return &model.GetAlbumResponse{
+		Album: album,
+	}, nil
+}
+
+func (s *service) DeleteArtist(ctx context.Context, req *model.DeleteArtistRequest) (*model.DeleteArtistResponse, error) {
+	const op = "service.CatalogService.DeleteArtist"
+
+	id, err := s.repo.DeleteArtist(ctx, req.ID)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, errors.NotFoundError(op, "not found")
+		}
+		s.log.Error(op, "failed to delete", err)
+		return nil, errors.InternalError(op, err)
+	}
+
+	s.log.Info(op, "deleted successfully", req.ID)
+
+	return &model.DeleteArtistResponse{
+		ID: id,
+	}, nil
+}
+func (s *service) DeleteAlbum(ctx context.Context, req *model.DeleteAlbumRequest) (*model.DeleteAlbumResponse, error) {
+	const op = "service.CatalogService.DeleteAlbum"
+
+	id, err := s.repo.DeleteAlbum(ctx, req.ID)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, errors.NotFoundError(op, "not found")
+		}
+		s.log.Error(op, "failed to delete", err)
+		return nil, errors.InternalError(op, err)
+	}
+
+	s.log.Info(op, "deleted successfully", req.ID)
+
+	return &model.DeleteAlbumResponse{
+		ID: id,
+	}, nil
+}

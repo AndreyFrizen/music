@@ -41,7 +41,7 @@ type CreateAlbumResponse struct {
 }
 
 type DeleteAlbumRequest struct {
-	ID int `json:"id" validate:"required"`
+	ID int64 `json:"id" validate:"required"`
 }
 
 type DeleteAlbumResponse struct {
