@@ -1,0 +1,3 @@
+env: "local"
+grpc_port: "localhost:50051"
+http_port: "localhost:8080"

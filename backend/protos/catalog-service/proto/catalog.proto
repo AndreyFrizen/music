@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package catalog;
+
+import "google/api/annotations.proto";
+
+option go_package = "/catalog";
+
+service CatalogService {
+  rpc GetAlbum(GetAlbumRequest) returns (GetAlbumResponse) {
+    option (google.api.http) = {
+      get: "/album/{id}"
+    };
+  }
+  rpc GetArtist(GetArtistRequest) returns (GetArtistResponse) {
+    option (google.api.http) = {
+      get: "/artist/{id}"
+    };
+  }
+  rpc AddAlbum(AddAlbumRequest) returns (AddAlbumResponse) {
+    option (google.api.http) = {
+      post: "/add_album"
+      body: "*"
+    };
+  }
+  rpc AddArtist(AddArtistRequest) returns (AddArtistResponse) {
+    option (google.api.http) = {
+      post: "/add_artist"
+      body: "*"
+    };
+  }
+  rpc DeleteAlbum(DeleteAlbumRequest) returns (DeleteAlbumResponse) {
+    option (google.api.http) = {delete: "/delete_album/{id}"};
+  }
+  rpc DeleteArtist(DeleteArtistRequest) returns (DeleteArtistResponse) {
+    option (google.api.http) = {delete: "/delete_artist/{id}"};
+  }
+}
+
+message Album {
+  int64 id = 1;
+  string title = 2;
+  int64 artistId = 3;
+  string releaseDate = 4;
+}
+
+message Artist {
+  int64 id = 1;
+  string name = 2;
+}
+
+message GetAlbumRequest {
+  int64 id = 1;
+}
+
+message GetAlbumResponse {
+  Album album = 1;
+}
+
+message GetArtistRequest {
+  int64 id = 1;
+}
+
+message GetArtistResponse {
+  Artist artist = 1;
+}
+
+message AddAlbumRequest {
+  Album album = 1;
+}
+
+message AddAlbumResponse {
+  int64 id = 1;
+}
+
+message AddArtistRequest {
+  Artist artist = 1;
+}
+
+message AddArtistResponse {
+  int64 id = 1;
+}
+
+message DeleteAlbumRequest {
+  int64 id = 1;
+}
+
+message DeleteAlbumResponse {
+  int64 id = 1;
+}
+
+message DeleteArtistRequest {
+  int64 id = 1;
+}
+
+message DeleteArtistResponse {
+  int64 id = 1;
+}

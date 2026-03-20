@@ -1,37 +1,41 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE artists (
-	id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL
-);
-
-CREATE TABLE artists_tracks (
-    artist_id INTEGER NOT NULL,
+CREATE TABLE track_collection (
     track_id INTEGER NOT NULL,
-	FOREIGN KEY (artist_id) REFERENCES artists(id),
-	PRIMARY KEY (track_id, artist_id)
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (track_id) REFERENCES tracks(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    PRIMARY KEY (track_id, user_id)
 );
 
-CREATE TABLE albums (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	title TEXT NOT NULL,
-	artist_id INTEGER NOT NULL,
-	release_date TEXT NOT NULL,
-	FOREIGN KEY (artist_id) REFERENCES artists(id)
+CREATE TABLE album_collection (
+    album_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (album_id) REFERENCES albums(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE album_tracks (
-	album_id INTEGER NOT NULL,
-	track_id INTEGER NOT NULL,
-	FOREIGN KEY (album_id) REFERENCES albums(id),
-	PRIMARY KEY (album_id, track_id)
+CREATE TABLE artist_collection (
+    artist_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (artist_id) REFERENCES artists(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    PRIMARY KEY (artist_id, user_id)
+);
+
+create table playlist_collection (
+    playlist_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (playlist_id) REFERENCES playlists(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    PRIMARY KEY (playlist_id, user_id)
 );
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS artists;
-DROP TABLE IF EXISTS albums;
-DROP TABLE IF EXISTS album_tracks;
-DROP TABLE IF EXISTS artists_tracks;
+DROP TABLE IF EXISTS track_collection;
+DROP TABLE IF EXISTS album_collection;
+DROP TABLE IF EXISTS artist_collection;
+DROP TABLE IF EXISTS playlist_collection;
 -- +goose StatementEnd
