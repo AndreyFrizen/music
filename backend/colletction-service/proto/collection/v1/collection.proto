@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package collection;
+
+import "models/models.proto";
+import "request/album_request.proto";
+
+option go_package = "github.com/yourproject/collection/v1;collectionv1";
+
+service CollectionService {
+  // Альбомы
+  rpc AddAlbumToCollection(AddAlbumToCollectionRequest) returns (models.AddAlbumResponse) {
+    option (google.api.http) = {
+      post: "/album_collection"
+      body: "*"
+    };
+  }
+
+  rpc GetAlbumsCollection(request.GetAlbumsRequest) returns (request.GetAlbumsResponse) {
+    option (google.api.http) = {
+      get: "/album_collection"
+      body: "*"
+    };
+  }
+
+  rpc DeleteAlbumCollection(collection.v1.requests.DeleteAlbumFromCollectionRequest) returns (collection.v1.responses.DeleteAlbumResponse) {
+    option (google.api.http) = {
+      delete: "/album_collection/{albumId}"
+      body: "*"
+    };
+  }
+
+  // Артисты
+  rpc AddArtistToCollection(collection.v1.requests.AddArtistToCollectionRequest) returns (collection.v1.responses.AddArtistResponse) {
+    option (google.api.http) = {
+      post: "/artist_collection"
+      body: "*"
+    };
+  }
+
+  rpc GetArtistsCollection(collection.v1.requests.GetArtistsRequest) returns (collection.v1.responses.GetArtistsResponse) {
+    option (google.api.http) = {
+      get: "/artist_collection"
+      body: "*"
+    };
+  }
+
+  rpc DeleteArtistCollection(collection.v1.requests.DeleteArtistFromCollectionRequest) returns (collection.v1.responses.DeleteArtistResponse) {
+    option (google.api.http) = {
+      delete: "/artist_collection/{artistId}"
+      body: "*"
+    };
+  }
+
+  // Треки
+  rpc AddTrackToCollection(collection.v1.requests.AddTrackToCollectionRequest) returns (collection.v1.responses.AddTrackResponse) {
+    option (google.api.http) = {
+      post: "/track_collection"
+      body: "*"
+    };
+  }
+
+  rpc GetTracksCollection(collection.v1.requests.GetTracksRequest) returns (collection.v1.responses.GetTracksResponse) {
+    option (google.api.http) = {
+      get: "/track_collection"
+      body: "*"
+    };
+  }
+
+  rpc DeleteTrackCollection(collection.v1.requests.DeleteTrackFromCollectionRequest) returns (collection.v1.responses.DeleteTrackResponse) {
+    option (google.api.http) = {
+      delete: "/track_collection/{trackId}"
+      body: "*"
+    };
+  }
+
+  // Плейлисты
+  rpc AddPlaylistToCollection(collection.v1.requests.AddPlaylistToCollectionRequest) returns (collection.v1.responses.AddPlaylistResponse) {
+    option (google.api.http) = {
+      post: "/playlist_collection"
+      body: "*"
+    };
+  }
+
+  rpc GetPlaylistCollection(collection.v1.requests.GetPlaylistRequest) returns (collection.v1.responses.GetPlaylistResponse) {
+    option (google.api.http) = {
+      get: "/playlist_collection"
+      body: "*"
+    };
+  }
+
+  rpc DeletePlaylistCollection(collection.v1.requests.DeletePlaylistFromCollectionRequest) returns (collection.v1.responses.DeletePlaylistResponse) {
+    option (google.api.http) = {
+      delete: "/playlist_collection/{playlistId}"
+      body: "*"
+    };
+  }
+}

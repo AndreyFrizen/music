@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package request;
+
+option go_package = "collection/request";
+
+message GetAlbumsRequest {
+  int64 user_id = 1;
+}
+
+message GetAlbumsResponse {
+  repeated int64 album_id = 1;
+}
+
+message AddAlbumRequest {
+  int64 user_id = 1;
+  int64 album_id = 2;
+}

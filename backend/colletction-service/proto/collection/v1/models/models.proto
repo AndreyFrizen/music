@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package models;
+
+option go_package = "collection/v1/models";
+
+message AlbumCollection {
+  int64 user_id = 1;
+  int64 album_id = 2;
+}
+
+message ArtistCollection {
+  int64 user_id = 1;
+  int64 artist_id = 2;
+}
+
+message TrackCollection {
+  int64 user_id = 1;
+  int64 track_id = 2;
+}
+
+message PlaylistCollection {
+  int64 user_id = 1;
+  int64 playlist_id = 2;
+}
