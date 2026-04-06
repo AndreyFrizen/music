@@ -5,8 +5,9 @@ import (
 	"log/slog"
 	"net"
 	config "playlist-service/config/grpc_server"
+	handlers "playlist-service/internal/api"
 	"playlist-service/internal/app/database"
-	store "playlist-service/internal/repository"
+	"playlist-service/internal/repository"
 	services "playlist-service/internal/service"
 
 	"google.golang.org/grpc"
@@ -19,7 +20,7 @@ type App struct {
 }
 
 func NewApp(log *slog.Logger, config *config.Config, db *database.DB) *App {
-	repo := store.NewRepository(db)
+	repo := repository.NewRepository(db)
 	userService := services.NewService(repo, log)
 
 	grpcServer := grpc.NewServer()

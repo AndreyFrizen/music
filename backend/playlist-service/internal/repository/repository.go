@@ -9,11 +9,15 @@ import (
 )
 
 type store struct {
-	db database.DB
+	db *database.DB
+}
+
+func NewRepository(db *database.DB) *store {
+	return &store{db: db}
 }
 
 // Add Playlist to database.
-func (s *store) CreatePlaylist(ctx context.Context, p model.NewPlaylist) (int64, error) {
+func (s *store) CreatePlaylist(ctx context.Context, p *model.NewPlaylist) (int64, error) {
 	const op = "repository.PlaylistRepository.CreatePlaylist"
 
 	query := "INSERT INTO playlists(title, user_id) VALUES ($1, $2) RETURNING id"
@@ -67,7 +71,7 @@ func (s *store) DeletePlaylist(ctx context.Context, id int64) error {
 }
 
 // UpdatePlaylist updates a playlist in the database.
-func (s *store) UpdatePlaylist(ctx context.Context, p model.Playlist) (int64, error) {
+func (s *store) UpdatePlaylist(ctx context.Context, p *model.Playlist) (int64, error) {
 	const op = "repository.PlaylistRepository.UpdatePlaylist"
 
 	query := "UPDATE playlists SET title = $1 WHERE id = $2"
@@ -77,19 +81,19 @@ func (s *store) UpdatePlaylist(ctx context.Context, p model.Playlist) (int64, er
 		return 0, errors.DatabaseError(op, err)
 	}
 
-	s.setPlaylistToCache(ctx, strconv.Itoa(int(p.ID)), &p)
+	s.setPlaylistToCache(ctx, strconv.Itoa(int(p.ID)), p)
 
 	return p.ID, nil
 }
 
 // AddTrackToPlaylist adds a track to a playlist in the database
-func (s *store) AddTrackToPlaylist(ctx context.Context, playlistID int64, trackID int64) (int64, error) {
+func (s *store) AddTrackToPlaylist(ctx context.Context, p *model.PlaylistTrack) (int64, error) {
 	const op = "repository.PlaylistRepository.AddTrackToPlaylist"
 
 	query := "INSERT INTO playlist_tracks (playlist_id, track_id) VALUES ($1, $2) RETURNING id"
 
 	var id int64
-	err := s.db.QueryRowContext(ctx, query, playlistID, trackID).Scan(&id)
+	err := s.db.QueryRowContext(ctx, query, p.PlaylistID, p.TrackID).Scan(&id)
 	if err != nil {
 		return 0, errors.DatabaseError(op, err)
 	}

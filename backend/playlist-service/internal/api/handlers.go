@@ -1,70 +1,36 @@
 package handlers
 
 import (
-	"net/http"
+	"context"
+	"log/slog"
 	"playlist-service/internal/domain/model"
 	"playlist-service/proto/playlist"
-	"strconv"
 
-	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
 )
 
-type handler struct {
+type serverAPI struct {
 	playlist.UnimplementedPlaylistServiceServer
-	service PlaylistService
+	log     *slog.Logger
+	service UserService
 }
 
-type PlaylistService interface {
-	CreatePlaylist(*model.Playlist, *gin.Context) error
-	DeletePlaylist(int64, *gin.Context) error
-	PlaylistByID(int64, *gin.Context) (*model.Playlist, error)
-	UpdatePlaylist(int64, *model.Playlist, *gin.Context) error
-	AddTrack(int64, int64, *gin.Context) error
-	RemoveTrack(int64, int64, *gin.Context) error
+type UserService interface {
+	CreatePlaylist(ctx context.Context, p *model.NewPlaylist) (int64, error)
+	PlaylistByID(ctx context.Context, id int64) (*model.Playlist, error)
+	DeletePlaylist(ctx context.Context, id int64) error
+	UpdatePlaylist(ctx context.Context, p *model.Playlist) (int64, error)
+	AddTrackToPlaylist(ctx context.Context, p *model.PlaylistTrack) (int64, error)
+	RemoveTrackFromPlaylist(ctx context.Context, trackId int64) (int64, error)
 }
 
-// Create playlist
-func (h *handler) CreatePlaylist(c *gin.Context) {
-	var playlist model.Playlist
-	if err := c.BindJSON(&playlist); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+func NewServerAPI(log *slog.Logger, service UserService) *serverAPI {
+	return &serverAPI{
+		log:     log,
+		service: service,
 	}
-
-	if err := h.service.CreatePlaylist(&playlist, c); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusCreated, playlist)
 }
 
-// Delete playlist
-func (h *handler) DeletePlaylist(c *gin.Context) {
-	id := c.Param("id")
-	ids, err := strconv.Atoi(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
-		return
-	}
-	if err := h.service.DeletePlaylist(ids, c); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "Playlist deleted"})
-}
-
-// Get playlist
-func (h *Handler) PlaylistByID(c *gin.Context) {
-	id := c.Param("id")
-	ids, err := strconv.Atoi(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
-		return
-	}
-	playlist, err := h.service.PlaylistByID(ids, c)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, playlist)
+func Register(gRPC *grpc.Server, log *slog.Logger, service UserService) {
+	playlist.RegisterPlaylistServiceServer(gRPC, NewServerAPI(log, service))
 }
