@@ -34,3 +34,49 @@ func NewServerAPI(log *slog.Logger, service UserService) *serverAPI {
 func Register(gRPC *grpc.Server, log *slog.Logger, service UserService) {
 	playlist.RegisterPlaylistServiceServer(gRPC, NewServerAPI(log, service))
 }
+
+func (s *serverAPI) CreatePlaylist(ctx context.Context, req *playlist.CreatePlaylistRequest) (*playlist.CreatePlaylistResponse, error) {
+	const op = "handlers.CreatePlaylist"
+	s.log.With(slog.String("op", op))
+
+	_, err := s.service.CreatePlaylist(ctx, &model.NewPlaylist{
+		Title:  req.Title,
+		UserID: req.UserId,
+	})
+	if err != nil {
+		s.log.ErrorContext(ctx, "failed to create playlist", slog.String("op", op), slog.String("error", err.Error()))
+		return nil, err
+	}
+	return &playlist.CreatePlaylistResponse{}, nil
+}
+
+func (s *serverAPI) PlaylistByID(ctx context.Context, req *playlist.GetPlaylistRequest) (*playlist.GetPlaylistResponse, error) {
+	const op = "handlers.PlaylistByID"
+	s.log.With(slog.String("op", op))
+
+	p, err := s.service.PlaylistByID(ctx, req.Id)
+	if err != nil {
+		s.log.ErrorContext(ctx, "failed to ", slog.String("op", op), slog.String("error", err.Error()))
+		return nil, err
+	}
+
+	play := &playlist.Playlist{
+		Id:     p.ID,
+		UserId: p.UserID,
+		Title:  p.Title,
+	}
+
+	return &playlist.GetPlaylistResponse{Playlist: play}, nil
+}
+
+func (s *serverAPI) DeletePlaylist(ctx context.Context, req *playlist.DeletePlaylistRequest) (*playlist.DeletePlaylistResponse, error) {
+	const op = "handlers.DeletePlaylist"
+	s.log.With(slog.String("op", op))
+
+	err := s.service.DeletePlaylist(ctx, req.Id)
+	if err != nil {
+		s.log.ErrorContext(ctx, "failed to ", slog.String("op", op), slog.String("error", err.Error()))
+		return nil, err
+	}
+	return &playlist.DeletePlaylistResponse{Success: true}, nil
+}
