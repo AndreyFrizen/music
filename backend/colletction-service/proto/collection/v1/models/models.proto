@@ -18,8 +18,3 @@ message TrackCollection {
   int64 user_id = 1;
   int64 track_id = 2;
 }
-
-message PlaylistCollection {
-  int64 user_id = 1;
-  int64 playlist_id = 2;
-}

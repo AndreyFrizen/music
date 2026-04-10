@@ -8,11 +8,12 @@ message GetAlbumsRequest {
   int64 user_id = 1;
 }
 
-message GetAlbumsResponse {
-  repeated int64 album_id = 1;
+message AddAlbumRequest {
+  int64 user_id = 1;
+  int64 album_id = 2;
 }
 
-message AddAlbumRequest {
+message DeleteAlbumRequest {
   int64 user_id = 1;
   int64 album_id = 2;
 }

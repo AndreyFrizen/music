@@ -1,9 +1,9 @@
 package repository
 
 import (
+	"collection-service/internal/domain/model"
 	"context"
 	"encoding/json"
-	"playlist-service/internal/domain/model"
 
 	"time"
 
