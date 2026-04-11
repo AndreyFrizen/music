@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-package collection.v1.response;
-
-option go_package = "collection/v1/response";
-
-message AlbumCollectionResponse {}
