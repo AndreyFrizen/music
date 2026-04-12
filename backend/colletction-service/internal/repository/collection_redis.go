@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"collection-service/proto/models"
+	"collection-service/internal/domain/models"
 	"context"
 	"encoding/json"
 

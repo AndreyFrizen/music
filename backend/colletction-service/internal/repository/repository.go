@@ -3,7 +3,7 @@ package repository
 import (
 	"collection-service/internal/app/database"
 	"collection-service/internal/domain/errors"
-	"collection-service/proto/models"
+	"collection-service/internal/domain/models"
 	"context"
 	"strconv"
 )
@@ -123,6 +123,7 @@ func (r *store) AddTrack(ctx context.Context, track *models.Track) (int64, error
 
 	return trackId, nil
 }
+
 func (r *store) GetTracks(ctx context.Context, userId int64) ([]*models.Track, error) {
 	const op = "repository.CollectionRepository.GetTracks"
 
