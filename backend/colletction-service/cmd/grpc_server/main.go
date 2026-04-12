@@ -1,13 +1,12 @@
 package main
 
 import (
+	config "collection-service/config/grpc_server"
+	"collection-service/internal/app/database"
+	grpcapp "collection-service/internal/app/grpc"
 	"context"
 	"log"
 	"os/signal"
-	config "playlist-service/config/grpc_server"
-	"playlist-service/internal/app/database"
-	grpcapp "playlist-service/internal/app/grpc"
-	"playlist-service/internal/lib/logger"
 	"syscall"
 )
 

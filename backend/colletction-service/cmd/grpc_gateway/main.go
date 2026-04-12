@@ -1,13 +1,12 @@
 package main
 
 import (
+	configate "collection-service/config/gateway"
+	gateway "collection-service/internal/app/gprc-gateway"
 	"context"
 	"fmt"
 	"log"
 	"os/signal"
-	configate "playlist-service/config/gateway"
-	gateway "playlist-service/internal/app/gprc-gateway"
-	"playlist-service/internal/lib/logger"
 	"syscall"
 	"time"
 )

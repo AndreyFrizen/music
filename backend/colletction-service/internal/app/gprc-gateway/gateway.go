@@ -1,14 +1,14 @@
 package gateway
 
 import (
+	configate "collection-service/config/gateway"
+	"collection-service/proto/collection"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
-	configate "playlist-service/config/gateway"
-	"playlist-service/proto/playlist"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -86,9 +86,9 @@ func NewGatewayApp(log *slog.Logger, config *configate.Config, opts ...grpc.Dial
 	)
 
 	ctx := context.Background()
-	if err := playlist.RegisterPlaylistServiceHandler(ctx, gwmux, conn); err != nil {
+	if err := collection.RegisterCollectionServiceHandler(ctx, gwmux, conn); err != nil {
 		conn.Close()
-		return nil, fmt.Errorf("failed to register playlist service handler: %w", err)
+		return nil, fmt.Errorf("failed to register collection service handler: %w", err)
 	}
 
 	router := gin.New()

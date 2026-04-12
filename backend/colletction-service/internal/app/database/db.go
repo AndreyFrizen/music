@@ -1,10 +1,10 @@
 package database
 
 import (
+	config "collection-service/config/grpc_server"
 	"context"
 	"fmt"
 	"log/slog"
-	config "playlist-service/config/grpc_server"
 	"time"
 
 	"github.com/jackc/pgx/v5"

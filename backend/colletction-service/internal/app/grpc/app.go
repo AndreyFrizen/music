@@ -1,13 +1,14 @@
 package grpcapp
 
 import (
+	config "collection-service/config/grpc_server"
+	handlers "collection-service/internal/api"
+	"collection-service/internal/app/database"
+	"collection-service/internal/repository"
+	services "collection-service/internal/service"
 	"fmt"
 	"log/slog"
 	"net"
-	config "playlist-service/config/grpc_server"
-	"playlist-service/internal/app/database"
-	store "playlist-service/internal/repository"
-	services "playlist-service/internal/service"
 
 	"google.golang.org/grpc"
 )
@@ -19,7 +20,7 @@ type App struct {
 }
 
 func NewApp(log *slog.Logger, config *config.Config, db *database.DB) *App {
-	repo := store.NewRepository(db)
+	repo := repository.NewRepository(db)
 	userService := services.NewService(repo, log)
 
 	grpcServer := grpc.NewServer()
