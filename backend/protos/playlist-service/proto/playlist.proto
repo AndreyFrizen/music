@@ -53,8 +53,8 @@ message PlaylistTrack {
 }
 
 message CreatePlaylistRequest {
-  int64 userId = 1;
   string title = 2;
+  int64 userId = 3;
 }
 
 message CreatePlaylistResponse {

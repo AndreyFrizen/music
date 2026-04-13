@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package collection;
+
+import "request/request.proto";
+import "response/response.proto";
+
+import "google/api/annotations.proto";
+
+option go_package = "collection-service/proto/collection;collection";
+
+service CollectionService {
+  // Альбомы
+  rpc AddAlbumToCollection(request.AddAlbumRequest) returns (response.AddAlbumResponse) {
+    option (google.api.http) = {
+      post: "/album_collection"
+      body: "*"
+    };
+  }
+
+  rpc GetAlbumsCollection(request.GetAlbumsRequest) returns (response.GetAlbumsResponse) {
+    option (google.api.http) = {
+      get: "/album_collection"
+    };
+  }
+
+  rpc DeleteAlbumCollection(request.DeleteAlbumRequest) returns (response.DeleteAlbumResponse) {
+    option (google.api.http) = {
+      delete: "/album_collection/{album_id}"
+    };
+  }
+
+  // Артисты
+  rpc AddArtistToCollection(request.AddArtistRequest) returns (response.AddArtistResponse) {
+    option (google.api.http) = {
+      post: "/artist_collection"
+      body: "*"
+    };
+  }
+
+  rpc GetArtistsCollection(request.GetArtistsRequest) returns (response.GetArtistsResponse) {
+    option (google.api.http) = {
+      get: "/artist_collection"
+    };
+  }
+
+  rpc DeleteArtistCollection(request.DeleteArtistRequest) returns (response.DeleteArtistResponse) {
+    option (google.api.http) = {
+      delete: "/artist_collection/{artist_id}"
+    };
+  }
+
+  // Треки
+  rpc AddTrackToCollection(request.AddTrackRequest) returns (response.AddTrackResponse) {
+    option (google.api.http) = {
+      post: "/track_collection"
+      body: "*"
+    };
+  }
+
+  rpc GetTracksCollection(request.GetTracksRequest) returns (response.GetTracksResponse) {
+    option (google.api.http) = {
+      get: "/track_collection"
+    };
+  }
+
+  rpc DeleteTrackCollection(request.DeleteTrackRequest) returns (response.DeleteTrackResponse) {
+    option (google.api.http) = {
+      delete: "/track_collection/{track_id}"
+    };
+  }
+}
