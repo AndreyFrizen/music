@@ -5,6 +5,7 @@ import (
 	"collection-service/internal/domain/errors"
 	"collection-service/internal/domain/models"
 	"context"
+	"database/sql"
 	"strconv"
 )
 
@@ -42,7 +43,7 @@ func (r *store) GetAlbums(ctx context.Context, userId int64) ([]*models.Album, e
 		WHERE user_id = $1
 	`, userId).Scan(&result)
 	if err != nil {
-		return nil, errors.DatabaseError(op, err)
+		return nil, r.handleError(op, err)
 	}
 
 	return result, nil
@@ -56,7 +57,7 @@ func (r *store) DeleteAlbum(ctx context.Context, userId int64, albumId int64) er
 		WHERE user_id = $1 AND album_id = $2
 	`, userId, albumId)
 	if err != nil {
-		return errors.DatabaseError(op, err)
+		return r.handleError(op, err)
 	}
 
 	return nil
@@ -88,7 +89,7 @@ func (r *store) GetArtists(ctx context.Context, userId int64) ([]*models.Artist,
 		WHERE user_id = $1
 	`, userId).Scan(&result)
 	if err != nil {
-		return nil, errors.DatabaseError(op, err)
+		return nil, r.handleError(op, err)
 	}
 
 	return result, nil
@@ -102,7 +103,7 @@ func (r *store) DeleteArtist(ctx context.Context, userId int64, artistId int64) 
 		WHERE user_id = $1 AND artist_id = $2
 	`, userId, artistId)
 	if err != nil {
-		return errors.DatabaseError(op, err)
+		return r.handleError(op, err)
 	}
 
 	return nil
@@ -134,7 +135,7 @@ func (r *store) GetTracks(ctx context.Context, userId int64) ([]*models.Track, e
 		WHERE user_id = $1
 	`, userId).Scan(&result)
 	if err != nil {
-		return nil, errors.DatabaseError(op, err)
+		return nil, r.handleError(op, err)
 	}
 
 	return result, nil
@@ -148,8 +149,16 @@ func (r *store) DeleteTrack(ctx context.Context, userId int64, trackId int64) er
 		WHERE user_id = $1 AND track_id = $2
 	`, userId, trackId)
 	if err != nil {
-		return errors.DatabaseError(op, err)
+		return r.handleError(op, err)
 	}
 
 	return nil
+}
+
+func (s *store) handleError(op string, err error) error {
+	if err == sql.ErrNoRows {
+		return errors.NotFoundError(op, "not found")
+	}
+
+	return errors.DatabaseError(op, err)
 }

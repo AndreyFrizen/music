@@ -12,28 +12,37 @@ service CatalogService {
       get: "/album/{id}"
     };
   }
+
   rpc GetArtist(GetArtistRequest) returns (GetArtistResponse) {
     option (google.api.http) = {
       get: "/artist/{id}"
     };
   }
+
   rpc AddAlbum(AddAlbumRequest) returns (AddAlbumResponse) {
     option (google.api.http) = {
       post: "/add_album"
       body: "*"
     };
   }
+
   rpc AddArtist(AddArtistRequest) returns (AddArtistResponse) {
     option (google.api.http) = {
       post: "/add_artist"
       body: "*"
     };
   }
+
   rpc DeleteAlbum(DeleteAlbumRequest) returns (DeleteAlbumResponse) {
-    option (google.api.http) = {delete: "/delete_album/{id}"};
+    option (google.api.http) = {
+        delete: "/delete_album/{id}"
+    };
   }
+
   rpc DeleteArtist(DeleteArtistRequest) returns (DeleteArtistResponse) {
-    option (google.api.http) = {delete: "/delete_artist/{id}"};
+    option (google.api.http) = {
+        delete: "/delete_artist/{id}"
+    };
   }
 }
 

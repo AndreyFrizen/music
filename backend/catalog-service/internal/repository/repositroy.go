@@ -153,7 +153,7 @@ func (s *store) DeleteAlbum(ctx context.Context, id int64) (int64, error) {
 
 func (s *store) handleError(op string, err error) error {
 	if err == sql.ErrNoRows {
-		return errors.NotFoundError(op, "track not found")
+		return errors.NotFoundError(op, "not found")
 	}
 
 	return errors.DatabaseError(op, err)
