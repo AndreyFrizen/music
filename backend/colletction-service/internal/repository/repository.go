@@ -21,11 +21,11 @@ func (r *store) AddAlbum(ctx context.Context, album *models.Album) (int64, error
 	const op = "repository.CollectionRepository.AddAlbum"
 
 	_, err := r.db.ExecContext(ctx, `
-		INSERT INTO albums (user_id, album_id)
+		INSERT INTO album_collection (user_id, album_id)
 		VALUES ($1, $2)
 	`, album.UserId, album.AlbumId)
 	if err != nil {
-		return 0, errors.DatabaseError(op, err)
+		return 0, r.handleError(op, err)
 	}
 
 	go r.setAlbumToCache(ctx, strconv.Itoa(int(album.UserId)), album)
@@ -39,7 +39,7 @@ func (r *store) GetAlbums(ctx context.Context, userId int64) ([]*models.Album, e
 	var result []*models.Album
 	err := r.db.QueryRowContext(ctx, `
 		SELECT *
-		FROM albums
+		FROM album_collection
 		WHERE user_id = $1
 	`, userId).Scan(&result)
 	if err != nil {
@@ -53,7 +53,7 @@ func (r *store) DeleteAlbum(ctx context.Context, userId int64, albumId int64) er
 	const op = "repository.CollectionRepository.DeleteAlbum"
 
 	_, err := r.db.ExecContext(ctx, `
-		DELETE FROM albums
+		DELETE FROM album_collection
 		WHERE user_id = $1 AND album_id = $2
 	`, userId, albumId)
 	if err != nil {
@@ -68,7 +68,7 @@ func (r *store) AddArtist(ctx context.Context, artist *models.Artist) (int64, er
 
 	var artistId int64
 	err := r.db.QueryRowContext(ctx, `
-		INSERT INTO artists (user_id, artist_id)
+		INSERT INTO artist_collection (user_id, artist_id)
 		VALUES ($1, $2)
 		RETURNING artist_id
 	`, artist.UserId, artist.ArtistId).Scan(&artistId)
@@ -85,7 +85,7 @@ func (r *store) GetArtists(ctx context.Context, userId int64) ([]*models.Artist,
 	var result []*models.Artist
 	err := r.db.QueryRowContext(ctx, `
 		SELECT *
-		FROM artists
+		FROM artist_collection
 		WHERE user_id = $1
 	`, userId).Scan(&result)
 	if err != nil {
@@ -99,7 +99,7 @@ func (r *store) DeleteArtist(ctx context.Context, userId int64, artistId int64) 
 	const op = "repository.CollectionRepository.DeleteArtist"
 
 	_, err := r.db.ExecContext(ctx, `
-		DELETE FROM artists
+		DELETE FROM artist_collection
 		WHERE user_id = $1 AND artist_id = $2
 	`, userId, artistId)
 	if err != nil {
@@ -114,7 +114,7 @@ func (r *store) AddTrack(ctx context.Context, track *models.Track) (int64, error
 
 	var trackId int64
 	err := r.db.QueryRowContext(ctx, `
-		INSERT INTO tracks (user_id, track_id)
+		INSERT INTO track_collection (user_id, track_id)
 		VALUES ($1, $2)
 		RETURNING track_id
 	`, track.UserId, track.TrackId).Scan(&trackId)
@@ -131,7 +131,7 @@ func (r *store) GetTracks(ctx context.Context, userId int64) ([]*models.Track, e
 	var result []*models.Track
 	err := r.db.QueryRowContext(ctx, `
 		SELECT *
-		FROM tracks
+		FROM track_collection
 		WHERE user_id = $1
 	`, userId).Scan(&result)
 	if err != nil {
@@ -145,7 +145,7 @@ func (r *store) DeleteTrack(ctx context.Context, userId int64, trackId int64) er
 	const op = "repository.CollectionRepository.DeleteTrack"
 
 	_, err := r.db.ExecContext(ctx, `
-		DELETE FROM tracks
+		DELETE FROM track_collection
 		WHERE user_id = $1 AND track_id = $2
 	`, userId, trackId)
 	if err != nil {

@@ -22,14 +22,6 @@ CREATE TABLE artist_collection (
     FOREIGN KEY (user_id) REFERENCES users(id),
     PRIMARY KEY (artist_id, user_id)
 );
-
-create table playlist_collection (
-    playlist_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
-    FOREIGN KEY (playlist_id) REFERENCES playlists(id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    PRIMARY KEY (playlist_id, user_id)
-);
 -- +goose StatementEnd
 
 -- +goose Down
@@ -37,5 +29,4 @@ create table playlist_collection (
 DROP TABLE IF EXISTS track_collection;
 DROP TABLE IF EXISTS album_collection;
 DROP TABLE IF EXISTS artist_collection;
-DROP TABLE IF EXISTS playlist_collection;
 -- +goose StatementEnd
