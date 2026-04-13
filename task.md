@@ -1,6 +1,7 @@
 user-service: COMPLETED --> TEST
-track-service: in proccess
+track-service: COMPLETED --> TEST
 streaming-service: in proccess
 playlist-service: COMPLETED --> TEST
 collection-service: COMPLETED --> TEST
-catalog-service: in proccess
+catalog-service: COMPLETED --> TEST
+search-service: idea
