@@ -1,0 +1,11 @@
+go 1.25.9
+
+use (
+	./catalog-service
+	./colletction-service
+	./playlist-service
+	./protos
+	./streaming-service
+	./track-service
+	./user-service
+)

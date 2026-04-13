@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"catalog-service/internal/domain/model"
-	"catalog-service/proto/catalog"
 	"context"
 	"log/slog"
+	"music/catalog-service/proto/catalog"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

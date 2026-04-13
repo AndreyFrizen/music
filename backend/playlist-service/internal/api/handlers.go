@@ -3,9 +3,9 @@ package handlers
 import (
 	"context"
 	"log/slog"
+	"music/playlist-service/proto/playlist"
 	"playlist-service/internal/domain/errors"
 	"playlist-service/internal/domain/model"
-	"playlist-service/proto/playlist"
 
 	"google.golang.org/grpc"
 )
@@ -13,10 +13,10 @@ import (
 type serverAPI struct {
 	playlist.UnimplementedPlaylistServiceServer
 	log     *slog.Logger
-	service UserService
+	service PlaylistService
 }
 
-type UserService interface {
+type PlaylistService interface {
 	CreatePlaylist(ctx context.Context, p *model.NewPlaylist) (int64, error)
 	PlaylistByID(ctx context.Context, id int64) (*model.Playlist, error)
 	DeletePlaylist(ctx context.Context, id int64) error
@@ -25,14 +25,14 @@ type UserService interface {
 	RemoveTrackFromPlaylist(ctx context.Context, trackId int64) (int64, error)
 }
 
-func NewServerAPI(log *slog.Logger, service UserService) *serverAPI {
+func NewServerAPI(log *slog.Logger, service PlaylistService) *serverAPI {
 	return &serverAPI{
 		log:     log,
 		service: service,
 	}
 }
 
-func Register(gRPC *grpc.Server, log *slog.Logger, service UserService) {
+func Register(gRPC *grpc.Server, log *slog.Logger, service PlaylistService) {
 	playlist.RegisterPlaylistServiceServer(gRPC, NewServerAPI(log, service))
 }
 

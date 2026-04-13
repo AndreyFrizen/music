@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"track-service/internal/domain/model"
-	"track-service/proto/track"
+	"music/track-service/proto/track"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

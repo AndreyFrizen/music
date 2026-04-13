@@ -2,12 +2,12 @@ package handlers
 
 import (
 	"collection-service/internal/domain/models"
-	"collection-service/proto/collection"
-	modelsColl "collection-service/proto/models"
-	"collection-service/proto/request"
-	"collection-service/proto/response"
 	"context"
 	"log/slog"
+	"music/collection-service/proto/collection"
+	modelsColl "music/collection-service/proto/models"
+	"music/collection-service/proto/request"
+	"music/collection-service/proto/response"
 
 	"google.golang.org/grpc"
 )

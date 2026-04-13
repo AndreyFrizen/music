@@ -6,11 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"music/user-service/proto/user"
 	"net/http"
 	"time"
 
 	configate "user-service/config/gateway"
-	"user-service/proto/user"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

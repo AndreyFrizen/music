@@ -2,12 +2,12 @@ package gateway
 
 import (
 	configate "collection-service/config/gateway"
-	"collection-service/proto/collection"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
+	"music/collection-service/proto/collection"
 	"net/http"
 	"time"
 

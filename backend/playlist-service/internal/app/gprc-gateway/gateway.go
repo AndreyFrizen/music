@@ -6,9 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"music/playlist-service/proto/playlist"
 	"net/http"
 	configate "playlist-service/config/gateway"
-	"playlist-service/proto/playlist"
 	"time"
 
 	"github.com/gin-contrib/cors"

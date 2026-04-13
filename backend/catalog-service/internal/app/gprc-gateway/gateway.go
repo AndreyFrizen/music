@@ -2,12 +2,12 @@ package gateway
 
 import (
 	configate "catalog-service/config/gateway"
-	"catalog-service/proto/catalog"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
+	"music/catalog-service/proto/catalog"
 	"net/http"
 	"time"
 

@@ -3,9 +3,9 @@ package handlers
 import (
 	"context"
 	"log/slog"
+	"music/user-service/proto/user"
 	"strings"
 	"user-service/internal/domain/model"
-	"user-service/proto/user"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

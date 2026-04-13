@@ -6,10 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"music/track-service/proto/track"
 	"net/http"
 	"time"
 	configate "track-service/config/gateway"
-	"track-service/proto/track"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
