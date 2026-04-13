@@ -29,7 +29,6 @@ const (
 	CodeExternalServiceDown ErrorCode = "EXTERNAL_SERVICE_DOWN"
 )
 
-// AppError - структурированная ошибка приложения
 type AppError struct {
 	Code    ErrorCode         `json:"code"`
 	Message string            `json:"message"`

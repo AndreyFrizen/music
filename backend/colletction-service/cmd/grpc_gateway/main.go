@@ -3,6 +3,7 @@ package main
 import (
 	configate "collection-service/config/gateway"
 	gateway "collection-service/internal/app/gprc-gateway"
+	"collection-service/internal/lib/logger"
 	"context"
 	"fmt"
 	"log"

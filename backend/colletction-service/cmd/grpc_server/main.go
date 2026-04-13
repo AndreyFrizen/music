@@ -4,6 +4,7 @@ import (
 	config "collection-service/config/grpc_server"
 	"collection-service/internal/app/database"
 	grpcapp "collection-service/internal/app/grpc"
+	"collection-service/internal/lib/logger"
 	"context"
 	"log"
 	"os/signal"

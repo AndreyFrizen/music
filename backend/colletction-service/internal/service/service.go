@@ -142,6 +142,7 @@ func (s *service) AddArtist(ctx context.Context, req *models.AddArtistRequest) (
 		UserId:   req.UserId,
 		ArtistId: req.ArtistId,
 	}
+
 	id, err := s.repo.AddArtist(ctx, artist)
 	if err != nil {
 		s.log.Error("internall database error", "error", err)

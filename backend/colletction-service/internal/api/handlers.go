@@ -87,3 +87,105 @@ func (h *handler) DeleteAlbum(ctx context.Context, req *request.DeleteAlbumReque
 
 	return nil
 }
+
+func (h *handler) GetArtists(ctx context.Context, req *request.GetArtistsRequest) (*response.GetArtistsResponse, error) {
+	const op = "handlers.CollectionHandlers.GetArtists"
+
+	resp, err := h.service.GetArtists(ctx, &models.GetArtistsRequest{UserId: req.UserId})
+	if err != nil {
+		return nil, err
+	}
+
+	artists := make([]*modelsColl.Artist, 0, len(resp.Artists))
+	for _, artist := range resp.Artists {
+		artists = append(artists, &modelsColl.Artist{
+			UserId:   artist.UserId,
+			ArtistId: artist.ArtistId,
+		})
+	}
+
+	return &response.GetArtistsResponse{
+		Artists: artists,
+	}, nil
+}
+
+func (h *handler) AddArtist(ctx context.Context, req *request.AddArtistRequest) (*response.AddArtistResponse, error) {
+	const op = "handlers.CollectionHandlers.AddArtist"
+
+	resp, err := h.service.AddArtist(ctx, &models.AddArtistRequest{
+		UserId:   req.UserId,
+		ArtistId: req.ArtistId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &response.AddArtistResponse{
+		ArtistId: resp.ArtistId,
+	}, nil
+}
+
+func (h *handler) DeleteArtist(ctx context.Context, req *request.DeleteArtistRequest) error {
+	const op = "handlers.CollectionHandlers.DeleteArtist"
+
+	err := h.service.DeleteArtist(ctx, &models.RemoveArtistRequest{
+		UserId:   req.UserId,
+		ArtistId: req.ArtistId,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (h *handler) GetTracks(ctx context.Context, req *request.GetTracksRequest) (*response.GetTracksResponse, error) {
+	const op = "handlers.CollectionHandlers.GetTracks"
+
+	resp, err := h.service.GetTracks(ctx, &models.GetTracksRequest{UserId: req.UserId})
+	if err != nil {
+		return nil, err
+	}
+
+	tracks := make([]*modelsColl.Track, 0, len(resp.Tracks))
+	for _, track := range resp.Tracks {
+		tracks = append(tracks, &modelsColl.Track{
+			UserId:  track.UserId,
+			TrackId: track.TrackId,
+		})
+	}
+
+	return &response.GetTracksResponse{
+		Tracks: tracks,
+	}, nil
+}
+
+func (h *handler) AddTrack(ctx context.Context, req *request.AddTrackRequest) (*response.AddTrackResponse, error) {
+	const op = "handlers.CollectionHandlers.AddTrack"
+
+	resp, err := h.service.AddTrack(ctx, &models.AddTrackRequest{
+		UserId:  req.UserId,
+		TrackId: req.TrackId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &response.AddTrackResponse{
+		TrackId: resp.TrackId,
+	}, nil
+}
+
+func (h *handler) DeleteTrack(ctx context.Context, req *request.DeleteTrackRequest) error {
+	const op = "handlers.CollectionHandlers.DeleteTrack"
+
+	err := h.service.DeleteTrack(ctx, &models.RemoveTrackRequest{
+		UserId:  req.UserId,
+		TrackId: req.TrackId,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
