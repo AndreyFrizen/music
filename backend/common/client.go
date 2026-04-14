@@ -46,19 +46,19 @@ func GetUserServiceClient() *UserServiceClient {
 }
 
 // ValidateToken - проверяет токен через User Service
-func (c *UserServiceClient) ValidateToken(ctx context.Context, token string) (bool, string, string, error) {
-	// Устанавливаем таймаут, чтобы не ждать вечно
+func (c *UserServiceClient) ValidateToken(ctx context.Context, token string) (bool, int64, string, error) {
+
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	// resp, err := c.client.ValidateToken(ctx, &user.ValidateTokenRequest{
-	//     Token: token,
-	// })
-	// if err != nil {
-	//     return false, "", "", err
-	// }
+	resp, err := c.client.ValidateToken(ctx, &user.ValidateTokenRequest{
+		Token: token,
+	})
+	if err != nil {
+		return false, 0, "", err
+	}
 
-	// return resp.Valid, resp.UserId, resp.Role, nil
+	return resp.Valid, resp.UserId, resp.Role, nil
 }
 
 // Close - закрывает соединение
