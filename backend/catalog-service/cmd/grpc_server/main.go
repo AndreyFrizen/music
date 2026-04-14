@@ -18,6 +18,8 @@ func main() {
 		return
 	}
 
+	log.Print("Config loaded")
+
 	log := logger.SetupLogger(cfg.Env)
 	log.Info("logger set up")
 

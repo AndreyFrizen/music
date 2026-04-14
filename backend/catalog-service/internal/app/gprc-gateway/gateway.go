@@ -104,15 +104,7 @@ func NewGatewayApp(log *slog.Logger, config *configate.Config, opts ...grpc.Dial
 		MaxAge:           12 * time.Hour,
 	}))
 
-	router.Any("/api/v1/*path", gin.WrapH(gwmux))
-
-	router.GET("/health", func(c *gin.Context) {
-		state := conn.GetState()
-		c.JSON(http.StatusOK, gin.H{
-			"status": "ok",
-			"grpc":   state.String(),
-		})
-	})
+	router.Any("/*path", gin.WrapH(gwmux))
 
 	server := &http.Server{
 		Addr:         config.HTTPPort,

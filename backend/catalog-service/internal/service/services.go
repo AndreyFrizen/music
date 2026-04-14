@@ -111,6 +111,7 @@ func (s *service) AlbumByID(ctx context.Context, req *model.GetAlbumRequest) (*m
 	album, err := s.repo.AlbumByID(ctx, req.ID)
 	if err != nil {
 		if errors.IsNotFound(err) {
+			s.log.WarnContext(ctx, "not created")
 			return nil, errors.NotFoundError(op, "album not found")
 		}
 		s.log.Error(op, "failed to get album", err)

@@ -5,7 +5,6 @@ import (
 	gateway "catalog-service/internal/app/gprc-gateway"
 	"catalog-service/internal/lib/logger"
 	"context"
-	"fmt"
 	"log"
 	"os/signal"
 	"syscall"
@@ -17,7 +16,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error loading config: %v", err)
 	}
-	fmt.Println(cfg)
 
 	log := logger.SetupLogger(cfg.Env)
 	log.Info("logger setup", "port", cfg.HTTPPort)

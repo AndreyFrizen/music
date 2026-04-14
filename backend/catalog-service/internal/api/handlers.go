@@ -77,7 +77,7 @@ func (s *serverAPI) CreateArtist(ctx context.Context, req *catalog.AddArtistRequ
 	}, nil
 }
 
-func (s *serverAPI) AlbumByID(ctx context.Context, req *catalog.GetAlbumRequest) (*catalog.GetAlbumResponse, error) {
+func (s *serverAPI) GetAlbum(ctx context.Context, req *catalog.GetAlbumRequest) (*catalog.GetAlbumResponse, error) {
 	const op = "handler.GetAlbum"
 
 	resp, err := s.service.AlbumByID(ctx, &model.GetAlbumRequest{
