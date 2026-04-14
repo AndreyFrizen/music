@@ -8,4 +8,5 @@ use (
 	./streaming-service
 	./track-service
 	./user-service
+	./common
 )
