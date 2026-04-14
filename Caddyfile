@@ -1,0 +1,29 @@
+{
+    experimental_http3
+}
+
+localhost:8080 {
+    @users {
+        path /users/*
+    }
+    handle @users {
+        reverse_proxy users_gateway:8080 {
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Real-IP {remote_host}
+        }
+    }
+
+    @orders {
+        path /orders/*
+    }
+    handle @orders {
+        reverse_proxy orders_gateway:8081 {
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Real-IP {remote_host}
+        }
+    }
+
+    handle {
+        respond "Not found" 404
+    }
+}

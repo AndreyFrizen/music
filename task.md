@@ -1,4 +1,4 @@
-user-service: COMPLETED --> TEST
+user-service: COMPLETED --> TEST + validatetoken method
 track-service: COMPLETED --> TEST
 streaming-service: in proccess
 playlist-service: COMPLETED --> TEST
