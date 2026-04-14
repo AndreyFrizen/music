@@ -15,9 +15,10 @@ import (
 )
 
 type App struct {
-	log        *slog.Logger
-	gRPCServer *grpc.Server
-	config     *config.Config
+	log            *slog.Logger
+	externalServer *grpc.Server
+	eternalServer  *grpc.Server
+	config         *config.Config
 }
 
 func NewApp(log *slog.Logger, config *config.Config, db *database.DB) *App {
@@ -25,14 +26,17 @@ func NewApp(log *slog.Logger, config *config.Config, db *database.DB) *App {
 	repo := repository.NewRepository(db)
 	userService := services.NewService(repo, log, tokenManager)
 
-	grpcServer := grpc.NewServer()
+	externalServer := grpc.NewServer()
+	handlers.Register(externalServer, log, userService)
 
-	handlers.Register(grpcServer, log, userService)
+	internalServer := grpc.NewServer()
+	handlers.RegisterInternal(internalServer, log, userService)
 
 	return &App{
-		log:        log,
-		gRPCServer: grpcServer,
-		config:     config,
+		log:            log,
+		externalServer: externalServer,
+		eternalServer:  internalServer,
+		config:         config,
 	}
 }
 
@@ -51,8 +55,20 @@ func (a *App) Run() error {
 	}
 	defer l.Close()
 
-	if err := a.gRPCServer.Serve(l); err != nil {
-		return fmt.Errorf("failed to serve: %s %w", op, err)
+	go func() {
+		if err := a.externalServer.Serve(l); err != nil {
+			log.Error("failed to serve", slog.String("error", err.Error()))
+		}
+	}()
+
+	l, err = net.Listen("tcp", fmt.Sprintf(":%d", a.config.InternalGRPCPort))
+	if err != nil {
+		return fmt.Errorf("failed to listen: %s %w", op, err)
+	}
+	defer l.Close()
+
+	if err := a.eternalServer.Serve(l); err != nil {
+		log.Error("failed to serve", slog.String("error", err.Error()))
 	}
 
 	return nil
@@ -66,5 +82,6 @@ func (a *App) Stop() {
 	)
 	log.Info("gRPC server stopped")
 
-	a.gRPCServer.GracefulStop()
+	a.externalServer.GracefulStop()
+	a.eternalServer.GracefulStop()
 }

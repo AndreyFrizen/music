@@ -43,6 +43,8 @@ service UserService {
       body: "*"
     };
   }
+
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
 }
 
 message RegisterUserRequest {
@@ -82,4 +84,14 @@ message LoginUserResponse {
 message LogoutUserResponse {
   bool success = 1;
   string message = 2;
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  bool valid = 1;
+  int64 userId = 2;
+  string role = 3;
 }

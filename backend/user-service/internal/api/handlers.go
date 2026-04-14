@@ -6,6 +6,7 @@ import (
 	"music/user-service/proto/user"
 	"strings"
 	"user-service/internal/domain/model"
+	"user-service/internal/pkg/jwt"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -16,10 +17,16 @@ import (
 type serverAPI struct {
 	user.UnimplementedUserServiceServer
 	log     *slog.Logger
-	service UserAPI
+	service ExternalServer
 }
 
-type UserAPI interface {
+type serverInternal struct {
+	user.UnimplementedUserServiceServer
+	log     *slog.Logger
+	service InternalServer
+}
+
+type ExternalServer interface {
 	Register(ctx context.Context, req *model.RegisterRequest) (*model.RegisterResponse, error)
 	UserByID(ctx context.Context, req *model.UserRequest) (*model.UserResponse, error)
 	UpdateUser(ctx context.Context, req *model.UpdateUserRequest) (*model.UpdateUserResponse, error)
@@ -27,15 +34,30 @@ type UserAPI interface {
 	Logout(ctx context.Context, req *model.LogoutRequest) (*model.LogoutResponse, error)
 }
 
-func NewServerAPI(log *slog.Logger, service UserAPI) *serverAPI {
+type InternalServer interface {
+	ValidateToken(ctx context.Context, token string) (*jwt.Claims, error)
+}
+
+func NewServerAPI(log *slog.Logger, service ExternalServer) *serverAPI {
 	return &serverAPI{
 		log:     log,
 		service: service,
 	}
 }
 
-func Register(gRPC *grpc.Server, log *slog.Logger, service UserAPI) {
+func NewServerInternal(log *slog.Logger, service InternalServer) *serverInternal {
+	return &serverInternal{
+		log:     log,
+		service: service,
+	}
+}
+
+func Register(gRPC *grpc.Server, log *slog.Logger, service ExternalServer) {
 	user.RegisterUserServiceServer(gRPC, NewServerAPI(log, service))
+}
+
+func RegisterInternal(gRPC *grpc.Server, log *slog.Logger, service InternalServer) {
+	user.RegisterUserServiceServer(gRPC, NewServerInternal(log, service))
 }
 
 func (s *serverAPI) Register(ctx context.Context, req *user.RegisterUserRequest) (*user.UserResponse, error) {
@@ -174,5 +196,24 @@ func (s *serverAPI) LogoutUser(ctx context.Context, req *user.LogoutUserRequest)
 
 	return &user.LogoutUserResponse{
 		Success: resp.Success,
+	}, nil
+}
+
+func (s *serverInternal) ValidateToken(ctx context.Context, req *user.ValidateTokenRequest) (*user.ValidateTokenResponse, error) {
+	const op = "handlers.UserService.ValidateToken"
+	claims, err := s.service.ValidateToken(ctx, req.Token)
+
+	if err != nil {
+		s.log.ErrorContext(ctx, "failed to logout",
+			"op", op,
+			"error", err,
+		)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	return &user.ValidateTokenResponse{
+		Valid:  true,
+		UserId: claims.UserID,
+		Role:   claims.Role,
 	}, nil
 }

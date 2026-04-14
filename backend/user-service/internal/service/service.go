@@ -250,3 +250,7 @@ func (s *service) UpdateUser(ctx context.Context, req *model.UpdateUserRequest) 
 		Email:    user.Email,
 	}, nil
 }
+
+func (s *service) ValidateToken(ctx context.Context, token string) (*jwt.Claims, error) {
+	return s.tokenManager.ValidateToken(token)
+}

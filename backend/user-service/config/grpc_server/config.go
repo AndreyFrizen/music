@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Env               string        `mapstructure:"env"`
 	GRPCPort          int           `mapstructure:"grpc_port"`
+	InternalGRPCPort  int           `mapstructure:"internal_grpc_port"`
 	HTTPPort          int           `mapstructure:"http_port"`
 	DBHost            string        `mapstructure:"db_host"`
 	DBPort            string        `mapstructure:"db_port"`
