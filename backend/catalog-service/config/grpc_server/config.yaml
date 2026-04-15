@@ -6,9 +6,5 @@ db_port: "5432"
 db_user: "postgres"
 db_password: "postgres"
 db_name: "catalog_service"
-max_conns: 20
-min_conns: 10
-max_conn_idle: 30
-conn_timeout: 30
 redis_host: "localhost"
-redis_port: "6379"
+redis_port: 6379

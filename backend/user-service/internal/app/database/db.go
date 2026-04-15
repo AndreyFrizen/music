@@ -22,49 +22,39 @@ type DB struct {
 }
 
 func NewDB(log *slog.Logger, cfg *config.Config) (*DB, error) {
-	const op = "database.NewDB"
+	op := "database.NewDB"
 
-	if cfg == nil {
-		return nil, fmt.Errorf("%s: config is nil", op)
-	}
+	dsn := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable&connect_timeout=10",
+		cfg.DBUser,
+		cfg.DBPassword,
+		cfg.DBHost,
+		cfg.DBPort,
+		cfg.DBName,
+	)
 
-	// Настройка пула PostgreSQL
-	pgConfig, err := pgxpool.ParseConfig(fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
-		cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName))
+	pgConfig, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return nil, fmt.Errorf("%s: failed to parse postgres DSN: %w", op, err)
 	}
 
-	// Дополнительные параметры пула (можно вынести в конфиг)
-	if cfg.MaxConns > 0 {
-		pgConfig.MaxConns = cfg.MaxConns
-	}
-	if cfg.MinConns > 0 {
-		pgConfig.MinConns = cfg.MinConns
-	}
-	if cfg.MaxConnIdle > 0 {
-		pgConfig.MaxConnIdleTime = cfg.MaxConnIdle
-	}
-	if cfg.ConnTimeout > 0 {
-		pgConfig.ConnConfig.ConnectTimeout = cfg.ConnTimeout
-	}
+	pgConfig.MaxConnLifetime = 5 * time.Minute
+	pgConfig.MaxConnIdleTime = 1 * time.Minute
+	pgConfig.HealthCheckPeriod = 30 * time.Second
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	pgPool, err := pgxpool.NewWithConfig(ctx, pgConfig)
 	if err != nil {
-		return nil, fmt.Errorf("%s: failed to create postgres pool: %w", op, err)
+		return nil, fmt.Errorf("%s: failed to create connection pool: %w", op, err)
 	}
 
-	// Проверяем соединение
 	if err := pgPool.Ping(ctx); err != nil {
 		pgPool.Close()
 		return nil, fmt.Errorf("%s: postgres ping failed: %w", op, err)
 	}
-	log.Info("Connected to PostgreSQL")
 
-	// Инициализация Redis
 	redisClient := redis.NewClient(&redis.Options{
 		Addr: fmt.Sprintf("%s:%s", cfg.RedisHost, cfg.RedisPort),
 	})

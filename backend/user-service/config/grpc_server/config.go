@@ -13,16 +13,12 @@ type Config struct {
 	InternalGRPCPort  int           `mapstructure:"internal_grpc_port"`
 	HTTPPort          int           `mapstructure:"http_port"`
 	DBHost            string        `mapstructure:"db_host"`
-	DBPort            string        `mapstructure:"db_port"`
+	DBPort            int           `mapstructure:"db_port"`
 	DBUser            string        `mapstructure:"db_user"`
 	DBPassword        string        `mapstructure:"db_password"`
 	DBName            string        `mapstructure:"db_name"`
-	MaxConns          int32         `mapstructure:"max_conns"`
-	MinConns          int32         `mapstructure:"min_conns"`
-	MaxConnIdle       time.Duration `mapstructure:"max_conn_idle"`
-	ConnTimeout       time.Duration `mapstructure:"conn_timeout"`
 	RedisHost         string        `mapstructure:"redis_host"`
-	RedisPort         string        `mapstructure:"redis_port"`
+	RedisPort         int           `mapstructure:"redis_port"`
 	JWTSecret         string        `mapstructure:"jwt_secret"`
 	AccessExpiration  time.Duration `mapstructure:"access_expiration"`
 	RefreshExpiration time.Duration `mapstructure:"refresh_expiration"`

@@ -32,13 +32,11 @@ func NewDB(log *slog.Logger, cfg *config.Config) (*DB, error) {
 		cfg.DBName,
 	)
 
-	// Парсим конфиг
 	pgConfig, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return nil, fmt.Errorf("%s: failed to parse postgres DSN: %w", op, err)
 	}
 
-	// Принудительно устанавливаем таймауты (важно!)
 	pgConfig.MaxConnLifetime = 5 * time.Minute
 	pgConfig.MaxConnIdleTime = 1 * time.Minute
 	pgConfig.HealthCheckPeriod = 30 * time.Second
